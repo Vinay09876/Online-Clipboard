@@ -50,10 +50,25 @@ function readPositiveInt(name: string, fallback: number, max: number): number {
   return n;
 }
 
+/**
+ * Optional secret: returns null when unset, so the rest of the app still works.
+ * When set, it must be long enough to be unguessable.
+ */
+function readOptionalSecret(name: string, minLength: number): string | null {
+  const value = process.env[name]?.trim();
+  if (!value) return null;
+  if (value.length < minLength) {
+    errors.push(`${name} must be at least ${minLength} characters long.`);
+    return null;
+  }
+  return value;
+}
+
 const supabaseUrl = readUrl("NEXT_PUBLIC_SUPABASE_URL");
 const supabaseServiceRoleKey = readRequired("SUPABASE_SERVICE_ROLE_KEY");
 const clipExpiryMinutes = readPositiveInt("CLIP_EXPIRY_MINUTES", 30, 60 * 24 * 7);
 const maxFileSizeMb = readPositiveInt("MAX_FILE_SIZE_MB", 25, 1024);
+const cronSecret = readOptionalSecret("CRON_SECRET", 32);
 
 if (errors.length > 0) {
   throw new Error(
@@ -68,3 +83,5 @@ export const SUPABASE_SERVICE_ROLE_KEY: string = supabaseServiceRoleKey;
 export const CLIP_EXPIRY_MINUTES: number = clipExpiryMinutes;
 export const MAX_FILE_SIZE_MB: number = maxFileSizeMb;
 export const MAX_FILE_SIZE_BYTES: number = maxFileSizeMb * 1024 * 1024;
+/** null when not configured: /api/cron/cleanup then rejects every request. */
+export const CRON_SECRET: string | null = cronSecret;

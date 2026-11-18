@@ -68,6 +68,11 @@ async function freeExpiredCode(code: string): Promise<void> {
   }
 }
 
+export type CreateClipOptions = {
+  /** Code generator. Defaults to generateCode; tests pass a fake to force collisions. */
+  generateCode?: () => string;
+};
+
 /**
  * Creates a text clip with a fresh code.
  * Throws CodeGenerationError if every attempt collides with a live clip,
@@ -75,9 +80,12 @@ async function freeExpiredCode(code: string): Promise<void> {
  */
 export async function createTextClip(
   text: string,
+  options: CreateClipOptions = {},
 ): Promise<{ code: string; expiresAt: string }> {
+  const nextCode = options.generateCode ?? generateCode;
+
   for (let attempt = 1; attempt <= MAX_CODE_ATTEMPTS; attempt++) {
-    const code = generateCode();
+    const code = nextCode();
     await freeExpiredCode(code);
 
     const expiresAt = new Date(Date.now() + CLIP_EXPIRY_MINUTES * 60_000).toISOString();
