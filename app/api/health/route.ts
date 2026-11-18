@@ -14,9 +14,13 @@ export async function GET() {
     // instead of crashing the route module.
     const { supabaseAdmin } = await import("@/lib/supabase/admin");
 
-    // Cheap call that needs a valid service role key and no tables.
+    // Storage: needs a valid service role key.
     const { error } = await supabaseAdmin.storage.listBuckets();
-    if (error) throw new Error(`Supabase check failed: ${error.message}`);
+    if (error) throw new Error(`Supabase storage check failed: ${error.message}`);
+
+    // Database: needs the clips table and service_role privileges on it.
+    const { error: dbError } = await supabaseAdmin.from("clips").select("id").limit(1);
+    if (dbError) throw new Error(`Supabase database check failed: ${dbError.message}`);
 
     return Response.json({ ok: true });
   } catch (err) {
