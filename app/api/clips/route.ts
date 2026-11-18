@@ -1,4 +1,8 @@
+import { after } from "next/server";
+import { cleanupExpiredClips } from "@/lib/cleanup";
 import { CodeGenerationError, MAX_TEXT_LENGTH, createTextClip } from "@/lib/clips";
+
+const LAZY_CLEANUP_BATCH = 20;
 
 /**
  * POST /api/clips
@@ -32,6 +36,17 @@ export async function POST(request: Request) {
 
   try {
     const { code, expiresAt } = await createTextClip(text);
+
+    // Lazy cleanup: runs after the response is sent; can never fail this request.
+    after(async () => {
+      try {
+        const r = await cleanupExpiredClips({ batchSize: LAZY_CLEANUP_BATCH });
+        if (r.deletedClips || r.failed) console.log("[lazy cleanup]", r);
+      } catch (err) {
+        console.error("[lazy cleanup]", err);
+      }
+    });
+
     return Response.json({ code, expiresAt }, { status: 201 });
   } catch (err) {
     if (err instanceof CodeGenerationError) {

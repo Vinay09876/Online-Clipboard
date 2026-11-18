@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:collisions": "tsx --conditions=react-server --env-file=.env.local scripts/test-collisions.ts",
+    "fixtures:cleanup": "tsx --conditions=react-server --env-file=.env.local scripts/cleanup-fixtures.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
@@ -23,6 +25,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "tailwindcss": "4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
