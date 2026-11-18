@@ -28,6 +28,10 @@ function readUrl(name: string): string {
     const url = new URL(value);
     if (url.protocol !== "https:" && url.protocol !== "http:") {
       errors.push(`${name} must be an http(s) URL (got "${value}").`);
+    } else if (url.pathname !== "/" || url.search) {
+      errors.push(
+        `${name} must be just the project URL, e.g. https://xxxx.supabase.co (remove "${url.pathname}${url.search}").`,
+      );
     }
   } catch {
     errors.push(`${name} must be a valid URL (got "${value}").`);

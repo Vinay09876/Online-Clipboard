@@ -65,6 +65,11 @@ alter table public.clips enable row level security;
 -- Defense in depth: also remove table privileges from the public API roles.
 revoke all on table public.clips from anon, authenticated;
 
+-- service_role (our API routes) needs explicit table privileges. Newer
+-- Supabase projects don't auto-grant them on new tables; without this you get
+-- "permission denied for table clips" (42501) even with the service key.
+grant select, insert, update, delete on table public.clips to service_role;
+
 
 -- ---------------------------------------------------------------------
 -- 4. Storage: private bucket "clip-files", 25 MB per file.
@@ -102,6 +107,14 @@ select conname, pg_get_constraintdef(oid) as definition
 from pg_constraint
 where conrelid = 'public.clips'::regclass
 order by conname;
+
+-- 5d2. Table privileges                    expect: service_role has DELETE, INSERT, SELECT, UPDATE;
+--                                                  anon / authenticated have nothing
+select grantee, string_agg(privilege_type, ', ' order by privilege_type) as privileges
+from information_schema.role_table_grants
+where table_schema = 'public' and table_name = 'clips'
+  and grantee in ('anon', 'authenticated', 'service_role')
+group by grantee;
 
 -- 5e. Bucket exists and is private         expect: public = false, file_size_limit = 26214400
 select id, name, public, file_size_limit
