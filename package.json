@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:collisions": "tsx --conditions=react-server --env-file=.env.local scripts/test-collisions.ts",
-    "fixtures:cleanup": "tsx --conditions=react-server --env-file=.env.local scripts/cleanup-fixtures.ts"
+    "fixtures:cleanup": "tsx --conditions=react-server --env-file=.env.local scripts/cleanup-fixtures.ts",
+    "test:files": "tsx --conditions=react-server --env-file=.env.local scripts/test-files.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

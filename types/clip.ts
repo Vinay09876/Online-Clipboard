@@ -17,6 +17,8 @@ export type Clip = {
   fileSize: number | null;
   createdAt: string;
   expiresAt: string;
+  /** false while a file upload is pending; such clips are invisible to readers. */
+  ready: boolean;
 };
 
 /** Shape of a row in the public.clips table (snake_case, as stored). */
@@ -29,4 +31,5 @@ export type ClipRow = {
   file_size: number | null;
   created_at: string;
   expires_at: string;
+  ready: boolean;
 };
