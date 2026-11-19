@@ -88,7 +88,8 @@ if (!existsSync(".env.local")) {
 console.log("\n2) Patterns");
 search("Supabase secret key (sb_secret_…)", "-E", "sb_secret_[A-Za-z0-9_-]{10,}");
 search("JWT (e.g. legacy service_role key)", "-E", "eyJ[A-Za-z0-9_-]{10,}\\.eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}");
-search("private key block", "-F", "-----BEGIN");
+// Precise on purpose: this regex text doesn't match itself, so the scanner never flags its own source.
+search("private key block", "-E", "-----BEGIN [A-Z ]*PRIVATE KEY-----");
 
 const envFiles = git(["log", "--all", "--pretty=format:%h", "--name-only", "--diff-filter=A"])
   .split("\n")
