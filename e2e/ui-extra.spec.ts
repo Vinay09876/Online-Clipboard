@@ -87,7 +87,11 @@ test("cancel, then 'Start over' returns to the form with the file still selected
   const cdp = await context.newCDPSession(page);
   await cdp.send("Network.enable");
   await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 50, downloadThroughput: -1, uploadThroughput: 100 * 1024 });
+  // The UI never shows the code of an unfinished upload, so take it from the API
+  // response; otherwise the pending test clip couldn't be cleaned up afterwards.
+  const created = page.waitForResponse((r) => r.url().endsWith("/api/clips") && r.request().method() === "POST");
   await page.getByRole("button", { name: "Create clip" }).click();
+  rememberCode(((await (await created).json()) as { code: string }).code);
   await page.getByRole("button", { name: "Cancel upload" }).click();
   await page.getByRole("button", { name: "Start over" }).click();
   await expect(page.getByText("again.bin")).toBeVisible();
