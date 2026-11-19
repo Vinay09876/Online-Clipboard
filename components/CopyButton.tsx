@@ -35,11 +35,13 @@ export function CopyButton({
 
   return (
     <>
-      <button type="button" onClick={onClick} className={className}>
+      {/* aria-label keeps the button's name stable ("Copy code") for screen readers;
+          the visible "Copied" swap is announced by the status region below. */}
+      <button type="button" onClick={onClick} className={className} aria-label={label}>
         {status === "copied" ? <CheckIcon /> : (icon ?? <CopyIcon />)}
         {/* Fixed-width label area so the button doesn't change size. */}
-        <span className="inline-grid">
-          <span className="col-start-1 row-start-1" aria-hidden={status !== "idle"}>
+        <span className="inline-grid" aria-hidden="true">
+          <span className="col-start-1 row-start-1">
             <span className={status === "idle" ? "" : "invisible"}>{label}</span>
           </span>
           <span className={`col-start-1 row-start-1 ${status === "idle" ? "invisible" : ""}`} aria-hidden="true">

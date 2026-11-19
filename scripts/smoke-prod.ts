@@ -18,6 +18,8 @@ const baseArg = args.find((a) => /^https?:\/\//.test(a));
 const skipSpoof = args.includes("--skip-spoof-test");
 const limitIdx = args.indexOf("--lookup-limit");
 const LOOKUP_LIMIT = limitIdx >= 0 ? Number(args[limitIdx + 1]) : 10;
+/** Must match RATE_LIMIT_WINDOW_SECONDS on the server (default 600). */
+const WINDOW_SECONDS = 600;
 
 if (!baseArg || !Number.isInteger(LOOKUP_LIMIT) || LOOKUP_LIMIT < 1) {
   console.error("Usage: npm run smoke:prod -- <baseUrl> [--skip-spoof-test] [--lookup-limit N]");
@@ -152,6 +154,18 @@ async function main() {
     );
     await sleep(5000);
 
+    // Rate-limit windows are fixed and aligned to the clock (every 10 minutes: :00, :10, …).
+    // If the loop below crossed a boundary, the counter would reset half-way and the result
+    // would be meaningless. So start with at least 60 s left in the current window.
+    const windowOf = (t: number) => Math.floor(t / 1000 / WINDOW_SECONDS);
+    const left = WINDOW_SECONDS - ((Date.now() / 1000) % WINDOW_SECONDS);
+    if (left < 60) {
+      console.log(`  (waiting ${Math.ceil(left + 2)} s for the next rate-limit window to start)`);
+      await sleep((left + 2) * 1000);
+      failedLookups = 0; // new window: earlier failures no longer count
+    }
+    const startWindow = windowOf(Date.now());
+
     // Every request claims to come from a different client. If the platform trusted these
     // headers, every request would get a fresh limit and none would ever be refused.
     let blockedAt: number | null = null;
@@ -164,20 +178,26 @@ async function main() {
       }
       if (r.status === 404) failedLookups++;
     }
-    const expectedAt = LOOKUP_LIMIT; // 1 failure already (step 5); the request after the LIMIT-th failure is refused
-    check(
-      blockedAt !== null,
-      blockedAt !== null
-        ? `refused with 429 after ${failedLookups} failed lookups, despite a different fake IP on every request (expected around request #${expectedAt})`
-        : "NOT refused: each fake X-Forwarded-For / X-Real-IP got a fresh limit",
-    );
-    console.log(
-      blockedAt !== null
-        ? "  => The platform overwrites X-Forwarded-For / X-Real-IP with the real client address, so the\n" +
-            "     rate limit cannot be bypassed by faking headers. Your IP is now locked for up to 10 minutes."
-        : "  => DANGER: the rate limit can be bypassed by faking headers. This is expected on localhost or\n" +
-            "     `next start`, but must never happen on Vercel. Do not share the URL until this passes.",
-    );
+    const crossedWindow = windowOf(Date.now()) !== startWindow;
+
+    if (blockedAt === null && crossedWindow) {
+      // Not a verdict either way: run again.
+      warn("INCONCLUSIVE: a rate-limit window boundary was crossed during the check. Wait 10 minutes and run again.");
+    } else {
+      check(
+        blockedAt !== null,
+        blockedAt !== null
+          ? `refused with 429 after ${failedLookups} failed lookups, despite a different fake IP on every request`
+          : "NOT refused: each fake X-Forwarded-For / X-Real-IP got a fresh limit",
+      );
+      console.log(
+        blockedAt !== null
+          ? "  => The platform overwrites X-Forwarded-For / X-Real-IP with the real client address, so the\n" +
+              "     rate limit cannot be bypassed by faking headers. Your IP is now locked for up to 10 minutes."
+          : "  => DANGER: the rate limit can be bypassed by faking headers. This is expected on localhost or\n" +
+              "     `next start`, but must never happen on Vercel. Do not share the URL until this passes.",
+      );
+    }
   }
 
   console.log(
