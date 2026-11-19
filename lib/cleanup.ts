@@ -1,6 +1,7 @@
 import "server-only";
 
 import { STORAGE_BUCKET } from "@/lib/clips";
+import { RATE_LIMIT_WINDOW_SECONDS } from "@/lib/config";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 /**
@@ -173,4 +174,26 @@ export async function sweepOrphanedFiles(
     return { scanned, deleted: 0, failed: orphans.length };
   }
   return { scanned, deleted: removed?.length ?? 0, failed: 0 };
+}
+
+// ---------------------------------------------------------------------------
+// Old rate-limit counters
+// ---------------------------------------------------------------------------
+
+/**
+ * Deletes rate_limits rows whose window started more than 1 hour ago (or more than one
+ * window ago, if a window is configured longer than 1 hour, so a live window is never
+ * reset early). Returns the number of rows deleted.
+ */
+export async function cleanupRateLimits(): Promise<number> {
+  const keepMs = Math.max(60 * 60 * 1000, RATE_LIMIT_WINDOW_SECONDS * 1000);
+  const cutoff = new Date(Date.now() - keepMs).toISOString();
+
+  const { count, error } = await supabaseAdmin
+    .from("rate_limits")
+    .delete({ count: "exact" })
+    .lt("window_start", cutoff);
+
+  if (error) throw new Error(`Rate limit cleanup failed: ${error.code} ${error.message}`);
+  return count ?? 0;
 }

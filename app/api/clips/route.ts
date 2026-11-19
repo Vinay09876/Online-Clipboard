@@ -1,61 +1,75 @@
 import { after } from "next/server";
+import { checkCapacity } from "@/lib/capacity";
 import { cleanupExpiredClips } from "@/lib/cleanup";
 import { CodeGenerationError, MAX_TEXT_LENGTH, createClip, type NewClipInput } from "@/lib/clips";
 import { parseFileInput } from "@/lib/files";
+import { errors, json, readJsonBody } from "@/lib/http";
+import { consume, getClientIp } from "@/lib/rateLimit";
 
 const LAZY_CLEANUP_BATCH = 20;
 
 /**
  * POST /api/clips
- * Body: { text?: string, file?: { name: string, size: number } }  (at least one)
- * 201 { code, expiresAt }                                  text-only
- * 201 { code, expiresAt, upload: { signedUrl, token, path } }  with file
- * 400 { error } | 503 { error } | 500 { error }
+ * Content-Type: application/json
+ * Body: { text?: string, file?: { name: string, size: number } }  (at least one; unknown fields ignored)
+ *
+ * 201 { code, expiresAt }                                       text-only
+ * 201 { code, expiresAt, upload: { signedUrl, token, path } }   with file
+ * 400 invalid input | 413 body too large | 415 wrong content type
+ * 429 rate limited (Retry-After) | 503 service full / unavailable | 500
  */
 export async function POST(request: Request) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return badRequest("Request body must be valid JSON.");
-  }
-  if (typeof body !== "object" || body === null || Array.isArray(body)) {
-    return badRequest("Request body must be a JSON object.");
+  const ip = getClientIp(request.headers);
+
+  // 1. Rate limit every create attempt. If the limiter's DB is down, DENY (protects storage).
+  const createLimit = await consume("create", ip);
+  if (createLimit.kind === "limited") return errors.tooMany(createLimit.retryAfter);
+  if (createLimit.kind === "error") return errors.unavailable();
+
+  // 2. Body: content type, size, JSON.
+  const body = await readJsonBody(request);
+  if (!body.ok) return body.response;
+  if (typeof body.value !== "object" || body.value === null || Array.isArray(body.value)) {
+    return errors.badRequest("Request body must be a JSON object.");
   }
 
-  const { text, file } = body as { text?: unknown; file?: unknown };
+  // 3. Fields (anything other than text/file is ignored).
+  const { text, file } = body.value as { text?: unknown; file?: unknown };
   const hasText = text !== undefined && text !== null;
   const hasFile = file !== undefined && file !== null;
 
-  if (!hasText && !hasFile) {
-    return badRequest('Provide "text", "file", or both.');
-  }
+  if (!hasText && !hasFile) return errors.badRequest('Provide "text", "file", or both.');
 
   const input: NewClipInput = {};
 
   if (hasText) {
-    if (typeof text !== "string") {
-      return badRequest('Field "text" must be a string.');
-    }
-    if (text.trim().length === 0) {
-      return badRequest("Text cannot be empty.");
-    }
+    if (typeof text !== "string") return errors.badRequest('Field "text" must be a string.');
+    if (text.trim().length === 0) return errors.badRequest("Text cannot be empty.");
     if (text.length > MAX_TEXT_LENGTH) {
-      return badRequest(`Text cannot be longer than ${MAX_TEXT_LENGTH} characters.`);
+      return errors.badRequest(`Text cannot be longer than ${MAX_TEXT_LENGTH} characters.`);
     }
-    if (text.includes("\u0000")) {
-      // Postgres text columns cannot store NUL characters.
-      return badRequest("Text contains an invalid character.");
-    }
+    // Postgres text columns cannot store NUL characters.
+    if (text.includes("\u0000")) return errors.badRequest("Text contains an invalid character.");
     input.text = text;
   }
 
   if (hasFile) {
     const parsed = parseFileInput(file);
-    if (!parsed.ok) return badRequest(parsed.error);
+    if (!parsed.ok) return errors.badRequest(parsed.error);
     input.file = parsed.file;
+
+    // 4. Stricter limit for file clips (in addition to the general one).
+    const fileLimit = await consume("create-file", ip);
+    if (fileLimit.kind === "limited") return errors.tooMany(fileLimit.retryAfter);
+    if (fileLimit.kind === "error") return errors.unavailable();
   }
 
+  // 5. Global caps.
+  const capacity = await checkCapacity(input.file?.size ?? 0);
+  if (capacity === "full") return errors.full();
+  if (capacity === "error") return errors.unavailable();
+
+  // 6. Create.
   try {
     const created = await createClip(input);
 
@@ -69,20 +83,13 @@ export async function POST(request: Request) {
       }
     });
 
-    return Response.json(created, { status: 201, headers: { "Cache-Control": "no-store" } });
+    return json(created, 201);
   } catch (err) {
     if (err instanceof CodeGenerationError) {
       console.error("[POST /api/clips]", err.message);
-      return Response.json(
-        { error: "Could not create a clip right now. Please try again." },
-        { status: 503 },
-      );
+      return errors.unavailable();
     }
     console.error("[POST /api/clips]", err);
-    return Response.json({ error: "Something went wrong. Please try again." }, { status: 500 });
+    return errors.internal();
   }
-}
-
-function badRequest(message: string) {
-  return Response.json({ error: message }, { status: 400 });
 }

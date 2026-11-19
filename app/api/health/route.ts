@@ -1,18 +1,23 @@
 import { connection } from "next/server";
+import { json } from "@/lib/http";
 
 /**
  * GET /api/health
- * 200 { ok: true }                  → env vars valid and Supabase reachable with the service key
- * 500 { ok: false, error: string }  → something is misconfigured
+ * 200 { ok: true }  |  503 { ok: false }  |  429 rate limited
+ * Never returns error details; they go to the server log only.
  */
-export async function GET() {
+export async function GET(request: Request) {
   // Run at request time, never prerendered at build time.
   await connection();
 
   try {
-    // Imported inside try so a config error comes back as JSON
-    // instead of crashing the route module.
+    // Imported inside try so even a config error (missing env var) gives { ok: false }.
     const { supabaseAdmin } = await import("@/lib/supabase/admin");
+    const { consume, getClientIp } = await import("@/lib/rateLimit");
+    const { errors } = await import("@/lib/http");
+
+    const limit = await consume("health", getClientIp(request.headers)); // DB error -> allow
+    if (limit.kind === "limited") return errors.tooMany(limit.retryAfter);
 
     // Storage: needs a valid service role key.
     const { error } = await supabaseAdmin.storage.listBuckets();
@@ -22,10 +27,9 @@ export async function GET() {
     const { error: dbError } = await supabaseAdmin.from("clips").select("id").limit(1);
     if (dbError) throw new Error(`Supabase database check failed: ${dbError.message}`);
 
-    return Response.json({ ok: true });
+    return json({ ok: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error("[health]", message);
-    return Response.json({ ok: false, error: message }, { status: 500 });
+    console.error("[health]", err instanceof Error ? err.message : err);
+    return json({ ok: false }, 503);
   }
 }

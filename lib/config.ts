@@ -69,6 +69,19 @@ const supabaseServiceRoleKey = readRequired("SUPABASE_SERVICE_ROLE_KEY");
 const clipExpiryMinutes = readPositiveInt("CLIP_EXPIRY_MINUTES", 30, 60 * 24 * 7);
 const maxFileSizeMb = readPositiveInt("MAX_FILE_SIZE_MB", 25, 1024);
 const cronSecret = readOptionalSecret("CRON_SECRET", 32);
+const ipHashSalt = readOptionalSecret("IP_HASH_SALT", 32);
+
+// Rate limits: max requests per client IP per window.
+const rateLimitWindowSeconds = readPositiveInt("RATE_LIMIT_WINDOW_SECONDS", 600, 24 * 3600);
+const rateLimitLookupFailures = readPositiveInt("RATE_LIMIT_LOOKUP_FAILURES", 10, 100_000);
+const rateLimitCreates = readPositiveInt("RATE_LIMIT_CREATES", 20, 100_000);
+const rateLimitFileCreates = readPositiveInt("RATE_LIMIT_FILE_CREATES", 5, 100_000);
+const rateLimitFileOps = readPositiveInt("RATE_LIMIT_FILE_OPS", 30, 100_000);
+const rateLimitHealth = readPositiveInt("RATE_LIMIT_HEALTH", 30, 100_000);
+
+// Global caps (whole service).
+const maxLiveClips = readPositiveInt("MAX_LIVE_CLIPS", 200, 10_000_000);
+const maxTotalStorageMb = readPositiveInt("MAX_TOTAL_STORAGE_MB", 800, 1_000_000);
 
 if (errors.length > 0) {
   throw new Error(
@@ -85,3 +98,23 @@ export const MAX_FILE_SIZE_MB: number = maxFileSizeMb;
 export const MAX_FILE_SIZE_BYTES: number = maxFileSizeMb * 1024 * 1024;
 /** null when not configured: /api/cron/cleanup then rejects every request. */
 export const CRON_SECRET: string | null = cronSecret;
+/** null when not configured: lib/rateLimit.ts then derives a salt from the service key (and warns). */
+export const IP_HASH_SALT: string | null = ipHashSalt;
+
+export const RATE_LIMIT_WINDOW_SECONDS: number = rateLimitWindowSeconds;
+export const RATE_LIMITS = {
+  /** Failed lookups (404) on GET /api/clips/[code], /download, /complete. */
+  lookupFailures: rateLimitLookupFailures,
+  /** POST /api/clips, any kind. */
+  creates: rateLimitCreates,
+  /** POST /api/clips with a file (in addition to `creates`). */
+  fileCreates: rateLimitFileCreates,
+  /** POST /complete and GET /download (each has its own counter). */
+  fileOps: rateLimitFileOps,
+  /** GET /api/health. */
+  health: rateLimitHealth,
+} as const;
+
+export const MAX_LIVE_CLIPS: number = maxLiveClips;
+export const MAX_TOTAL_STORAGE_MB: number = maxTotalStorageMb;
+export const MAX_TOTAL_STORAGE_BYTES: number = maxTotalStorageMb * 1024 * 1024;

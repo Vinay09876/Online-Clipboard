@@ -5,6 +5,9 @@
  *   2. run:             npm run test:files -- http://localhost:3001
  *
  * Everything the script creates (rows and objects) is deleted at the end, even on failure.
+ *
+ * Every request carries a random X-Forwarded-For, so the per-IP rate limits (Step 6)
+ * don't interfere. This only works locally: on Vercel that header is overwritten.
  */
 import { randomBytes, randomUUID } from "node:crypto";
 import { STALE_AFTER_MS, sweepOrphanedFiles } from "@/lib/cleanup";
@@ -27,10 +30,16 @@ function check(ok: boolean, label: string, detail?: unknown) {
 
 type Json = Record<string, unknown>;
 
+/** A random address in 198.18.0.0/15 (reserved for testing). */
+function randomTestIp(): string {
+  const n = randomBytes(2);
+  return `198.${18 + (n[0] & 1)}.${n[1]}.${1 + (randomBytes(1)[0] % 254)}`;
+}
+
 async function api(method: "GET" | "POST", path: string, body?: unknown): Promise<{ status: number; json: Json }> {
   const res = await fetch(`${BASE}${path}`, {
     method,
-    headers: body === undefined ? {} : { "Content-Type": "application/json" },
+    headers: { "X-Forwarded-For": randomTestIp(), ...(body === undefined ? {} : { "Content-Type": "application/json" }) },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const text = await res.text();
@@ -256,7 +265,7 @@ async function cleanUp() {
 }
 
 async function main() {
-  const health = await fetch(`${BASE}/api/health`).then((r) => r.json()).catch(() => null);
+  const health = await fetch(`${BASE}/api/health`, { headers: { "X-Forwarded-For": randomTestIp() } }).then((r) => r.json()).catch(() => null);
   if (!health?.ok) {
     console.error(`App not reachable or unhealthy at ${BASE}. Start "npm run dev" and pass its URL:\n  npm run test:files -- http://localhost:3001`);
     process.exit(1);

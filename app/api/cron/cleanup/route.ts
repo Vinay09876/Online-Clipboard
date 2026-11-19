@@ -1,6 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
-import { cleanupExpiredClips, sweepOrphanedFiles } from "@/lib/cleanup";
+import { cleanupExpiredClips, cleanupRateLimits, sweepOrphanedFiles } from "@/lib/cleanup";
 import { CRON_SECRET } from "@/lib/config";
+import { empty, json } from "@/lib/http";
 
 // Give the work below room to finish on Vercel (the batch loop budget is 20 s).
 export const maxDuration = 30;
@@ -11,13 +12,11 @@ const BATCH_SIZE = 100;
 /**
  * POST /api/cron/cleanup
  * Header: Authorization: Bearer <CRON_SECRET>
- * 200 { deletedClips, deletedFiles, failed, batches, orphanFilesDeleted, orphanFilesFailed }
- * 401 (empty body) | 500
+ * 200 { deletedClips, deletedFiles, failed, batches, orphanFilesDeleted, orphanFilesFailed, rateLimitRowsDeleted }
+ * 401 (empty body) | 500 { error, ...totals so far }
  */
 export async function POST(request: Request) {
-  if (!isAuthorized(request.headers.get("authorization"))) {
-    return new Response(null, { status: 401 });
-  }
+  if (!isAuthorized(request.headers.get("authorization"))) return empty(401);
 
   const started = Date.now();
   const totals = {
@@ -27,6 +26,7 @@ export async function POST(request: Request) {
     batches: 0,
     orphanFilesDeleted: 0,
     orphanFilesFailed: 0,
+    rateLimitRowsDeleted: 0,
   };
 
   try {
@@ -44,7 +44,10 @@ export async function POST(request: Request) {
       if (processed < BATCH_SIZE || r.failed > 0) break;
     }
 
-    // 2. Orphaned files, if there is time left. Runs after step 1 so files of
+    // 2. Old rate-limit counters (one cheap statement).
+    totals.rateLimitRowsDeleted = await cleanupRateLimits();
+
+    // 3. Orphaned files, if there is time left. Runs after step 1 so files of
     //    just-deleted rows are already gone and aren't counted twice.
     if (Date.now() - started < TIME_BUDGET_MS) {
       const s = await sweepOrphanedFiles();
@@ -53,13 +56,10 @@ export async function POST(request: Request) {
     }
 
     console.log("[cron/cleanup]", { ...totals, ms: Date.now() - started });
-    return Response.json(totals, { headers: { "Cache-Control": "no-store" } });
+    return json(totals);
   } catch (err) {
     console.error("[cron/cleanup]", err);
-    return Response.json(
-      { error: "Cleanup failed.", ...totals },
-      { status: 500, headers: { "Cache-Control": "no-store" } },
-    );
+    return json({ error: "Cleanup failed.", ...totals }, 500);
   }
 }
 
