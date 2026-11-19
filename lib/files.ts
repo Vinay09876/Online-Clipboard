@@ -2,6 +2,7 @@ import "server-only";
 
 import { STORAGE_BUCKET } from "@/lib/clips";
 import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from "@/lib/config";
+import { reserveDownload } from "@/lib/egress";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export const DOWNLOAD_URL_TTL_SECONDS = 60;
@@ -134,22 +135,31 @@ export async function completeFileUpload(
 // Download
 // ---------------------------------------------------------------------------
 
+export type DownloadResult =
+  | { kind: "ok"; url: string; expiresIn: number }
+  | { kind: "not_found" }
+  /** Monthly download budget used up (see lib/egress.ts). */
+  | { kind: "paused" };
+
 /**
- * Signed, short-lived download URL for a ready, unexpired file clip, or null.
+ * Signed, short-lived download URL for a ready, unexpired file clip.
  * The browser downloads it as an attachment named after the original file.
+ * The file's size is counted against the monthly download budget first.
  */
-export async function getDownloadUrl(code: string): Promise<{ url: string; expiresIn: number } | null> {
+export async function getDownloadUrl(code: string): Promise<DownloadResult> {
   const { data: row, error } = await supabaseAdmin
     .from("clips")
-    .select("file_path, file_name")
+    .select("file_path, file_name, file_size")
     .eq("code", code)
     .eq("ready", true)
     .not("file_path", "is", null)
     .gt("expires_at", new Date().toISOString())
-    .maybeSingle<{ file_path: string; file_name: string | null }>();
+    .maybeSingle<{ file_path: string; file_name: string | null; file_size: number | null }>();
 
   if (error) throw new Error(`Download lookup failed: ${error.code} ${error.message}`);
-  if (!row) return null;
+  if (!row) return { kind: "not_found" };
+
+  if ((await reserveDownload(Number(row.file_size ?? 0))) === "paused") return { kind: "paused" };
 
   const { data, error: signError } = await supabaseAdmin.storage
     .from(STORAGE_BUCKET)
@@ -162,5 +172,5 @@ export async function getDownloadUrl(code: string): Promise<{ url: string; expir
   const url = new URL(data.signedUrl);
   url.searchParams.set("download", row.file_name || "file");
 
-  return { url: url.toString(), expiresIn: DOWNLOAD_URL_TTL_SECONDS };
+  return { kind: "ok", url: url.toString(), expiresIn: DOWNLOAD_URL_TTL_SECONDS };
 }

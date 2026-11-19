@@ -82,6 +82,19 @@ const rateLimitHealth = readPositiveInt("RATE_LIMIT_HEALTH", 30, 100_000);
 // Global caps (whole service).
 const maxLiveClips = readPositiveInt("MAX_LIVE_CLIPS", 200, 10_000_000);
 const maxTotalStorageMb = readPositiveInt("MAX_TOTAL_STORAGE_MB", 800, 1_000_000);
+// Egress guard: file download bytes per calendar month (UTC). Supabase free = 5 GB egress.
+const maxMonthlyDownloadMb = readPositiveInt("MAX_MONTHLY_DOWNLOAD_MB", 4000, 10_000_000);
+
+// Public contact for abuse reports, shown on /terms. Optional; validated if set.
+const abuseContactEmail = (() => {
+  const v = process.env.ABUSE_CONTACT_EMAIL?.trim();
+  if (!v) return null;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+    errors.push(`ABUSE_CONTACT_EMAIL must be an email address (got "${v}").`);
+    return null;
+  }
+  return v;
+})();
 
 if (errors.length > 0) {
   throw new Error(
@@ -118,3 +131,8 @@ export const RATE_LIMITS = {
 export const MAX_LIVE_CLIPS: number = maxLiveClips;
 export const MAX_TOTAL_STORAGE_MB: number = maxTotalStorageMb;
 export const MAX_TOTAL_STORAGE_BYTES: number = maxTotalStorageMb * 1024 * 1024;
+
+export const MAX_MONTHLY_DOWNLOAD_MB: number = maxMonthlyDownloadMb;
+export const MAX_MONTHLY_DOWNLOAD_BYTES: number = maxMonthlyDownloadMb * 1024 * 1024;
+/** null when not configured: /terms then shows a clearly marked placeholder. */
+export const ABUSE_CONTACT_EMAIL: string | null = abuseContactEmail;

@@ -42,25 +42,43 @@ export function testIp(): string {
  * Every test gets:
  *  - its own client IP on /api/* requests (X-Forwarded-For; only honoured off Vercel),
  *    so rate limits from one test don't affect another;
- *  - a check that the browser logged no errors or warnings. Chromium's own
- *    "Failed to load resource" lines for the 404/429 responses the tests cause on
- *    purpose are network log entries, not page errors, and are ignored.
+ *  - a check, across EVERY page/tab of the test, that the browser reported
+ *      * no Content-Security-Policy violation (securitypolicyviolation events),
+ *      * no console error or warning,
+ *      * no uncaught page error.
+ *    Chromium's own "Failed to load resource" lines for the 404/429 responses the tests
+ *    cause on purpose are network log entries, not page errors, and are ignored.
  */
 export const test = base.extend<{ ip: string; consoleProblems: string[] }>({
   ip: async ({}, provide) => {
     await provide(testIp());
   },
-  consoleProblems: async ({ page, ip }, provide) => {
+  consoleProblems: async ({ context, page, ip }, provide) => {
     const problems: string[] = [];
-    page.on("console", (m) => {
-      if ((m.type() === "error" || m.type() === "warning") && !m.text().startsWith("Failed to load resource")) {
-        problems.push(`${m.type()}: ${m.text()}`);
+
+    await context.exposeBinding("__reportCspViolation", (_src, v: string) => {
+      problems.push(`csp-violation: ${v}`);
+    });
+    await context.addInitScript(() => {
+      document.addEventListener("securitypolicyviolation", (e) => {
+        const report = (window as unknown as { __reportCspViolation: (v: string) => void }).__reportCspViolation;
+        report(`${e.violatedDirective} blocked ${e.blockedURI || "(inline)"} at ${e.sourceFile}:${e.lineNumber}`);
+      });
+    });
+    context.on("console", (m) => {
+      const text = m.text();
+      // Dev-server-only notice from Next.js, printed when a request carries
+      // "Cache-Control: no-cache" (Playwright's request interception adds it). Not from our code.
+      if (text.includes("cache-bypass-in-dev")) return;
+      if ((m.type() === "error" || m.type() === "warning") && !text.startsWith("Failed to load resource")) {
+        problems.push(`${m.type()}: ${text}`);
       }
     });
-    page.on("pageerror", (e) => problems.push(`pageerror: ${e.message}`));
+    context.on("weberror", (e) => problems.push(`pageerror: ${e.error().message}`));
+
     await routeApiWithIp(page, ip);
     await provide(problems);
-    expect(problems, "browser console errors/warnings").toEqual([]);
+    expect(problems, "CSP violations / browser console errors / page errors").toEqual([]);
   },
 });
 

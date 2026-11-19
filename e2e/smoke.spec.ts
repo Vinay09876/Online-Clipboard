@@ -155,3 +155,74 @@ test("expired: sender and receiver both switch to the expired state", async ({ p
   await expect(recv.getByRole("heading", { name: "This clip has expired" })).toBeFocused();
   await recv.close();
 });
+
+test("CSP: strict header with a per-request nonce, and every script carries it", async ({ page, request, consoleProblems }) => {
+  void consoleProblems;
+  await page.goto("/"); // the page itself must load without violations (checked by the fixture)
+  // Header and HTML from one plain request, so the nonce and the markup belong together.
+  const doc = await request.get("/");
+  const csp = doc.headers()["content-security-policy"] ?? "";
+  const nonce = /'nonce-([^']+)'/.exec(csp)?.[1];
+  expect(nonce, "CSP header has a nonce").toBeTruthy();
+
+  const isProd = !csp.includes("'unsafe-eval'");
+  for (const directive of [
+    "default-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+  ]) {
+    expect(csp).toContain(directive);
+  }
+  expect(csp).toMatch(new RegExp(`connect-src 'self' ${new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).origin}`));
+  expect(csp).not.toContain("'unsafe-inline' 'strict-dynamic'"); // no inline-script escape hatch
+  if (isProd) expect(csp, "production CSP has no dev relaxations").not.toMatch(/unsafe-eval|ws:/);
+
+  // Every <script> in the HTML the server sent carries this request's nonce. (In dev, the
+  // dev tools add more scripts at runtime; 'strict-dynamic' allows those, and any real
+  // violation would be caught by the consoleProblems fixture.)
+  const html = await doc.text();
+  const tags = [...html.matchAll(/<script\b[^>]*>/g)].map((m) => /nonce="([^"]+)"/.exec(m[0])?.[1]);
+  expect(tags.length).toBeGreaterThan(0);
+  expect(tags.every((n) => n === nonce)).toBe(true);
+
+  // A fresh nonce per request.
+  const again = await request.get("/");
+  expect(/'nonce-([^']+)'/.exec(again.headers()["content-security-policy"] ?? "")?.[1]).not.toBe(nonce);
+
+  // /terms has it too, and API responses get the locked-down JSON policy.
+  const terms = await request.get("/terms");
+  expect(terms.headers()["content-security-policy"]).toContain("'nonce-");
+  const api = await request.get("/api/clips/abc");
+  expect(api.headers()["content-security-policy"]).toBe("default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'");
+});
+
+test("terms page and footer link", async ({ page, consoleProblems }) => {
+  void consoleProblems;
+  await page.goto("/");
+  await page.getByRole("link", { name: "Terms & privacy" }).click();
+  await expect(page).toHaveURL(/\/terms$/);
+  await expect(page.getByRole("heading", { name: "Terms & privacy" })).toBeVisible();
+  await expect(page.getByText("Not end-to-end encrypted")).toBeVisible();
+  await page.getByRole("link", { name: "← Back to Online Clipboard" }).click();
+  await expect(page.getByRole("tab", { name: "Send" })).toBeVisible();
+});
+
+test("download paused (monthly budget used up) shows a friendly message", async ({ page, consoleProblems }) => {
+  void consoleProblems;
+  // UI-only test: the API is mocked. scripts/test-egress.ts tests the real server side.
+  const expiresAt = new Date(Date.now() + 20 * 60_000).toISOString();
+  await page.route("**/api/clips/424242", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ text: null, fileName: "big.zip", fileSize: 1048576, createdAt: new Date().toISOString(), expiresAt }) }),
+  );
+  await page.route("**/api/clips/424242/download", (route) =>
+    route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: "Downloads are paused until next month.", reason: "downloads_paused" }) }),
+  );
+  await page.goto("/#424242");
+  await page.getByRole("button", { name: "Download" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Downloads are paused until next month" })).toContainText("Text clips still work");
+});

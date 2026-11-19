@@ -7,7 +7,8 @@ import { consume, getClientIp, isBlocked, record } from "@/lib/rateLimit";
  * GET /api/clips/[code]/download
  * 200 { url, expiresIn }  url = signed, 60-second, attachment download of the original file name
  * 400 bad code | 404 not found / expired / not ready / no file (all identical)
- * 429 rate limited (Retry-After) | 500
+ * 429 rate limited (Retry-After)
+ * 503 { error, reason: "downloads_paused" } monthly download budget used up | 500
  *
  * Limits: shares the failed-lookup budget with GET /api/clips/[code], plus its own
  * per-IP request limit.
@@ -24,11 +25,15 @@ export async function GET(request: Request, ctx: RouteContext<"/api/clips/[code]
 
   try {
     const result = await getDownloadUrl(code);
-    if (!result) {
-      await record("lookup-fail", ip);
-      return errors.notFound();
+    switch (result.kind) {
+      case "not_found":
+        await record("lookup-fail", ip);
+        return errors.notFound();
+      case "paused":
+        return errors.downloadsPaused();
+      case "ok":
+        return json({ url: result.url, expiresIn: result.expiresIn });
     }
-    return json(result);
   } catch (err) {
     console.error(`[GET /api/clips/${code}/download]`, err);
     return errors.internal();

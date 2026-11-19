@@ -30,6 +30,9 @@ export const errors = {
       "Retry-After": String(Math.max(1, Math.ceil(retryAfterSeconds))),
     }),
   full: () => json({ error: "The service is full right now. Please try again later." }, 503),
+  /** `reason` lets the UI show a specific message; it reveals nothing internal. */
+  downloadsPaused: () =>
+    json({ error: "Downloads are paused until next month.", reason: "downloads_paused" }, 503),
   unavailable: () => json({ error: "Could not create a clip right now. Please try again." }, 503),
   internal: () => json({ error: "Something went wrong. Please try again." }, 500),
 };

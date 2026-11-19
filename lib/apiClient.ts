@@ -9,6 +9,7 @@ export type ApiError =
   | { kind: "not_found" }
   | { kind: "rate_limited"; retryAfterSeconds: number }
   | { kind: "unavailable" } // 503: service full or temporarily unable
+  | { kind: "downloads_paused" } // 503 from /download: monthly download budget used up
   | { kind: "too_large" } // 413
   | { kind: "unsupported" } // 415
   | { kind: "bad_request" } // 400
@@ -76,7 +77,17 @@ async function request<T>(
   }
   updateSkew(res);
 
-  if (res.status !== okStatus) return { ok: false, error: errorFromStatus(res.status, res.headers) };
+  if (res.status !== okStatus) {
+    if (res.status === 503) {
+      // The only 503 with a machine-readable reason; everything else stays generic.
+      const reason = await res
+        .json()
+        .then((b: unknown) => (isObj(b) ? b.reason : undefined))
+        .catch(() => undefined);
+      if (reason === "downloads_paused") return { ok: false, error: { kind: "downloads_paused" } };
+    }
+    return { ok: false, error: errorFromStatus(res.status, res.headers) };
+  }
 
   let data: unknown;
   try {
@@ -208,6 +219,8 @@ export function errorMessage(error: ApiError, ctx: { maxFileMb?: number } = {}):
       return "Too many attempts. Please wait a moment.";
     case "unavailable":
       return "The service is busy or full right now. Please try again in a few minutes.";
+    case "downloads_paused":
+      return "Downloads are paused until next month: this free service has used its monthly download allowance. Text clips still work.";
     case "too_large":
       return ctx.maxFileMb ? `That file is too large. The limit is ${ctx.maxFileMb} MB.` : "That is too large to send.";
     case "unsupported":
