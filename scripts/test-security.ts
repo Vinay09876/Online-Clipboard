@@ -349,7 +349,7 @@ async function scenarioCaps() {
 
 async function scenarioBroken() {
   const cases: Array<[number, string, Record<string, string>]> = [
-    [3213, "invalid service key", { SUPABASE_SERVICE_ROLE_KEY: "sb_secret_this_key_is_not_valid_0000000000" }],
+    [3213, "invalid service key", { SUPABASE_SERVICE_ROLE_KEY: "fake-invalid-service-key-for-tests" }],
     [3214, "Supabase unreachable", { NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:9" }],
   ];
   for (const [port, label, env] of cases) {

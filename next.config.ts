@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 /**
  * Security headers for every response (pages and API).
- * No Content-Security-Policy yet: it will be added in Step 7, once the UI exists.
+ * Page CSP (with a per-request nonce) is set in proxy.ts; API CSP is set below.
  */
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -33,8 +33,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
-      // Belt and braces: route handlers already set this on every response.
-      { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "no-store" }] },
+      {
+        source: "/api/:path*",
+        headers: [
+          // Belt and braces: route handlers already set this on every response.
+          { key: "Cache-Control", value: "no-store" },
+          // API responses are JSON, never pages: allow nothing. (Pages get a nonce-based CSP from proxy.ts.)
+          { key: "Content-Security-Policy", value: "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'" },
+        ],
+      },
     ];
   },
   cacheComponents: true,

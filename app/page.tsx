@@ -24,10 +24,6 @@ export default function Home() {
       </header>
 
       <ClipboardApp limits={limits} />
-
-      <footer className="mt-6 text-center text-xs text-zinc-600 dark:text-zinc-400">
-        No account needed. Don&apos;t share passwords or sensitive personal data.
-      </footer>
     </main>
   );
 }
