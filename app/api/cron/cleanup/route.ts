@@ -1,8 +1,8 @@
 import { createHash, timingSafeEqual } from "node:crypto";
-import { cleanupExpiredClips } from "@/lib/cleanup";
+import { cleanupExpiredClips, sweepOrphanedFiles } from "@/lib/cleanup";
 import { CRON_SECRET } from "@/lib/config";
 
-// Give the loop below room to finish on Vercel (the time budget is 20 s).
+// Give the work below room to finish on Vercel (the batch loop budget is 20 s).
 export const maxDuration = 30;
 
 const TIME_BUDGET_MS = 20_000;
@@ -11,7 +11,8 @@ const BATCH_SIZE = 100;
 /**
  * POST /api/cron/cleanup
  * Header: Authorization: Bearer <CRON_SECRET>
- * 200 { deletedClips, deletedFiles, failed, batches } | 401 | 500
+ * 200 { deletedClips, deletedFiles, failed, batches, orphanFilesDeleted, orphanFilesFailed }
+ * 401 (empty body) | 500
  */
 export async function POST(request: Request) {
   if (!isAuthorized(request.headers.get("authorization"))) {
@@ -19,9 +20,17 @@ export async function POST(request: Request) {
   }
 
   const started = Date.now();
-  const totals = { deletedClips: 0, deletedFiles: 0, failed: 0, batches: 0 };
+  const totals = {
+    deletedClips: 0,
+    deletedFiles: 0,
+    failed: 0,
+    batches: 0,
+    orphanFilesDeleted: 0,
+    orphanFilesFailed: 0,
+  };
 
   try {
+    // 1. Expired clips and abandoned uploads, in batches.
     while (Date.now() - started < TIME_BUDGET_MS) {
       const r = await cleanupExpiredClips({ batchSize: BATCH_SIZE });
       totals.batches++;
@@ -31,8 +40,16 @@ export async function POST(request: Request) {
 
       const processed = r.deletedClips + r.failed;
       // Stop when the backlog is drained, or when this batch had failures:
-      // failed rows stay expired and would just be selected again.
+      // failed rows stay in place and would just be selected again.
       if (processed < BATCH_SIZE || r.failed > 0) break;
+    }
+
+    // 2. Orphaned files, if there is time left. Runs after step 1 so files of
+    //    just-deleted rows are already gone and aren't counted twice.
+    if (Date.now() - started < TIME_BUDGET_MS) {
+      const s = await sweepOrphanedFiles();
+      totals.orphanFilesDeleted = s.deleted;
+      totals.orphanFilesFailed = s.failed;
     }
 
     console.log("[cron/cleanup]", { ...totals, ms: Date.now() - started });

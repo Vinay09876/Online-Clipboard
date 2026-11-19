@@ -1,6 +1,6 @@
 import "server-only";
 
-import { randomInt } from "node:crypto";
+import { randomInt, randomUUID } from "node:crypto";
 import { CLIP_EXPIRY_MINUTES } from "@/lib/config";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { Clip, ClipRow } from "@/types/clip";
@@ -35,6 +35,7 @@ export function rowToClip(row: ClipRow): Clip {
     fileSize: row.file_size === null ? null : Number(row.file_size),
     createdAt: row.created_at,
     expiresAt: row.expires_at,
+    ready: row.ready,
   };
 }
 
@@ -42,7 +43,7 @@ export function rowToClip(row: ClipRow): Clip {
  * Deletes an expired clip that still holds `code` (not yet removed by the
  * cleanup job), plus its storage object if it had one.
  * Storage failures are logged, not thrown: the code is already free, and an
- * orphaned object is harmless (the Step 4 cleanup can sweep it).
+ * orphaned object is removed later by the orphan sweep.
  */
 async function freeExpiredCode(code: string): Promise<void> {
   const { data, error } = await supabaseAdmin
@@ -63,7 +64,7 @@ async function freeExpiredCode(code: string): Promise<void> {
       .from(STORAGE_BUCKET)
       .remove(paths);
     if (storageError) {
-      console.error("[clips] failed to remove expired file(s)", paths, storageError);
+      console.error("[clips] failed to remove expired file(s)", paths.length, storageError.message);
     }
   }
 }
@@ -73,18 +74,40 @@ export type CreateClipOptions = {
   generateCode?: () => string;
 };
 
-/**
- * Creates a text clip with a fresh code.
- * Throws CodeGenerationError if every attempt collides with a live clip,
- * or a plain Error for any other database failure.
- */
-export async function createTextClip(
-  text: string,
-  options: CreateClipOptions = {},
-): Promise<{ code: string; expiresAt: string }> {
-  const nextCode = options.generateCode ?? generateCode;
+/** Already-validated input (see app/api/clips/route.ts and lib/files.ts). */
+export type NewClipInput = {
+  text?: string;
+  file?: { name: string; size: number };
+};
 
-  for (let attempt = 1; attempt <= MAX_CODE_ATTEMPTS; attempt++) {
+export type CreatedClip = {
+  code: string;
+  expiresAt: string;
+  /** Present only for file clips: where the browser PUTs the file bytes. */
+  upload?: { signedUrl: string; token: string; path: string };
+};
+
+/**
+ * Creates a clip with a fresh code (text, file, or both).
+ *
+ * File clips are inserted with ready = false. The storage key is the clip's own
+ * id (never the user's file name). A signed upload URL for that key is returned;
+ * if creating it fails, the row is deleted again.
+ *
+ * Throws CodeGenerationError if every code attempt collides with a live clip,
+ * or a plain Error for any other failure.
+ */
+export async function createClip(
+  input: NewClipInput,
+  options: CreateClipOptions = {},
+): Promise<CreatedClip> {
+  const nextCode = options.generateCode ?? generateCode;
+  const id = randomUUID();
+  const file = input.file;
+
+  let created: { code: string; expiresAt: string } | null = null;
+
+  for (let attempt = 1; attempt <= MAX_CODE_ATTEMPTS && !created; attempt++) {
     const code = nextCode();
     await freeExpiredCode(code);
 
@@ -92,29 +115,63 @@ export async function createTextClip(
 
     const { data, error } = await supabaseAdmin
       .from("clips")
-      .insert({ code, text_content: text, expires_at: expiresAt })
+      .insert({
+        id,
+        code,
+        text_content: input.text ?? null,
+        file_path: file ? id : null,
+        file_name: file ? file.name : null,
+        file_size: file ? file.size : null,
+        ready: !file,
+        expires_at: expiresAt,
+      })
       .select("code, expires_at")
       .single<Pick<ClipRow, "code" | "expires_at">>();
 
-    if (!error) return { code: data.code, expiresAt: data.expires_at };
-
-    if (error.code === PG_UNIQUE_VIOLATION) {
+    if (!error) {
+      created = { code: data.code, expiresAt: data.expires_at };
+    } else if (error.code === PG_UNIQUE_VIOLATION) {
       console.warn(`[clips] code collision on attempt ${attempt}, retrying`);
-      continue;
+    } else {
+      throw new Error(`Failed to insert clip: ${error.code} ${error.message}`);
     }
-
-    throw new Error(`Failed to insert clip: ${error.code} ${error.message}`);
   }
 
-  throw new CodeGenerationError();
+  if (!created) throw new CodeGenerationError();
+  if (!file) return created;
+
+  const { data: signed, error: signError } = await supabaseAdmin.storage
+    .from(STORAGE_BUCKET)
+    .createSignedUploadUrl(id);
+
+  if (signError || !signed) {
+    const { error: rollbackError } = await supabaseAdmin.from("clips").delete().eq("id", id);
+    if (rollbackError) console.error("[clips] rollback after signed URL failure failed", rollbackError.message);
+    throw new Error(`Failed to create signed upload URL: ${signError?.message ?? "no data"}`);
+  }
+
+  return {
+    ...created,
+    upload: { signedUrl: signed.signedUrl, token: signed.token, path: signed.path },
+  };
 }
 
-/** Returns the live (not expired) clip with this code, or null. */
+/** Text-only shortcut (kept for scripts/test-collisions.ts). */
+export async function createTextClip(
+  text: string,
+  options: CreateClipOptions = {},
+): Promise<{ code: string; expiresAt: string }> {
+  const { code, expiresAt } = await createClip({ text }, options);
+  return { code, expiresAt };
+}
+
+/** Returns the live (not expired) AND ready clip with this code, or null. */
 export async function getClipByCode(code: string): Promise<Clip | null> {
   const { data, error } = await supabaseAdmin
     .from("clips")
     .select("*")
     .eq("code", code)
+    .eq("ready", true)
     .gt("expires_at", new Date().toISOString())
     .maybeSingle<ClipRow>();
 
