@@ -252,15 +252,24 @@ function FileCard({ code, name, size, maxFileMb }: { code: string; name: string;
 
   return (
     <section className={`${card} space-y-3`} aria-label="File">
-      <div className="flex items-center gap-3">
-        <FileIcon className="size-6 shrink-0 text-zinc-500" />
-        <div className="min-w-0 flex-1">
-          <p className="line-clamp-2 break-all font-medium" title={name}>
-            {name}
-          </p>
-          {size !== null && <p className="text-sm text-zinc-600 dark:text-zinc-400">{formatBytes(size)}</p>}
+      {/* Phones: name on its own full-width row, button below. Wider screens: one row. */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <FileIcon className="size-6 shrink-0 text-zinc-500" />
+          <div className="min-w-0 flex-1">
+            {/* Breaks only where a word can't fit (very long names), not mid-word otherwise. */}
+            <p className="line-clamp-3 font-medium [overflow-wrap:anywhere]" title={name}>
+              {name}
+            </p>
+            {size !== null && <p className="text-sm text-zinc-600 dark:text-zinc-400">{formatBytes(size)}</p>}
+          </div>
         </div>
-        <button type="button" onClick={download} disabled={busy || blockedUntil !== null} className={btnPrimary}>
+        <button
+          type="button"
+          onClick={download}
+          disabled={busy || blockedUntil !== null}
+          className={`${btnPrimary} w-full shrink-0 sm:w-auto`}
+        >
           {busy ? <Spinner /> : <DownloadIcon />}
           {busy ? "Preparing…" : "Download"}
         </button>
