@@ -43,3 +43,9 @@ next-env.d.ts
 
 # test fixture state
 scripts/.cleanup-fixtures.json
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

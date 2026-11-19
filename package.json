@@ -10,7 +10,9 @@
     "test:collisions": "tsx --conditions=react-server --env-file=.env.local scripts/test-collisions.ts",
     "fixtures:cleanup": "tsx --conditions=react-server --env-file=.env.local scripts/cleanup-fixtures.ts",
     "test:files": "tsx --conditions=react-server --env-file=.env.local scripts/test-files.ts",
-    "test:security": "tsx --conditions=react-server --env-file=.env.local scripts/test-security.ts"
+    "test:security": "tsx --conditions=react-server --env-file=.env.local scripts/test-security.ts",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
@@ -20,6 +22,7 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
