@@ -64,7 +64,16 @@ async function call(
   }
   const init: RequestInit & { duplex?: "half" } = { method, headers, body };
   if (body instanceof ReadableStream) init.duplex = "half";
-  const res = await fetch(`${base}${path}`, init);
+  let res: Response;
+  try {
+    res = await fetch(`${base}${path}`, init);
+  } catch (err) {
+    // After a 413 the server stops reading and closes that connection; Node's fetch may
+    // reuse it for the next request and get ECONNRESET. Browsers retry this silently; so do we.
+    const reset = (err as { cause?: { code?: string } }).cause?.code === "ECONNRESET";
+    if (!reset || body instanceof ReadableStream) throw err;
+    res = await fetch(`${base}${path}`, init);
+  }
   const text = await res.text();
   let json: Record<string, unknown> = {};
   try {

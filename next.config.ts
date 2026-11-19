@@ -13,7 +13,7 @@ const securityHeaders = [
     value: [
       "accelerometer=()",
       "autoplay=()",
-      "browsing-topics=()",
+      // (no "browsing-topics": current Chrome no longer recognises it and logs a console warning)
       "camera=()",
       "display-capture=()",
       "geolocation=()",
