@@ -1,46 +1,43 @@
 import { CLIP_CODE_REGEX } from "@/lib/clips";
 import { MAX_FILE_SIZE_MB } from "@/lib/config";
 import { completeFileUpload } from "@/lib/files";
-
-const NO_STORE = { "Cache-Control": "no-store" };
+import { errors, json } from "@/lib/http";
+import { consume, getClientIp, isBlocked, record } from "@/lib/rateLimit";
 
 /**
- * POST /api/clips/[code]/complete
+ * POST /api/clips/[code]/complete   (no body needed; any body is ignored)
  * Call after the browser has PUT the file to the signed upload URL.
  * 200 { ok: true } | 400 bad code | 404 not found/expired | 409 not uploaded yet
- * 413 file over the limit (clip deleted) | 500
+ * 413 file over the limit (clip deleted) | 429 rate limited (Retry-After) | 500
+ *
+ * A 404 here also counts as a failed lookup: otherwise this endpoint could be used
+ * to probe which codes exist without touching the lookup limit.
  */
-export async function POST(_request: Request, ctx: RouteContext<"/api/clips/[code]/complete">) {
+export async function POST(request: Request, ctx: RouteContext<"/api/clips/[code]/complete">) {
   const { code } = await ctx.params;
+  if (!CLIP_CODE_REGEX.test(code)) return errors.badRequest("Code must be exactly 6 digits.");
 
-  if (!CLIP_CODE_REGEX.test(code)) {
-    return Response.json({ error: "Code must be exactly 6 digits." }, { status: 400, headers: NO_STORE });
-  }
+  const ip = getClientIp(request.headers);
+  const blocked = await isBlocked("lookup-fail", ip); // DB error -> allow
+  if (blocked.kind === "limited") return errors.tooMany(blocked.retryAfter);
+  const limit = await consume("complete", ip); // DB error -> allow
+  if (limit.kind === "limited") return errors.tooMany(limit.retryAfter);
 
   try {
     const result = await completeFileUpload(code);
-
     switch (result) {
       case "ok":
-        return Response.json({ ok: true }, { headers: NO_STORE });
+        return json({ ok: true });
       case "not_found":
-        return Response.json({ error: "Clip not found." }, { status: 404, headers: NO_STORE });
+        await record("lookup-fail", ip);
+        return errors.notFound();
       case "missing_object":
-        return Response.json(
-          { error: "The file has not been uploaded yet." },
-          { status: 409, headers: NO_STORE },
-        );
+        return json({ error: "The file has not been uploaded yet." }, 409);
       case "too_large":
-        return Response.json(
-          { error: `File is too large. The limit is ${MAX_FILE_SIZE_MB} MB.` },
-          { status: 413, headers: NO_STORE },
-        );
+        return json({ error: `File is too large. The limit is ${MAX_FILE_SIZE_MB} MB.` }, 413);
     }
   } catch (err) {
     console.error(`[POST /api/clips/${code}/complete]`, err);
-    return Response.json(
-      { error: "Something went wrong. Please try again." },
-      { status: 500, headers: NO_STORE },
-    );
+    return errors.internal();
   }
 }
