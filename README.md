@@ -54,7 +54,11 @@ cp .env.example .env.local      # then fill in the values (see comments in the f
    `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
 3. `npm run dev`, then open the URL it prints. `/api/health` should show `{"ok":true}`.
 
-Deploying: see **[docs/deploy.md](docs/deploy.md)**.
+Deploying: see **[docs/deploy.md](docs/deploy.md)**. SEO and indexing: **[docs/seo.md](docs/seo.md)**.
+Growth roadmap: **[docs/growth-plan.md](docs/growth-plan.md)**.
+
+**Search engines:** the site is `noindex` unless `SITE_URL` is a real https domain
+(never on `*.vercel.app`, `*.netlify.app`, localhost). `ALLOW_INDEXING=false` forces `noindex`.
 
 ## Scripts
 
@@ -66,10 +70,11 @@ Deploying: see **[docs/deploy.md](docs/deploy.md)**.
 | `npm run test:collisions` | Code-collision logic against the database |
 | `npm run test:security` | Rate limits, caps, request hardening, headers (starts its own servers; builds first) |
 | `npm run test:egress` | Monthly download budget (starts its own server; builds first) |
-| `npm run test:e2e` | Playwright browser tests incl. CSP checks (builds and starts its own server) |
+| `npm run test:e2e` | Playwright browser tests incl. CSP and SEO checks (builds once, starts 4 servers with different `SITE_URL` settings) |
 | `npm run fixtures:cleanup -- seed\|verify` | Test data for the clean-up endpoint |
 | `npm run smoke:prod -- <url>` | Smoke test of a deployed site (no keys needed) |
 | `npm run scan:secrets` | Search the whole git history for leaked secrets |
+| `npm run icons:generate` | Regenerate the PNG/ICO icons from `app/icon.svg` |
 
 All test scripts run against the Supabase project in `.env.local` (currently the same one production uses) and delete what they create. See "Living with one database" in [docs/deploy.md](docs/deploy.md) before running them on a live site.
 
@@ -82,12 +87,13 @@ app/                 pages (/, /terms), layout, API routes
   api/health/        health check
 components/          client UI (Send/Receive panels, code input, countdown, …)
 lib/                 server logic (clips, files, cleanup, rate limits, caps, egress, config)
+                     + site.ts (SITE_URL / indexing switch) and sitePages.ts (sitemap page list)
                      + browser-safe helpers (apiClient, clipboard, useNow)
 db/                  SQL migrations, run in order in the Supabase SQL Editor
 docs/                deployment and clean-up scheduling guides
 scripts/             test and maintenance scripts (tsx)
 e2e/                 Playwright tests
-proxy.ts             per-request CSP nonce
+proxy.ts             per-request CSP nonce; X-Robots-Tag noindex on non-indexable hosts
 ```
 
 ## Limits (defaults, all configurable in env)

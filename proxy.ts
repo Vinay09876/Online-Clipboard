@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { INDEXABLE } from "@/lib/site";
 
 /**
  * Content-Security-Policy with a fresh nonce for every page request.
@@ -49,6 +50,9 @@ export function proxy(request: NextRequest) {
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", csp);
+  // Belt and braces next to <meta name="robots">: also covers robots.txt, the sitemap,
+  // icons and the share image on temporary hosts. (API routes always get it: next.config.ts.)
+  if (!INDEXABLE) response.headers.set("X-Robots-Tag", "noindex, nofollow");
   return response;
 }
 

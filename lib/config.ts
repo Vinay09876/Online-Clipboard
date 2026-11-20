@@ -1,5 +1,7 @@
 import "server-only";
 
+import { parseSiteUrl } from "@/lib/site";
+
 /**
  * Central place to read and validate environment variables.
  * Validation runs once, when this module is first imported. If anything is
@@ -95,6 +97,14 @@ const abuseContactEmail = (() => {
   }
   return v;
 })();
+
+// Site URL + indexing (logic lives in lib/site.ts; here we only turn mistakes into startup errors).
+const siteUrlCheck = parseSiteUrl(process.env.SITE_URL);
+if (!siteUrlCheck.ok) errors.push(siteUrlCheck.error);
+const allowIndexing = process.env.ALLOW_INDEXING?.trim().toLowerCase();
+if (allowIndexing && allowIndexing !== "true" && allowIndexing !== "false") {
+  errors.push(`ALLOW_INDEXING must be "true" or "false" (got "${process.env.ALLOW_INDEXING}").`);
+}
 
 if (errors.length > 0) {
   throw new Error(
