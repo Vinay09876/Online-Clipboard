@@ -83,6 +83,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 | `CRON_SECRET` | **Yes, Sensitive** | **new** random value (command above). You'll also put it in Supabase Vault in step 4. |
 | `IP_HASH_SALT` | **Yes, Sensitive** | **new** random value (command above) |
 | `ABUSE_CONTACT_EMAIL` | No (shown publicly on /terms) | an address you actually read, e.g. a dedicated Gmail |
+| `SITE_URL` | No | your site's address, e.g. `https://<your-project>.vercel.app` (correct share previews; a temporary host is never indexed). Your real domain from Step 7 of `docs/growth-plan.md`. See `docs/seo.md`. |
+| `ALLOW_INDEXING` | No | leave empty. `false` = never let search engines index the site (kill switch). |
 | `CLIP_EXPIRY_MINUTES` | No | `30` |
 | `MAX_FILE_SIZE_MB` | No | `25` (must not exceed the bucket limit of 25 MB) |
 | `MAX_LIVE_CLIPS` | No | `200` |

@@ -6,10 +6,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ABUSE_CONTACT_EMAIL, CLIP_EXPIRY_MINUTES, MAX_FILE_SIZE_MB, RATE_LIMIT_WINDOW_SECONDS } from "@/lib/config";
+import { pageUrls } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Terms & privacy — Online Clipboard",
+  title: "Terms & privacy", // → "Terms & privacy | Online Clipboard" via the layout template
   description: "Plain-language terms of use and privacy notes for Online Clipboard.",
+  ...pageUrls("/terms", "Terms & privacy | Online Clipboard"),
 };
 
 export default function TermsPage() {
@@ -17,7 +19,7 @@ export default function TermsPage() {
   const rateLimitHours = Math.max(1, Math.ceil(RATE_LIMIT_WINDOW_SECONDS / 3600));
 
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:py-14">
+    <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 sm:py-10">
       <article className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-5 text-sm leading-relaxed sm:p-8 dark:border-zinc-800 dark:bg-zinc-900">
         <header className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight">Terms &amp; privacy</h1>
@@ -92,7 +94,7 @@ export default function TermsPage() {
           </Link>
         </p>
       </article>
-    </main>
+    </div>
   );
 }
 

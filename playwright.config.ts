@@ -3,8 +3,20 @@ import { defineConfig, devices } from "@playwright/test";
 // Supabase credentials for test clean-up (e2e/helpers.ts). Not exposed to the browser.
 process.loadEnvFile?.(".env.local");
 
-const PORT = 3230;
 const external = process.env.E2E_BASE_URL; // e.g. http://localhost:3001 to test your running dev server
+
+/** SEO projects need their own servers with specific SITE_URL values (scripts/e2e-servers.mjs). */
+const seoProjects = [
+  { name: "seo-no-site-url", port: 3230, grep: /@nosite/ },
+  { name: "seo-temporary-host", port: 3231, grep: /@temp/ },
+  { name: "seo-real-domain", port: 3232, grep: /@real/ },
+  { name: "seo-kill-switch", port: 3233, grep: /@killswitch/ },
+].map((p) => ({
+  name: p.name,
+  testMatch: /seo\.spec\.ts/,
+  grep: p.grep,
+  use: { ...devices["Desktop Chrome"], baseURL: `http://localhost:${p.port}` },
+}));
 
 export default defineConfig({
   testDir: "e2e",
@@ -13,19 +25,21 @@ export default defineConfig({
   workers: 1,
   reporter: "list",
   use: {
-    baseURL: external ?? `http://localhost:${PORT}`,
+    baseURL: external ?? "http://localhost:3230",
     trace: "retain-on-failure",
   },
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
-    { name: "mobile", use: { ...devices["Pixel 7"] }, grep: /@mobile/ },
+    { name: "desktop", testIgnore: /seo\.spec\.ts/, use: { ...devices["Desktop Chrome"] } },
+    { name: "mobile", testIgnore: /seo\.spec\.ts/, use: { ...devices["Pixel 7"] }, grep: /@mobile/ },
+    // Against an external server (E2E_BASE_URL) only the UI projects run.
+    ...(external ? [] : seoProjects),
   ],
-  // Without E2E_BASE_URL: build and start a production server just for the tests.
+  // Without E2E_BASE_URL: build once and start all test servers (see scripts/e2e-servers.mjs).
   webServer: external
     ? undefined
     : {
-        command: `npm run build && node node_modules/next/dist/bin/next start -p ${PORT}`,
-        url: `http://localhost:${PORT}/api/clips/abc`, // answers 400 once the server is up
+        command: "node scripts/e2e-servers.mjs",
+        url: "http://localhost:3239/ready",
         timeout: 300_000,
         reuseExistingServer: false,
         stdout: "ignore",

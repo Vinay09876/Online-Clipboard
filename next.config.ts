@@ -40,6 +40,8 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "no-store" },
           // API responses are JSON, never pages: allow nothing. (Pages get a nonce-based CSP from proxy.ts.)
           { key: "Content-Security-Policy", value: "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'" },
+          // The JSON API should never appear in search results, whatever the host.
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
         ],
       },
     ];
