@@ -8,6 +8,9 @@
  *    the plain text of the same segments, so the structured data always matches the page.
  */
 
+import { CLAIMS } from "./claims";
+import { fmt as n, plural } from "./text";
+
 /** Values read from server config (lib/facts.ts, via app/page.tsx). */
 export type HomeFacts = {
   maxFileMb: number;
@@ -36,8 +39,6 @@ export type HomeContent = {
   closing: Paragraph;
 };
 
-const n = (x: number) => x.toLocaleString("en-US");
-const plural = (x: number, one: string, many: string) => `${n(x)} ${x === 1 ? one : many}`;
 
 /** Plain text of a paragraph (links become their text). Used for JSON-LD and tests. */
 export function plainText(p: Paragraph): string {
@@ -97,7 +98,7 @@ export function homeContent(f: HomeFacts): HomeContent {
           title: "Shared or public computers",
           text: "Get a document onto a library, lab or print-shop computer without signing in to your email there.",
         },
-        { title: "Quick text between people", text: "Pass a long address, a Wi-Fi name or a code snippet to someone sitting next to you." },
+        { title: "Quick text between people", text: "Pass a long address, a parcel tracking number or a booking reference to someone sitting next to you." },
         {
           title: "Send a file without signing up",
           text: `Hand over a file up to ${fileSize} without creating an account or installing an app.`,
@@ -113,7 +114,7 @@ export function homeContent(f: HomeFacts): HomeContent {
         {
           title: "Not end-to-end encrypted",
           text: [
-            "Text and files travel over HTTPS, but they are stored on our servers in a readable form until they expire. Don't share passwords, ID documents, bank details or anything you would not put on a postcard.",
+            `${CLAIMS.encryption} Don't share passwords, ID documents, bank details or anything you would not put on a postcard.`,
           ],
         },
         {
@@ -125,13 +126,13 @@ export function homeContent(f: HomeFacts): HomeContent {
         {
           title: "Deleted automatically",
           text: [
-            "When a clip expires, its code stops working straight away, and the text and file are removed by an automatic clean-up job, usually within minutes.",
+            `When a clip expires, its code stops working straight away, and ${CLAIMS.deletion}.`,
           ],
         },
         {
           title: "What we keep about you",
           text: [
-            `No accounts, no cookies, no analytics. To stop abuse we keep a hashed (scrambled, non-reversible) form of your IP address with a request counter, deleted after about ${plural(f.rateLimitRetentionHours, "hour", "hours")}. Details are in the `,
+            `No accounts, no cookies, no analytics. To stop abuse we keep ${CLAIMS.ipHash(f.rateLimitRetentionHours)}. Details are in the `,
             privacyPolicy,
             ".",
           ],
@@ -178,7 +179,7 @@ export function homeContent(f: HomeFacts): HomeContent {
           question: "Is it encrypted?",
           answer: [
             [
-              "The connection is encrypted with HTTPS. The clips themselves are not end-to-end encrypted: they are stored on our servers in a readable form until they expire.",
+              CLAIMS.encryption,
             ],
           ],
         },
@@ -194,7 +195,7 @@ export function homeContent(f: HomeFacts): HomeContent {
           question: "What happens when a clip expires?",
           answer: [
             [
-              "The code stops working immediately and shows \"Clip not found or expired.\" The text and file are then deleted by an automatic clean-up job, usually within minutes. Expired clips cannot be recovered.",
+              `The code stops working immediately and shows "Clip not found or expired." After that, ${CLAIMS.deletion}. Expired clips cannot be recovered.`,
             ],
           ],
         },
@@ -202,7 +203,7 @@ export function homeContent(f: HomeFacts): HomeContent {
           question: "Does it work on phone and computer?",
           answer: [
             [
-              "Yes, in any modern browser on Android, iPhone, Windows, Mac or Linux. Send from one device and open the code or link on another.",
+              `It runs in the browser. ${CLAIMS.browsers} Send from one device and open the code or link on another.`,
             ],
           ],
         },

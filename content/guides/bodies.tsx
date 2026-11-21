@@ -8,7 +8,9 @@
  */
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { fmt, plural, type SiteFacts } from "@/lib/facts";
+import { CLAIMS } from "@/content/claims";
+import { fmt, plural } from "@/content/text";
+import type { SiteFacts } from "@/lib/facts";
 
 export type Source = { title: string; href: string };
 export type GuideBody = {
@@ -60,6 +62,66 @@ const SRC = {
   gmailAttachments: {
     title: "Gmail Help: Send attachments with your Gmail message",
     href: "https://support.google.com/mail/answer/6584",
+  },
+  // --- added in Step 3b (checked 2026-11-21) ---
+  outlookLargeFiles: {
+    title: "Microsoft: Reduce attachment size to send large files with Outlook",
+    href: "https://support.microsoft.com/en-us/outlook/reduce-attachment-size-to-send-large-files-with-outlook",
+  },
+  mailDrop: { title: "Apple: Mail Drop limits", href: "https://support.apple.com/en-us/108329" },
+  driveFileLimits: {
+    title: "Google Drive Help: Files you can store in Google Drive",
+    href: "https://support.google.com/drive/answer/37603",
+  },
+  googleStorage: {
+    title: "Google One Help: How your Google storage works",
+    href: "https://support.google.com/googleone/answer/9312312",
+  },
+  oneDriveUpload: {
+    title: "Microsoft: Upload photos and files to OneDrive",
+    href: "https://support.microsoft.com/en-us/office/upload-photos-and-files-to-onedrive-b00ad3fe-6643-4b16-9212-de00ef02b586",
+  },
+  googleSignInNotYours: {
+    title: "Google Account Help: Sign in on a device that's not yours",
+    href: "https://support.google.com/accounts/answer/2917834",
+  },
+  edgePrivacy: {
+    title: "Microsoft: Microsoft Edge, browsing data, and privacy",
+    href: "https://support.microsoft.com/en-us/help/4468242/microsoft-edge-browsing-data-and-privacy-microsoft-privacy",
+  },
+  appleTransferPhotos: {
+    title: "Apple: Transfer photos from your iPhone or iPad",
+    href: "https://support.apple.com/en-us/120267",
+  },
+  appleTrust: {
+    title: "Apple: About the 'Trust This Computer' alert",
+    href: "https://support.apple.com/en-us/109054",
+  },
+  appleNotRecognized: {
+    title: "Apple: If your computer doesn't recognize your iPhone or iPad",
+    href: "https://support.apple.com/en-us/108643",
+  },
+  appleHeif: { title: "Apple: Using HEIF or HEVC media on Apple devices", href: "https://support.apple.com/en-us/116944" },
+  appleLivePhotos: { title: "Apple: Bring your photos to life (Live Photos)", href: "https://support.apple.com/en-us/104966" },
+  msImportPhotos: {
+    title: "Microsoft: Import photos and videos from phone to PC",
+    href: "https://support.microsoft.com/en-us/windows/apps/photos/import-photos-and-videos-from-phone-to-pc",
+  },
+  msHeifExtensions: {
+    title: "Microsoft: Photos app error \"Can't view this file type\" (HEIF/HEVC extensions)",
+    href: "https://support.microsoft.com/en-us/windows/apps/photos/photos-app-video-editor-error-can-t-view-this-file-type",
+  },
+  androidUsbTransfer: {
+    title: "Android Help: Transfer files between your computer & Android device",
+    href: "https://support.google.com/android/answer/9064445",
+  },
+  googlePhotosDownload: {
+    title: "Google Photos Help: Download photos or videos to your device",
+    href: "https://support.google.com/photos/answer/7652919",
+  },
+  msPhoneLinkPhotos: {
+    title: "Microsoft: View and manage photos from your Android device on your PC",
+    href: "https://support.microsoft.com/en-us/windows/apps/photos/view-and-manage-photos-from-your-android-device-on-your-pc",
   },
 } satisfies Record<string, Source>;
 
@@ -279,11 +341,10 @@ function isItSafe(f: SiteFacts): GuideBody {
         <ol>
           <li>Your browser sends the text or file over HTTPS, so it is encrypted on the way.</li>
           <li>
-            It is stored on our servers <strong>in a readable form</strong>. It is <strong>not end-to-end encrypted</strong>:
-            the service itself could read it, and so could anyone who got into the servers.
+            {CLAIMS.encryption} Anyone who broke into those servers could read it too.
           </li>
           <li>Anyone who enters the code or opens the link gets the clip, as many times as they like, until it expires.</li>
-          <li>{`After ${minutes}`} the code stops working and a clean-up job deletes the text and file, usually within minutes.</li>
+          <li>{`After ${minutes}`} the code stops working, and {CLAIMS.deletion}.</li>
         </ol>
 
         <h2>What protects you</h2>
@@ -304,8 +365,8 @@ function isItSafe(f: SiteFacts): GuideBody {
             {plural(f.downloadLinkSeconds, "second", "seconds")}.
           </li>
           <li>
-            <strong>Little data about you.</strong> No accounts, cookies or analytics. For rate limiting only a hashed form of
-            your IP address is kept, for about {plural(f.rateLimitRetentionHours, "hour", "hours")}.
+            <strong>Little data about you.</strong> No accounts, cookies or analytics. For rate limiting we keep{" "}
+            {CLAIMS.ipHash(f.rateLimitRetentionHours)}.
           </li>
         </ul>
 
@@ -371,7 +432,487 @@ function isItSafe(f: SiteFacts): GuideBody {
   };
 }
 
+// ---------------------------------------------------------------------------
+// 4. Send files that are too big for email
+// ---------------------------------------------------------------------------
+
+function tooBigForEmail(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          You attach a video or a folder of scans, press send, and the email bounces back or refuses to attach at all. Email
+          was never designed to carry large files. Every provider caps the size of a message, and the person receiving it has
+          a cap of their own. The reliable fix is to stop attaching the file and send a link to it instead.
+        </p>
+
+        <h2>Why big attachments fail</h2>
+        <ul>
+          <li>
+            <strong>Your provider&apos;s limit.</strong> Gmail, for example, allows attachments up to 25 MB for personal
+            accounts and offers a Google Drive link when a file is bigger (
+            <Ext href={SRC.gmailAttachments.href}>Gmail Help</Ext>). Microsoft&apos;s own Outlook pages give different
+            figures, so check{" "}
+            <Ext href={SRC.outlookLargeFiles.href}>Microsoft&apos;s large-files page</Ext> for the current number. Limits
+            like these change, so treat any number you read, here included, as a snapshot.
+          </li>
+          <li>
+            <strong>The recipient&apos;s limit.</strong> Even if your provider accepts the message, the receiving server can
+            reject it. Work and school accounts often have their own limits set by an administrator.
+          </li>
+          <li>
+            <strong>Encoding overhead.</strong> Attachments are converted to text for sending, which makes them noticeably
+            larger in transit. A file just under the limit can push the message over it, so leave some room.
+          </li>
+        </ul>
+
+        <h2>Option 1: a share link from a cloud drive</h2>
+        <p>This works with any email provider, and the recipient doesn&apos;t need an account in most cases.</p>
+        <ol>
+          <li>Upload the file to a cloud drive you already use, such as Google Drive, OneDrive or iCloud Drive.</li>
+          <li>Create a share link, and check who it allows: anyone with the link, or only specific people.</li>
+          <li>Paste the link into your email and say what the file is, so the recipient knows it is genuine.</li>
+          <li>After they confirm they have it, remove sharing or delete the file if it doesn&apos;t need to stay online.</li>
+        </ol>
+        <p>
+          Two limits matter here: the size of a single upload and your storage quota. Google says a free account&apos;s 15 GB
+          is shared across Drive, Gmail and Photos (<Ext href={SRC.googleStorage.href}>Google One Help</Ext>), and lists the
+          per-file maximums on <Ext href={SRC.driveFileLimits.href}>its Drive limits page</Ext>. Microsoft lists OneDrive
+          upload limits on <Ext href={SRC.oneDriveUpload.href}>its upload page</Ext>. A full drive is the most common reason
+          an upload stops halfway, so check your free space first.
+        </p>
+
+        <h2>Option 2: your email app&apos;s built-in large-file feature</h2>
+        <p>
+          Some providers do the link step for you. Gmail offers to send a Drive link when you attach something too large.
+          Outlook can attach a OneDrive file as a link. Apple Mail has Mail Drop, which uploads the attachment to iCloud and
+          sends a link; Apple&apos;s{" "}
+          <Ext href={SRC.mailDrop.href}>Mail Drop page</Ext> says attachments can be up to 5 GB and links last 30 days, but
+          that page isn&apos;t recent, so check it before relying on those numbers.
+        </p>
+
+        <h2>Option 3: make the file smaller first</h2>
+        <ul>
+          <li>
+            <strong>Video:</strong> phones record at high resolution. Exporting or sharing at a lower quality can cut the size
+            dramatically, if the recipient doesn&apos;t need full quality.
+          </li>
+          <li>
+            <strong>Documents and scans:</strong> a PDF made from photos is often far bigger than it needs to be. Scanning at a
+            lower resolution or in black and white helps.
+          </li>
+          <li>
+            <strong>ZIP files:</strong> zipping is great for bundling many files into one, but it barely shrinks photos, videos
+            or PDFs, which are already compressed. Don&apos;t expect a ZIP to get a 60 MB video under a 25 MB limit.
+          </li>
+        </ul>
+
+        <h2>Where a temporary file-sharing site fits</h2>
+        <p>
+          Online Clipboard is not a large-file service. It takes one file of up to {f.maxFileMb} MB, and the file is deleted{" "}
+          {minutes} after you create the clip. That suits a file that is slightly too big for an attachment and needs to reach
+          someone right now, while you can tell them the code directly. For anything bigger, or anything that must wait for the
+          recipient, use a share link from a cloud drive.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Files over {f.maxFileMb} MB:</strong> that is our hard limit. Use a cloud drive share link or your email
+          provider&apos;s large-file option.
+        </li>
+        <li>
+          <strong>Recipients who won&apos;t open it soon:</strong> the clip is gone after {minutes}; a share link can stay
+          available for days.
+        </li>
+        <li>
+          <strong>Sending to a group or a client:</strong> a named link from your own cloud drive looks more trustworthy than a
+          6-digit code, and you can see who has access.
+        </li>
+        <li>
+          <strong>Contracts, payslips and other confidential files:</strong> clips are not end-to-end encrypted; use a share
+          link restricted to the recipient&apos;s account.
+        </li>
+      </ul>
+    ),
+    sources: [SRC.gmailAttachments, SRC.outlookLargeFiles, SRC.mailDrop, SRC.googleStorage, SRC.driveFileLimits, SRC.oneDriveUpload],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 5. Use a shared or public computer safely
+// ---------------------------------------------------------------------------
+
+function sharedComputer(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          Cyber cafés, library terminals, print-shop PCs and hot desks at work all have one thing in common: other people use
+          them after you, and you don&apos;t know what is installed. You can still get a document printed or a file sent
+          safely if you treat the machine as borrowed and leave nothing of yours behind.
+        </p>
+
+        <h2>Before you start</h2>
+        <ul>
+          <li>
+            <strong>Open a private or guest window.</strong> Chrome has guest and Incognito windows, Edge has InPrivate.
+            Google&apos;s advice for a computer that isn&apos;t yours is to browse in a private window and close it when
+            you&apos;re done (<Ext href={SRC.googleSignInNotYours.href}>Google Account Help</Ext>).
+          </li>
+          <li>
+            <strong>Check for anything odd.</strong> An unfamiliar browser extension, a toolbar you didn&apos;t expect, or a
+            small device plugged in between the keyboard cable and the computer are all reasons to use another machine.
+          </li>
+          <li>
+            <strong>Decide what you will sign in to.</strong> The fewer accounts you open, the less can go wrong. Online banking,
+            tax portals and your main email are better left for your own phone.
+          </li>
+        </ul>
+
+        <h2>While you work</h2>
+        <ol>
+          <li>
+            When a site asks to <strong>save your password</strong>, choose never or not now. Untick &ldquo;stay signed in&rdquo;
+            or &ldquo;remember me&rdquo; on login pages.
+          </li>
+          <li>
+            Watch out for people looking over your shoulder when you type a password or a one-time code, and cover the keyboard
+            if needed.
+          </li>
+          <li>
+            If you need a file on this computer, prefer a method that doesn&apos;t require signing in here: a temporary
+            file-sharing site with a short code, or a USB stick you control. Be careful with USB sticks on public machines;
+            they can pick up malware and carry it back to your own computer.
+          </li>
+          <li>Open documents to print them, but don&apos;t edit sensitive files on a machine you don&apos;t trust.</li>
+        </ol>
+
+        <h2>Before you leave: the step most people miss</h2>
+        <p>
+          A private window deletes history, cookies and site data when you close it. Microsoft describes this for Edge&apos;s
+          InPrivate mode on <Ext href={SRC.edgePrivacy.href}>its browsing-data page</Ext>. What it does{" "}
+          <strong>not</strong> do is delete files you downloaded. Your PDF, photo or ticket is still sitting in the Downloads
+          folder for the next person.
+        </p>
+        <ol>
+          <li>Sign out of every site you used.</li>
+          <li>Open the Downloads folder and delete what you downloaded. Check the desktop too.</li>
+          <li>Empty the Recycle Bin, or the deleted files can be restored.</li>
+          <li>If you printed, check that nothing is still waiting in the print queue or in the printer tray.</li>
+          <li>Close all browser windows, including the private ones.</li>
+        </ol>
+
+        <h2>At a print shop</h2>
+        <ul>
+          <li>
+            Staff sometimes ask you to email the file to the shop. That puts your document in their inbox indefinitely. Ask
+            whether you can open it on their computer instead, and delete it once it has printed.
+          </li>
+          <li>
+            Count the pages before you pay and take every copy, including misprints, which can contain the same details as the
+            good ones.
+          </li>
+          <li>Don&apos;t leave your USB stick in the machine; it is the most commonly forgotten item.</li>
+        </ul>
+
+        <h2>If you forgot to sign out</h2>
+        <p>
+          You can usually end the session remotely. Google lets you see where your account is signed in and remove a device
+          from your account&apos;s device list. If you think the computer saved your password, change it as soon as you can
+          from your own device. Other large providers offer similar &ldquo;sign out everywhere&rdquo; controls in their security
+          settings.
+        </p>
+
+        <h2>Where Online Clipboard fits</h2>
+        <p>
+          It needs no sign-in on the shared computer: you create the clip on your phone and type the code there. Keep in mind
+          that the clip can be opened by anyone with the code until it expires {minutes} after you created it, and that it is
+          not end-to-end encrypted. If you opened it with a link, the code stays in that browser&apos;s history until you close
+          a private window. Delete the downloaded file afterwards, exactly as you would with any other method.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Documents with personal data</strong> (IDs, bank letters, medical forms): print them from your own device or
+          a trusted print service, not via a public PC and a shared code.
+        </li>
+        <li>
+          <strong>Office computers with rules:</strong> if your workplace blocks downloads or file-sharing sites, follow its
+          policy instead of working around it.
+        </li>
+        <li>
+          <strong>Anything you need to sign in to anyway</strong>, such as a work system: an online clipboard doesn&apos;t make
+          that login safer.
+        </li>
+        <li>
+          <strong>Files over {f.maxFileMb} MB</strong>, which don&apos;t fit in a clip.
+        </li>
+      </ul>
+    ),
+    sources: [SRC.googleSignInNotYours, SRC.edgePrivacy],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 6. Transfer photos from an iPhone to a Windows PC
+// ---------------------------------------------------------------------------
+
+function iphonePhotosToWindows(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          Moving a few photos is easy; moving a year of them without missing files, blurry copies or files Windows can&apos;t
+          open takes a little preparation. This guide covers the photo-specific parts: formats, Live Photos and import errors.
+          For other file types, see{" "}
+          <Link href="/guides/send-file-from-phone-to-pc-without-cable">sending a file from your phone to a PC</Link>.
+        </p>
+
+        <h2>Which method should you use?</h2>
+        <ul>
+          <li><strong>Hundreds of photos, once:</strong> USB import (method 1). It is the fastest and needs no account.</li>
+          <li><strong>Every new photo, automatically:</strong> iCloud for Windows (method 2), if you already pay for iCloud storage.</li>
+          <li><strong>One or two photos to someone else&apos;s PC:</strong> email or a short-lived clip (end of this guide).</li>
+        </ul>
+
+        <h2>Method 1: USB and the Windows Photos app (best for many photos)</h2>
+        <ol>
+          <li>
+            On the PC, install Apple&apos;s <strong>Apple Devices</strong> app from the Microsoft Store, as Apple recommends on{" "}
+            <Ext href={SRC.appleTransferPhotos.href}>its photo transfer page</Ext>.
+          </li>
+          <li>Connect the iPhone with a USB cable and unlock it.</li>
+          <li>If the iPhone asks whether to trust this computer, tap Trust (or Allow) and enter your passcode.</li>
+          <li>
+            Open the Photos app on the PC, choose Import, select the iPhone, then pick the photos and the folder to save them in (
+            <Ext href={SRC.msImportPhotos.href}>Microsoft&apos;s import steps</Ext>).
+          </li>
+        </ol>
+
+        <h2>Method 2: iCloud Photos and iCloud for Windows</h2>
+        <p>
+          If iCloud Photos is turned on, your library already lives in iCloud. With iCloud for Windows and the same Apple Account,
+          photos can sync to the PC without a cable, which suits ongoing backups more than a one-off transfer. Free iCloud storage
+          is small, so large libraries usually need a paid plan.
+        </p>
+
+        <h2>HEIC files that Windows won&apos;t open</h2>
+        <p>
+          iPhones save photos as HEIF (files ending in .HEIC) and videos as HEVC to save space. Apple says that when you import
+          over USB to a PC, the iPhone may convert them to JPEG and H.264 automatically; if you chose to keep originals, you get
+          HEIC files instead (<Ext href={SRC.appleHeif.href}>Apple: HEIF and HEVC</Ext>). To open HEIC files, Microsoft says
+          the Photos app needs the HEIF Image Extensions and the HEVC Video Extensions from the Microsoft Store, and lists the
+          HEVC one as a paid extension (<Ext href={SRC.msHeifExtensions.href}>Microsoft&apos;s page</Ext>). The alternatives:
+        </p>
+        <ul>
+          <li>Leave the iPhone&apos;s transfer setting on automatic so photos arrive as JPEG.</li>
+          <li>
+            Or set the iPhone camera to <strong>Most Compatible</strong>, so new photos are taken as JPEG from the start. Apple
+            suggests this for the best results on Windows; existing photos are not converted.
+          </li>
+        </ul>
+
+        <h2>Live Photos</h2>
+        <p>
+          A Live Photo is a still photo plus a short clip from just before and after you pressed the shutter (
+          <Ext href={SRC.appleLivePhotos.href}>Apple: Live Photos</Ext>). Windows has no Live Photo player, so depending on how
+          you transfer it, you get just the still image or the still plus a separate short video file. Apple notes that sending
+          one by Mail turns it into a still image. If the motion matters, convert it to a video on the iPhone first.
+        </p>
+
+        <h2>Common problems and fixes</h2>
+        <ul>
+          <li>
+            <strong>The iPhone doesn&apos;t appear on the PC.</strong> Unlock it, try another cable (some only charge and
+            can&apos;t carry data) and another USB port, then restart both devices. Apple lists these steps on{" "}
+            <Ext href={SRC.appleNotRecognized.href}>its troubleshooting page</Ext>.
+          </li>
+          <li>
+            <strong>You tapped &ldquo;Don&apos;t Trust&rdquo; by mistake.</strong> Apple explains how to bring the prompt back by
+            resetting location and privacy settings on the iPhone (
+            <Ext href={SRC.appleTrust.href}>Apple: Trust This Computer</Ext>).
+          </li>
+          <li>
+            <strong>Some photos are missing from the import.</strong> If iCloud Photos is set to save storage on the iPhone, the
+            full-size originals may only exist in iCloud. Apple says to download the originals to the iPhone before importing over
+            USB.
+          </li>
+          <li>
+            <strong>The import stops halfway on a big library.</strong> Import in smaller batches, by month or album, and keep
+            the iPhone unlocked and connected until it finishes.
+          </li>
+        </ul>
+
+        <h2>Just one or two photos?</h2>
+        <p>
+          For a single photo, a cable is overkill. You can email it to yourself, or use Online Clipboard: choose the photo on
+          the iPhone, create a clip, and enter the code on the PC. One file per clip, up to {f.maxFileMb} MB, gone after{" "}
+          {minutes}.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Whole albums or a full photo library:</strong> one file per clip makes this impractical. Use USB import or
+          iCloud.
+        </li>
+        <li>
+          <strong>Keeping a backup:</strong> clips are deleted after {minutes}; they are a hand-off, not storage.
+        </li>
+        <li>
+          <strong>Long 4K videos</strong> that are bigger than {f.maxFileMb} MB.
+        </li>
+        <li>
+          <strong>Private photos:</strong> clips are not end-to-end encrypted and can be opened by anyone with the code.
+        </li>
+      </ul>
+    ),
+    sources: [
+      SRC.appleTransferPhotos,
+      SRC.msImportPhotos,
+      SRC.appleHeif,
+      SRC.msHeifExtensions,
+      SRC.appleLivePhotos,
+      SRC.appleNotRecognized,
+      SRC.appleTrust,
+    ],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 7. Transfer photos from an Android phone to a computer
+// ---------------------------------------------------------------------------
+
+function androidPhotosToComputer(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          Android phones store photos as ordinary files, which makes copying them to a computer straightforward once the phone
+          and the computer can see each other. Most failed transfers come down to one setting and one cable. This guide is about
+          photos and videos; for documents and other files, see{" "}
+          <Link href="/guides/send-file-from-phone-to-pc-without-cable">sending a file from your phone to a PC</Link>.
+        </p>
+
+        <h2>The setting that blocks most transfers</h2>
+        <p>
+          When you plug an Android phone into a computer, it usually only charges. You have to tell it to share files: unlock the
+          phone, tap the USB notification (often labelled something like &ldquo;Charging this device via USB&rdquo;), and choose{" "}
+          <strong>File transfer</strong>. Google describes this on{" "}
+          <Ext href={SRC.androidUsbTransfer.href}>its Android file transfer page</Ext>. The wording differs between phone makers,
+          but the option is in that notification.
+        </p>
+        <p>
+          The other usual suspect is the cable. Google points out that not all USB cables can transfer files; the thin cable that
+          came with a power bank may only charge. If the phone charges but the computer never sees it, try another cable before
+          anything else.
+        </p>
+
+        <h2>Windows: Photos app or File Explorer</h2>
+        <ol>
+          <li>Connect the phone, unlock it and select File transfer as above.</li>
+          <li>
+            To pick photos visually, open the Photos app, choose Import and select the phone (
+            <Ext href={SRC.msImportPhotos.href}>Microsoft&apos;s import steps</Ext>). Microsoft notes the PC can&apos;t see a
+            locked phone.
+          </li>
+          <li>
+            Or open File Explorer, select the phone, and copy the photo folder yourself. Camera photos are usually in a folder
+            called DCIM.
+          </li>
+        </ol>
+        <p>
+          For a handful of recent photos without a cable, Microsoft&apos;s Phone Link can show recent phone photos on the PC (
+          <Ext href={SRC.msPhoneLinkPhotos.href}>Microsoft: photos in Phone Link</Ext>); it is meant for recent shots, not whole
+          libraries.
+        </p>
+
+        <h2>Mac</h2>
+        <p>
+          Macs don&apos;t show Android phones in Finder. Google&apos;s help page says to install its Android File Transfer app,
+          connect the phone, and choose File transfer on the phone; the app then lets you drag files across. If that app
+          isn&apos;t available or doesn&apos;t work on your version of macOS, the cloud route below avoids cables entirely.
+        </p>
+
+        <h2>From Google Photos (no cable at all)</h2>
+        <p>
+          If your phone backs up to Google Photos, the photos are already online. On the computer, open Google Photos in a
+          browser, select the photos and choose Download. For an entire library, Google suggests Google Takeout, which packs
+          everything into ZIP archives (<Ext href={SRC.googlePhotosDownload.href}>Google Photos Help</Ext>).
+        </p>
+        <p>
+          One detail that surprises people: Google notes that downloaded files may show the download date in your file browser,
+          even though the original date taken is still stored inside each photo. Sort by &ldquo;date taken&rdquo;, not
+          &ldquo;date modified&rdquo;, and your timeline looks right again.
+        </p>
+
+        <h2>Tips for big transfers</h2>
+        <ul>
+          <li>
+            Copy in batches, a month or a folder at a time. If something goes wrong, you only redo one batch, not the whole
+            camera roll.
+          </li>
+          <li>
+            If a long copy stops partway, the phone may have locked itself. Keep it unlocked, or lengthen the screen timeout
+            while you copy, then set it back.
+          </li>
+          <li>
+            Check a few videos after copying. If a video was still being backed up or edited on the phone, the copied file can be
+            incomplete.
+          </li>
+          <li>Only delete photos from the phone once you have opened them on the computer, not just seen the file names.</li>
+        </ul>
+
+        <h2>Formats you might see</h2>
+        <p>
+          Most Android phones save JPEG photos and MP4 videos, which every computer opens. Some recent phones offer HEIF/HEIC to
+          save space; if Windows won&apos;t open those, check the camera app&apos;s settings for a more compatible format, or see
+          the HEIC section of our{" "}
+          <Link href="/guides/transfer-photos-from-iphone-to-windows-pc">iPhone to Windows photos guide</Link>.
+        </p>
+
+        <h2>One photo, right now</h2>
+        <p>
+          For a single photo to a computer that isn&apos;t yours, cables and cloud logins are overkill. Create a clip with Online
+          Clipboard on the phone and enter the code on the computer: one file per clip, up to {f.maxFileMb} MB, deleted after{" "}
+          {minutes}.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Backing up your camera roll:</strong> use a cable or Google Photos; a clip is deleted after {minutes}.
+        </li>
+        <li>
+          <strong>Dozens of photos at once:</strong> one file per clip turns that into a chore. Zip them, or use a cable.
+        </li>
+        <li>
+          <strong>Videos bigger than {f.maxFileMb} MB</strong>, which won&apos;t fit.
+        </li>
+        <li>
+          <strong>Photos of documents or people you&apos;d rather keep private:</strong> clips are not end-to-end encrypted.
+        </li>
+      </ul>
+    ),
+    sources: [SRC.androidUsbTransfer, SRC.msImportPhotos, SRC.msPhoneLinkPhotos, SRC.googlePhotosDownload],
+  };
+}
+
 export const GUIDE_BODIES: Record<string, (f: SiteFacts) => GuideBody> = {
+  "send-files-too-big-for-email": tooBigForEmail,
+  "use-a-shared-computer-safely": sharedComputer,
+  "transfer-photos-from-iphone-to-windows-pc": iphonePhotosToWindows,
+  "transfer-photos-from-android-to-computer": androidPhotosToComputer,
   "copy-paste-text-between-phone-and-computer": copyPasteText,
   "send-file-from-phone-to-pc-without-cable": sendFileWithoutCable,
   "is-an-online-clipboard-safe": isItSafe,

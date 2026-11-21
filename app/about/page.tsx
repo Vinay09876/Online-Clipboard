@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentPage } from "@/components/ContentPage";
+import { CLAIMS } from "@/content/claims";
 import { OWNER } from "@/content/legal";
 import { fmt, getSiteFacts, plural } from "@/lib/facts";
 import { pageUrls } from "@/lib/site";
@@ -42,7 +43,7 @@ export default function AboutPage() {
         <li>The server picks a random 6-digit code that isn&apos;t in use and stores the clip under it.</li>
         <li>Whoever enters the code (or opens the link) gets the text, and a short-lived download link for the file.</li>
         <li>
-          After {minutes} the code stops working, and a clean-up job deletes the text and file, usually within minutes.
+          After {minutes} the code stops working, and {CLAIMS.deletion}.
         </li>
       </ol>
 
@@ -50,7 +51,7 @@ export default function AboutPage() {
       <ul>
         <li>No accounts and no sign-up.</li>
         <li>No cookies, no analytics, no tracking scripts.</li>
-        <li>No end-to-end encryption: clips are stored in a readable form until they expire.</li>
+        <li>No end-to-end encryption. {CLAIMS.encryption}</li>
         <li>No permanent storage, no file previews, no early delete button, no public API.</li>
       </ul>
 

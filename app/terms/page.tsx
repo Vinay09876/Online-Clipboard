@@ -7,6 +7,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentPage } from "@/components/ContentPage";
+import { CLAIMS } from "@/content/claims";
 import { LEGAL_LAST_UPDATED, OWNER } from "@/content/legal";
 import { getSiteFacts, plural } from "@/lib/facts";
 import { pageUrls } from "@/lib/site";
@@ -47,15 +48,13 @@ export default function TermsPage() {
 
       <h2>Everything is deleted automatically</h2>
       <p>
-        Each clip, including its file, expires {minutes} after it is created. After that the code stops working and the
-        text and file are deleted by an automatic clean-up job, usually within minutes. There is no way to recover an
-        expired clip, and no way to delete a clip early.
+        Each clip, including its file, expires {minutes} after it is created. After that the code stops working, and{" "}
+        {CLAIMS.deletion}. There is no way to recover an expired clip, and no way to delete a clip early.
       </p>
 
       <h2>Your responsibility</h2>
       <p>
-        Clips are <strong>not end-to-end encrypted</strong>, and anyone who has (or guesses) a code can open that clip
-        until it expires. Don&apos;t share passwords, ID documents, financial details or other sensitive material. What
+        {CLAIMS.encryption} Anyone who has (or guesses) a code can open that clip until it expires. Don&apos;t share passwords, ID documents, financial details or other sensitive material. What
         we store and for how long is explained in the <Link href="/privacy">Privacy policy</Link>.
       </p>
 

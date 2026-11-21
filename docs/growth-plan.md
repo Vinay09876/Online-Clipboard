@@ -30,10 +30,15 @@ One step at a time; each step is reviewed before the next starts.
         (1) How to copy and paste text between your phone and computer,
         (2) How to send a file from your phone to a PC without a cable,
         (3) Is an online clipboard safe? What you should never share.
-        *(Done 2026-11-21; awaiting review. Owner must fill the [[ADD]] placeholders and
+        *(Done 2026-11-21; reviewed and committed. Owner must fill the [[ADD]] placeholders and
         test the device steps on real phones before launch.)*
-  - [ ] **3b.** Guides: Android to Windows file transfer options; iPhone to Windows PC;
-        sending large files past email limits; using a shared computer safely.
+  - [x] **3b.** Copy fixes (encryption, IP hashing, deletion timing, browser support, examples;
+        shared wording in `content/claims.ts`), `primaryQuery` + no-overlap test, and 4 guides:
+        (4) How to send files that are too big for email,
+        (5) How to use a shared or public computer safely,
+        (6) How to transfer photos from an iPhone to a Windows PC,
+        (7) How to transfer photos from an Android phone to a computer.
+        Each guide now shows 3 related guides. *(Done 2026-11-21; awaiting review.)*
   - [ ] **3c.** Guides: sending files to a print shop; sharing files in a classroom; moving code
         snippets or logs from phone to computer; online clipboard vs emailing yourself or
         messaging apps; what an online clipboard is and how it works.
@@ -65,3 +70,8 @@ One step at a time; each step is reviewed before the next starts.
   /guides hub and /guides/[slug]; header nav (Guides, About, Contact) and footer nav (Home,
   Guides, About, Contact, Terms, Privacy); `npm run build` runs a placeholder guard
   (`scripts/check-placeholders.ts`) that blocks indexable builds with owner placeholders left.
+- **Step 3b** (2026-11-21): claims about encryption, IP hashing, deletion timing and browser
+  support now come from one file (`content/claims.ts`) used by every page. Deletion timing
+  ("within about 10 minutes after expiry") depends on the pg_cron job in
+  `docs/cleanup-scheduling.md` actually running in production. Guide registry gained
+  `primaryQuery`; a test rejects empty or duplicate primary queries and requires 3 related guides.
