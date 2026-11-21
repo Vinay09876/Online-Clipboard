@@ -8,7 +8,7 @@
  *    the plain text of the same segments, so the structured data always matches the page.
  */
 
-/** Values read from server config (app/page.tsx). */
+/** Values read from server config (lib/facts.ts, via app/page.tsx). */
 export type HomeFacts = {
   maxFileMb: number;
   maxTextLength: number;
@@ -48,8 +48,10 @@ export function homeContent(f: HomeFacts): HomeContent {
   const minutes = plural(f.expiryMinutes, "minute", "minutes");
   const fileSize = `${n(f.maxFileMb)} MB`;
   const textLimit = `${n(f.maxTextLength)} characters`;
-  const terms: Segment = { text: "Terms & privacy", href: "/terms" };
-  const abuse: Segment = f.abuseEmail ? { text: f.abuseEmail, href: `mailto:${f.abuseEmail}` } : terms;
+  const terms: Segment = { text: "Terms of use", href: "/terms" };
+  const privacyPolicy: Segment = { text: "Privacy policy", href: "/privacy" };
+  const contact: Segment = { text: "Contact page", href: "/contact" };
+  const abuse: Segment = f.abuseEmail ? { text: f.abuseEmail, href: `mailto:${f.abuseEmail}` } : contact;
 
   return {
     howItWorks: {
@@ -129,8 +131,8 @@ export function homeContent(f: HomeFacts): HomeContent {
         {
           title: "What we keep about you",
           text: [
-            `No accounts, no cookies, no analytics. To stop abuse we keep a hashed (scrambled, non-reversible) form of your IP address with a request counter, deleted after about ${plural(f.rateLimitRetentionHours, "hour", "hours")}. Details are in `,
-            terms,
+            `No accounts, no cookies, no analytics. To stop abuse we keep a hashed (scrambled, non-reversible) form of your IP address with a request counter, deleted after about ${plural(f.rateLimitRetentionHours, "hour", "hours")}. Details are in the `,
+            privacyPolicy,
             ".",
           ],
         },
@@ -216,11 +218,11 @@ export function homeContent(f: HomeFacts): HomeContent {
           question: "How do I report abuse?",
           answer: f.abuseEmail
             ? [["Email ", abuse, " with the 6-digit code and what is wrong with the clip."]]
-            : [["See the abuse section of the ", terms, " page."]],
+            : [["Use the ", contact, " and include the 6-digit code and what is wrong with the clip."]],
         },
       ],
     },
 
-    closing: ["By using Online Clipboard you agree to the ", terms, ". Please read them before sharing anything important."],
+    closing: ["By using Online Clipboard you agree to the ", terms, ". What happens to your data is explained in the ", privacyPolicy, "."],
   };
 }

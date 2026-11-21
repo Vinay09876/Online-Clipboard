@@ -52,7 +52,7 @@ image and link, and the site still stays out of search engines because the host 
 1. Create the page with `export const metadata = { title: "…", description: "…", ...pageUrls("/path", "Share title") }`.
    Use `pageUrls`; don't hand-write `openGraph`. (Next.js merges metadata shallowly, so a
    hand-written `openGraph` would drop the site name and the share image.)
-2. Add `{ path: "/path", changeFrequency, priority }` to `lib/sitePages.ts`.
+2. Add `{ path: "/path", changeFrequency, priority }` to `lib/sitePages.ts` (guides are added automatically from `content/guides/index.ts`).
 3. Keep exactly one `<h1>` per page and don't skip heading levels (the test checks `/`, `/terms`
    and the 404 page; add new pages to that test).
 

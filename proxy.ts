@@ -1,5 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { GUIDES } from "@/content/guides/index";
 import { INDEXABLE } from "@/lib/site";
+
+const GUIDE_SLUGS = new Set(GUIDES.map((g) => g.slug));
 
 /**
  * Content-Security-Policy with a fresh nonce for every page request.
@@ -48,7 +51,15 @@ export function proxy(request: NextRequest) {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", csp);
 
-  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  // Unknown guide slugs must be a real 404. Deciding here, before rendering starts, gives the
+  // correct status code (a notFound() inside the streamed page would arrive after a 200), and
+  // dynamicParams=false isn't available with cacheComponents. The rewrite target matches no
+  // route, so Next.js serves the normal not-found page with status 404.
+  const guide = /^\/guides\/([^/]+)\/?$/.exec(request.nextUrl.pathname);
+  const response =
+    guide && !GUIDE_SLUGS.has(decodeURIComponent(guide[1]))
+      ? NextResponse.rewrite(new URL("/__unknown-guide__", request.url), { request: { headers: requestHeaders } })
+      : NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", csp);
   // Belt and braces next to <meta name="robots">: also covers robots.txt, the sitemap,
   // icons and the share image on temporary hosts. (API routes always get it: next.config.ts.)

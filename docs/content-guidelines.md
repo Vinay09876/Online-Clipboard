@@ -99,3 +99,48 @@ Limits change (file size, expiry, rate limits). Typed numbers silently become li
 - [ ] Internal links to and from related pages.
 - [ ] Spell-checked; read once on a phone.
 - [ ] Tests updated (headings/sections exist; numbers follow config where used).
+
+## 9. Guides: structure and checklist
+
+Guides live in two places: metadata in `content/guides/index.ts` (slug, title, description,
+summary, dates, related slugs) and the body in `content/guides/bodies.tsx`. The layout
+(`components/guides/GuideLayout.tsx`) adds the parts every guide must have, so they can't be
+forgotten: breadcrumbs, one `<h1>`, the "In short" summary, the last-updated date, the
+**"When this tool is not the right choice"** section, official sources, related guides and a
+calm link to the tool. Article and BreadcrumbList JSON-LD are generated automatically, and the
+sitemap and /guides hub pick up new guides from the registry.
+
+**Structure of a guide body**
+
+- First paragraph: the situation and what the reader will get. No throat-clearing.
+- `<h2>` per approach (often per platform), `<h3>` for individual options. Never skip levels.
+- Numbered steps (`<ol>`) for anything the reader must do in order.
+- Honest comparisons: name the alternatives (cable, Quick Share, AirDrop, Phone Link, cloud
+  drives, email, messengers) and say plainly when each is better than our tool.
+- The `notRightFor` list: concrete cases where the reader should use something else.
+- 600-900 words of useful content. Never pad.
+
+**Fact-checking device instructions**
+
+- Check every device or software claim against the vendor's **official** help page (Apple,
+  Google/Android, Microsoft, WhatsApp, …) and add that page to the guide's `sources`.
+- Write the platform context ("on a Windows 11 PC", "with the Link to Windows app") and prefer
+  general wording over exact menu paths; menus change. Only give an exact path if the official
+  page confirms it, and link to that page.
+- Note the check date in the bodies file header. Re-check when updating `dateModified`.
+- Anything that can't be checked on real devices goes on a "steps to verify" list in the step
+  report; the owner tests those on real phones and PCs before launch.
+
+**Honesty**
+
+- Security wording follows `/privacy`: not end-to-end encrypted, anyone with the code can
+  open a clip until it expires, no early delete.
+- No invented facts about the owner, usage numbers, testimonials or reviews. Personal details
+  are `[[ADD: …]]` placeholders until the owner provides them. `npm run build` refuses to build
+  an indexable site while any placeholder remains (`scripts/check-placeholders.ts`).
+
+**No thin pages**
+
+- One guide per genuinely different question. If two planned topics would share most of their
+  text, merge them or make one link to the other.
+- Every guide gets real internal links (related guides and the hub), and appears in the hub.

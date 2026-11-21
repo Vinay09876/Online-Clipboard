@@ -15,5 +15,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: absoluteUrl(p.path)!,
     changeFrequency: p.changeFrequency,
     priority: p.priority,
+    ...(p.lastModified ? { lastModified: p.lastModified } : {}),
   }));
 }

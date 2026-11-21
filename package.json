@@ -16,7 +16,9 @@
     "test:egress": "tsx --conditions=react-server --env-file=.env.local scripts/test-egress.ts",
     "smoke:prod": "tsx scripts/smoke-prod.ts",
     "scan:secrets": "tsx scripts/scan-secrets.ts",
-    "icons:generate": "tsx scripts/generate-icons.ts"
+    "icons:generate": "tsx scripts/generate-icons.ts",
+    "check:placeholders": "tsx scripts/check-placeholders.ts",
+    "prebuild": "tsx scripts/check-placeholders.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

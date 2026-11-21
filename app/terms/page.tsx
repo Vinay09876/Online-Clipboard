@@ -1,132 +1,82 @@
 /*
- * TEMPLATE — NOT LEGAL ADVICE. Review and adapt this page (ideally with someone who
- * knows the law where you operate, e.g. India's IT Act / IT Rules) before sharing the
- * site publicly. Keep it in sync with what the code actually does.
+ * TEMPLATE, NOT LEGAL ADVICE. These are plain-language terms written for a small free hobby
+ * site. Review and adapt them (ideally with someone who knows the law where you operate,
+ * e.g. India's IT Act / IT Rules) before sharing the site publicly. Keep every statement in
+ * sync with what the code actually does. Privacy details live on /privacy.
  */
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ABUSE_CONTACT_EMAIL, CLIP_EXPIRY_MINUTES, MAX_FILE_SIZE_MB, RATE_LIMIT_WINDOW_SECONDS } from "@/lib/config";
+import { ContentPage } from "@/components/ContentPage";
+import { LEGAL_LAST_UPDATED, OWNER } from "@/content/legal";
+import { getSiteFacts, plural } from "@/lib/facts";
 import { pageUrls } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Terms & privacy", // → "Terms & privacy | Online Clipboard" via the layout template
-  description: "Plain-language terms of use and privacy notes for Online Clipboard.",
-  ...pageUrls("/terms", "Terms & privacy | Online Clipboard"),
+  title: "Terms of use", // → "Terms of use | Online Clipboard" via the layout template
+  description: "The plain-language terms for using Online Clipboard: what you may share, how long clips last, and limits.",
+  ...pageUrls("/terms", "Terms of use | Online Clipboard"),
 };
 
 export default function TermsPage() {
-  // Rate-limit counters are deleted after about an hour (or one window, if longer).
-  const rateLimitHours = Math.max(1, Math.ceil(RATE_LIMIT_WINDOW_SECONDS / 3600));
+  const f = getSiteFacts();
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
 
   return (
-    <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-6 sm:py-10">
-      <article className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-5 text-sm leading-relaxed sm:p-8 dark:border-zinc-800 dark:bg-zinc-900">
-        <header className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">Terms &amp; privacy</h1>
-          <p className="text-zinc-600 dark:text-zinc-400">The short version, in plain language.</p>
-        </header>
-
-        <Section title="What this is">
-          <p>
-            Online Clipboard lets you share text or one file (up to {MAX_FILE_SIZE_MB} MB) using a 6-digit code. It is a
-            free, non-commercial hobby project.
-          </p>
-        </Section>
-
-        <Section title="What you may not share">
-          <ul className="list-disc space-y-1 pl-5">
-            <li>Anything illegal where you or the recipient are.</li>
-            <li>Malware, phishing, or anything meant to harm people or computers.</li>
-            <li>Content that harasses, threatens or exploits anyone, or that you don&apos;t have the right to share.</li>
-          </ul>
-          <p>We may delete any clip and block access at any time.</p>
-        </Section>
-
-        <Section title="Everything is deleted automatically">
-          <p>
-            Each clip, including its file, expires {CLIP_EXPIRY_MINUTES} minutes after it is created. After that the code
-            stops working and the text and file are deleted by an automatic clean-up job, usually within minutes.
-          </p>
-        </Section>
-
-        <Section title="Not end-to-end encrypted">
-          <p>
-            Text and files are sent over HTTPS, but they are stored on our servers in a readable form until they expire.
-            <strong className="font-semibold"> Do not share passwords, ID documents, financial details or other sensitive
-            material.</strong> Anyone who has (or guesses) the code can open the clip until it expires.
-          </p>
-        </Section>
-
-        <Section title="What we keep about you">
-          <ul className="list-disc space-y-1 pl-5">
-            <li>No accounts, no cookies, no analytics, no ads, no tracking scripts.</li>
-            <li>
-              To stop abuse, we keep a <em>hashed</em> (scrambled, non-reversible) form of your IP address together with a
-              request counter. These counters are deleted after about {rateLimitHours} hour{rateLimitHours > 1 ? "s" : ""}.
-              Your raw IP address is never stored by the app.
-            </li>
-            <li>
-              The site runs on Vercel (hosting) and Supabase (database and file storage). Like any web host, they may keep
-              short-lived technical logs, which can include IP addresses.
-            </li>
-          </ul>
-        </Section>
-
-        <Section title="No guarantees">
-          <p>
-            The service is provided &ldquo;as is&rdquo;, without any warranty. It may be slow, unavailable, paused when free
-            limits are reached, or shut down at any time, and clips may be lost before they expire. Don&apos;t use it as
-            the only copy of anything important. To the extent the law allows, we are not liable for any loss from using
-            it.
-          </p>
-        </Section>
-
-        <Section title="Report abuse">
-          <AbuseContact email={ABUSE_CONTACT_EMAIL} />
-        </Section>
-
-        <p className="pt-2">
-          <Link
-            href="/"
-            className="font-medium text-indigo-700 underline underline-offset-2 hover:text-indigo-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-300"
-          >
-            ← Back to Online Clipboard
-          </Link>
-        </p>
-      </article>
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="space-y-2">
-      <h2 className="text-base font-semibold">{title}</h2>
-      {children}
-    </section>
-  );
-}
-
-/** Email comes from ABUSE_CONTACT_EMAIL (server config), passed in as a prop. */
-function AbuseContact({ email }: { email: string | null }) {
-  if (!email) {
-    return (
-      <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
-        [Placeholder] An abuse contact has not been configured yet. The site owner must set ABUSE_CONTACT_EMAIL before
-        launch.
+    <ContentPage
+      crumbs={[
+        { name: "Home", path: "/" },
+        { name: "Terms of use", path: "/terms" },
+      ]}
+      title="Terms of use"
+      lead="The short version, in plain language. By using Online Clipboard you agree to these terms."
+      meta={`Last updated ${LEGAL_LAST_UPDATED}`}
+    >
+      <h2>What this is</h2>
+      <p>
+        Online Clipboard lets you share text or one file (up to {f.maxFileMb} MB) using a 6-digit code. It is a free,
+        non-commercial hobby project run by {OWNER.name}.
       </p>
-    );
-  }
-  return (
-    <p>
-      If you find a clip that breaks these rules, email{" "}
-      <a
-        href={`mailto:${email}?subject=${encodeURIComponent("Abuse report")}`}
-        className="font-medium text-indigo-700 underline underline-offset-2 dark:text-indigo-300"
-      >
-        {email}
-      </a>{" "}
-      with the 6-digit code and what is wrong. Please don&apos;t forward the content itself if it is illegal.
-    </p>
+
+      <h2>What you may not share</h2>
+      <ul>
+        <li>Anything illegal where you or the recipient are.</li>
+        <li>Malware, phishing, or anything meant to harm people or computers.</li>
+        <li>Content that harasses, threatens or exploits anyone, or that you don&apos;t have the right to share.</li>
+      </ul>
+      <p>We may delete any clip and block access at any time.</p>
+
+      <h2>Everything is deleted automatically</h2>
+      <p>
+        Each clip, including its file, expires {minutes} after it is created. After that the code stops working and the
+        text and file are deleted by an automatic clean-up job, usually within minutes. There is no way to recover an
+        expired clip, and no way to delete a clip early.
+      </p>
+
+      <h2>Your responsibility</h2>
+      <p>
+        Clips are <strong>not end-to-end encrypted</strong>, and anyone who has (or guesses) a code can open that clip
+        until it expires. Don&apos;t share passwords, ID documents, financial details or other sensitive material. What
+        we store and for how long is explained in the <Link href="/privacy">Privacy policy</Link>.
+      </p>
+
+      <h2>No guarantees</h2>
+      <p>
+        The service is provided &ldquo;as is&rdquo;, without any warranty. It may be slow, unavailable, paused when free
+        limits are reached, or shut down at any time, and clips may be lost before they expire. Don&apos;t use it as the
+        only copy of anything important. To the extent the law allows, we are not liable for any loss from using it.
+      </p>
+
+      <h2>Report abuse</h2>
+      <p>
+        If you find a clip that breaks these rules, use the <Link href="/contact">Contact page</Link> and include the
+        6-digit code and what is wrong. Please don&apos;t forward the content itself if it is illegal.
+      </p>
+
+      <h2>Changes and governing law</h2>
+      <p>
+        We may update these terms; the date at the top shows the latest version. These terms are governed by the law
+        of {OWNER.governingLaw}.
+      </p>
+    </ContentPage>
   );
 }

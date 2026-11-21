@@ -60,6 +60,41 @@ test("@killswitch ALLOW_INDEXING=false on a real domain: not indexable", async (
   await expectNotIndexable(page, request);
 });
 
+test("@temp every public page is noindex on a temporary host", async ({ page, consoleProblems }) => {
+  void consoleProblems;
+  for (const p of SITE_PAGES) {
+    const res = await page.goto(p.path);
+    expect(await metaRobots(page), p.path).toBe("noindex, nofollow");
+    expect(res!.headers()["x-robots-tag"], p.path).toBe("noindex, nofollow");
+  }
+});
+
+test("@real every public page: indexable, absolute canonical, valid JSON-LD, listed in the sitemap", async ({ page, request, consoleProblems }) => {
+  void consoleProblems;
+  const sitemap = await (await request.get("/sitemap.xml")).text();
+  for (const p of SITE_PAGES) {
+    const expected = new URL(p.path, `${REAL}/`).toString();
+    expect(sitemap, `${p.path} in sitemap`).toContain(`<loc>${expected}</loc>`);
+    const res = await page.goto(p.path);
+    expect(res!.status(), p.path).toBe(200);
+    expect(await metaRobots(page), p.path).toBe("index, follow");
+    expect(res!.headers()["x-robots-tag"], p.path).toBeUndefined();
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
+    expect(new URL(canonical!).toString(), `${p.path} canonical`).toBe(expected);
+    expect(await page.locator('meta[property="og:image"]').getAttribute("content"), `${p.path} og:image`).toMatch(new RegExp(`^${REAL}/`));
+    const blocks = await page.locator('script[type="application/ld+json"]').evaluateAll((els) => els.map((e) => JSON.parse(e.textContent!)));
+    expect(blocks.length, `${p.path} has JSON-LD`).toBeGreaterThan(0);
+    // Absolute URLs in BreadcrumbList / Article when SITE_URL is set.
+    for (const b of blocks.filter((x) => x["@type"] === "BreadcrumbList")) {
+      for (const item of b.itemListElement) expect(item.item, `${p.path} breadcrumb`).toMatch(new RegExp(`^${REAL}/`));
+    }
+    for (const a of blocks.filter((x) => x["@type"] === "Article")) {
+      expect(a.url, `${p.path} Article url`).toBe(expected);
+      expect(a.mainEntityOfPage["@id"]).toBe(expected);
+    }
+  }
+});
+
 test("@temp @nosite @killswitch API responses are never indexable", async ({ request }) => {
   const api = await request.get("/api/clips/abc");
   expect(api.headers()["x-robots-tag"]).toBe("noindex, nofollow");
@@ -108,7 +143,7 @@ test("@real canonical, Open Graph and Twitter URLs are absolute; pages are index
   void consoleProblems;
   for (const { path, title } of [
     { path: "/", title: "Online Clipboard: share text and files with a 6-digit code" },
-    { path: "/terms", title: "Terms & privacy | Online Clipboard" },
+    { path: "/terms", title: "Terms of use | Online Clipboard" },
   ]) {
     const res = await page.goto(path);
     expect(res!.headers()["x-robots-tag"], `${path}: no X-Robots-Tag`).toBeUndefined();
