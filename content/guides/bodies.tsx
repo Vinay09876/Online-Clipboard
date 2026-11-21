@@ -119,6 +119,36 @@ const SRC = {
     title: "Google Photos Help: Download photos or videos to your device",
     href: "https://support.google.com/photos/answer/7652919",
   },
+  // --- added in Step 3c (checked 2026-11-21) ---
+  msSavePdf: {
+    title: "Microsoft: Save or convert to PDF or XPS in Office desktop apps",
+    href: "https://support.microsoft.com/en-us/office/save-or-convert-to-pdf-or-xps-in-office-desktop-apps-d85416c5-7d77-4fd6-a216-6f4bf7c7c110",
+  },
+  googleDocsDownload: {
+    title: "Google Docs Editors Help: Create, view, or download a file",
+    href: "https://support.google.com/docs/answer/49114",
+  },
+  classroomMaterials: {
+    title: "Classroom Help: Add materials to the Classwork page",
+    href: "https://support.google.com/edu/classroom/answer/9123621",
+  },
+  classroomAttachments: {
+    title: "Classroom Help: How attachments are shared in Classroom",
+    href: "https://support.google.com/edu/classroom/answer/6020260",
+  },
+  appleKeyboard: {
+    title: "Apple: Type with the onscreen keyboard on iPhone",
+    href: "https://support.apple.com/guide/iphone/type-with-the-onscreen-keyboard-iph3c50f96e/ios",
+  },
+  gboardCorrections: {
+    title: "Gboard Help: Get word suggestions & fix mistakes",
+    href: "https://support.google.com/gboard/answer/7068415",
+  },
+  telegramFaq: { title: "Telegram FAQ (encryption of cloud chats and secret chats)", href: "https://telegram.org/faq" },
+  windowsClipboard: {
+    title: "Microsoft: Using the clipboard (Windows clipboard history)",
+    href: "https://support.microsoft.com/en-us/windows/apps/using-the-clipboard",
+  },
   msPhoneLinkPhotos: {
     title: "Microsoft: View and manage photos from your Android device on your PC",
     href: "https://support.microsoft.com/en-us/windows/apps/photos/view-and-manage-photos-from-your-android-device-on-your-pc",
@@ -190,6 +220,30 @@ function copyPasteText(f: SiteFacts): GuideBody {
         <p>
           Line breaks and spacing are kept, and you can send up to {fmt(f.maxTextLength)} characters. The clip disappears{" "}
           {minutes} after you create it, so it won&apos;t pile up anywhere.
+        </p>
+
+        <h2>When the built-in sync doesn&apos;t work</h2>
+        <ul>
+          <li>
+            <strong>Universal Clipboard pastes old content:</strong> Apple says the copied item is only available for a short
+            time and that both devices need Wi-Fi, Bluetooth and Handoff on, signed in to the same Apple Account. Check all four
+            on both devices; Handoff is the one most often switched off.
+          </li>
+          <li>
+            <strong>Phone Link&apos;s copy and paste option is missing:</strong> your phone is probably not on Microsoft&apos;s
+            list of supported models. No setting will add it; use one of the methods below instead.
+          </li>
+          <li>
+            <strong>SwiftKey sync pastes something else:</strong> only the most recent item syncs, so copying anything new on
+            either side replaces it.
+          </li>
+        </ul>
+
+        <h2>A quick way to decide</h2>
+        <p>
+          Same Apple Account on iPhone and Mac: Universal Clipboard. Supported Android phone and a Windows 11 PC: Phone Link.
+          A computer you won&apos;t use again, or a mix of brands: a message to yourself if you&apos;re happy to sign in there,
+          an online clipboard if you aren&apos;t.
         </p>
 
         <h2>Tips that save time</h2>
@@ -293,6 +347,28 @@ function sendFileWithoutCable(f: SiteFacts): GuideBody {
           One file per clip, up to {f.maxFileMb} MB, any file type. To send several files, zip them first. The clip and the
           file are deleted {minutes} after you create them.
         </p>
+
+        <h2>When a wireless transfer fails</h2>
+        <ul>
+          <li>
+            <strong>Quick Share can&apos;t find the PC:</strong> Google says both devices need Bluetooth on and must be on the
+            same network and close together. It also notes that some networks, typically at work or school, block devices from
+            seeing each other. Switching both to your phone&apos;s hotspot often gets around that.
+          </li>
+          <li>
+            <strong>&ldquo;Send to PC&rdquo; is missing from the share menu:</strong> the Link to Windows app on the phone
+            isn&apos;t set up or isn&apos;t connected to Phone Link on the PC. Open Phone Link on the PC and check that the phone
+            shows as connected.
+          </li>
+          <li>
+            <strong>Bluetooth transfer starts and then stops:</strong> start &ldquo;receive&rdquo; on the PC first, keep the
+            devices close, and send one file at a time.
+          </li>
+          <li>
+            <strong>The upload to a website never finishes:</strong> a weak mobile signal is the usual cause. Switch to Wi-Fi, or
+            send a smaller version of the file.
+          </li>
+        </ul>
 
         <h2>Which one should you pick?</h2>
         <ul>
@@ -412,6 +488,26 @@ function isItSafe(f: SiteFacts): GuideBody {
             channel.
           </li>
         </ul>
+
+        <h2>If you shared something by mistake</h2>
+        <ol>
+          <li>Don&apos;t pass the code or link on, and delete the message where you shared it, if you can.</li>
+          <li>
+            If it was a password or a key, change it now. Assume it is compromised; waiting for the clip to expire does not
+            undo that someone may already have opened it.
+          </li>
+          <li>
+            Ask for the clip to be removed early through the <Link href="/contact">Contact page</Link>, with the code. It may
+            expire before anyone reads the email, so steps 1 and 2 matter more.
+          </li>
+        </ol>
+
+        <h2>When someone sends you a code</h2>
+        <p>
+          A code from someone you know is as trustworthy as that person. A code from a stranger, or one that arrives out of the
+          blue, deserves the same care as an unexpected email attachment: files in a clip are not scanned for malware, so
+          don&apos;t open a program, a document with macros or an archive you weren&apos;t expecting.
+        </p>
 
         <h2>A quick check before you send</h2>
         <p>
@@ -908,7 +1004,592 @@ function androidPhotosToComputer(f: SiteFacts): GuideBody {
   };
 }
 
+// ---------------------------------------------------------------------------
+// 8. Send a document to a print shop
+// ---------------------------------------------------------------------------
+
+function printShop(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          Most print-shop disappointments happen before you arrive: a CV that spills onto a second page, a poster printed in
+          portrait, or a photo that comes out muddy in black and white. Ten minutes of preparation at home avoids nearly all of
+          them, and choosing how you hand the file over decides who keeps a copy afterwards.
+        </p>
+
+        <h2>Prepare the file</h2>
+        <h3>Send a PDF, not the editable file</h3>
+        <p>
+          A Word document or a spreadsheet can reflow on the shop&apos;s computer: different fonts, a different default printer
+          and different margins all move things around. A PDF looks the same everywhere. In Microsoft Office you can save a copy
+          as PDF, and Word offers an archiving format (PDF/A) aimed at keeping the document&apos;s appearance consistent on
+          other computers (<Ext href={SRC.msSavePdf.href}>Microsoft: save as PDF</Ext>). In Google Docs, the Download option
+          in the File menu includes PDF (<Ext href={SRC.googleDocsDownload.href}>Google Docs Help</Ext>).
+        </p>
+        <h3>Check what the printer will see</h3>
+        <ul>
+          <li>
+            <strong>Page size:</strong> A4 and US Letter are close but not identical, and the difference cuts off footers or adds
+            white margins. Set the size the shop will print on.
+          </li>
+          <li>
+            <strong>Orientation:</strong> open the PDF and scroll through every page. Landscape pages inside a portrait document
+            are easy to miss.
+          </li>
+          <li>
+            <strong>Fonts and images:</strong> zoom in on text and photos in the PDF. Blurry images at 200% will be blurry on
+            paper; replace them with the original photo rather than a screenshot.
+          </li>
+          <li>
+            <strong>Colour or black and white:</strong> colour printing usually costs more per page. If you want black and
+            white, look at a greyscale preview first: light-coloured text and coloured charts can become unreadable grey.
+          </li>
+          <li>
+            <strong>Page count:</strong> note how many pages the PDF has, so you can check the bill and the stack of paper.
+          </li>
+        </ul>
+        <p>
+          Name the file so staff can find it: &ldquo;Surname - visa form - 3 pages - colour.pdf&rdquo; beats
+          &ldquo;scan0007.pdf&rdquo;.
+        </p>
+
+        <h2>Two errors that waste paper</h2>
+        <ul>
+          <li>
+            <strong>Edges cut off:</strong> most office printers can&apos;t print right up to the edge of the paper. Keep text and
+            logos a little away from the edges, or ask whether the shop can print &ldquo;borderless&rdquo; or trim the page.
+          </li>
+          <li>
+            <strong>Filled-in form prints blank:</strong> some PDF forms keep your answers in fields that not every program
+            prints. Open the finished PDF in a different viewer before you go; if your answers are missing, save or print it to
+            a new PDF so they become part of the page.
+          </li>
+        </ul>
+
+        <h2>Ways to hand it over</h2>
+        <ul>
+          <li>
+            <strong>Email to the shop:</strong> simple, but your document then lives in their inbox for as long as they keep it.
+          </li>
+          <li>
+            <strong>A share link</strong> from your cloud drive: you can switch the link off once it has printed.
+          </li>
+          <li>
+            <strong>A messaging app</strong> to the shop&apos;s number: convenient, and it also leaves a copy on their phone.
+          </li>
+          <li>
+            <strong>USB stick:</strong> no internet needed, but shop computers are a common source of viruses, so scan the stick
+            when you get home.
+          </li>
+          <li>
+            <strong>A temporary share code:</strong> you create a clip on your phone, read the code to the staff, and they
+            download the file on their computer. Nothing lands in an inbox, and the clip expires after {minutes}. It holds one
+            file of up to {f.maxFileMb} MB.
+          </li>
+        </ul>
+        <p>
+          If you have to use the shop&apos;s own computer to download or sign in, follow the steps in{" "}
+          <Link href="/guides/use-a-shared-computer-safely">using a shared or public computer safely</Link>.
+        </p>
+
+        <h2>What to ask the shop</h2>
+        <ol>
+          <li>&ldquo;Can I see a preview before you print the whole thing?&rdquo; One test page is cheaper than a reprint.</li>
+          <li>&ldquo;Is this printing at actual size?&rdquo; &ldquo;Fit to page&rdquo; shrinks forms and can break their layout.</li>
+          <li>&ldquo;Please delete my file from your computer, inbox and downloads when we&apos;re done.&rdquo;</li>
+        </ol>
+        <p>
+          The last request is the one people forget. A shop that prints passport forms and bank letters all day sees a lot of
+          personal data; asking politely is normal, and good shops do it anyway.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Print jobs bigger than {f.maxFileMb} MB</strong>, such as high-resolution posters or long brochures: use a
+          share link or a USB stick.
+        </li>
+        <li>
+          <strong>Documents the shop needs to keep</strong>, for example for a reprint next week: the clip is gone after{" "}
+          {minutes}.
+        </li>
+        <li>
+          <strong>Several separate files:</strong> one file per clip. Combine them into one PDF first, or use a share link.
+        </li>
+        <li>
+          <strong>Identity documents and bank statements:</strong> {CLAIMS.encryption} Use the shop&apos;s own secure upload if it
+          has one, or a USB stick.
+        </li>
+      </ul>
+    ),
+    sources: [SRC.msSavePdf, SRC.googleDocsDownload],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 9. Share files in a classroom
+// ---------------------------------------------------------------------------
+
+function classroom(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          A worksheet for thirty students, a project file passed between a group, a slide deck a guest speaker forgot to send:
+          classrooms share files constantly, and the quickest method is not always the right one. The deciding question is
+          rarely speed. It is whose data is in the file and whether the school expects it to live on its own systems.
+        </p>
+
+        <h2>Use the school platform for anything that belongs to the course</h2>
+        <p>
+          If your school uses a learning platform such as Google Classroom or Microsoft Teams, that is where coursework, marks and
+          anything with students&apos; names should go. The school controls who can see it, and it is still there next week.
+          In Google Classroom, for example, a teacher can post materials to the Classwork page for a whole class or for chosen
+          students (<Ext href={SRC.classroomMaterials.href}>Classroom Help</Ext>). Google notes that Drive files attached this
+          way are view-only for students unless the teacher chooses otherwise for an assignment, such as giving each student
+          their own copy (<Ext href={SRC.classroomAttachments.href}>how attachments are shared</Ext>).
+        </p>
+
+        <h2>Email: for one-to-one, not for the whole class</h2>
+        <p>
+          Email works for sending one parent a letter or one student their feedback. For a group, it scatters copies across
+          many inboxes, makes it easy to reply-all by accident, and exposes every address in the recipient list unless you use
+          BCC. Use your school email account, not a personal one, so the message stays within the school&apos;s records.
+        </p>
+
+        <h2>A quick temporary share: only for harmless, public material</h2>
+        <p>
+          Sometimes you just need a file on the projector computer now: a public video link, a blank template, a reading list.
+          A temporary share code is handy here because nobody has to sign in on the classroom PC. Write the code on the board,
+          open it, and it disappears {minutes} later.
+        </p>
+        <p>
+          Keep this to material you&apos;d be comfortable pinning on a noticeboard. {CLAIMS.encryption} So never use it for
+          student work, marks, attendance lists, photos of students, medical or support information, or anything with names
+          and contact details.
+        </p>
+
+        <h2>For students sharing with each other</h2>
+        <ul>
+          <li>
+            For group projects, use a shared folder or document on the school platform, so the work stays with the class and
+            the teacher can see who contributed.
+          </li>
+          <li>Never share your school login with a classmate to &ldquo;just grab a file&rdquo;; ask them to share it with you instead.</li>
+          <li>
+            Before sending a file to a group, check it doesn&apos;t contain someone else&apos;s photo or contact details they
+            haven&apos;t agreed to share.
+          </li>
+        </ul>
+
+        <h2>Student privacy and age-appropriate use</h2>
+        <ul>
+          <li>
+            <strong>Follow your school&apos;s policy first.</strong> Many schools approve a short list of tools, especially for
+            younger students. If a tool isn&apos;t on the list, ask before using it with a class.
+          </li>
+          <li>
+            <strong>Don&apos;t ask students to use outside services</strong> that need accounts or collect personal data without
+            the school&apos;s and, where required, parents&apos; agreement.
+          </li>
+          <li>
+            <strong>Watch file names and metadata.</strong> A file called &ldquo;Year 9 - support needs.xlsx&rdquo; reveals
+            something even before it is opened; documents can also carry the author&apos;s name in their properties.
+          </li>
+          <li>
+            <strong>Projectors are public.</strong> Close email and notifications before you share your screen to fetch a file.
+          </li>
+        </ul>
+
+        <h2>Checklist for sharing a file with a group</h2>
+        <ol>
+          <li>Does this file contain anything personal about a student or a colleague? If yes, school platform only.</li>
+          <li>Should it still be available next week? If yes, a platform or a shared folder, not a temporary share.</li>
+          <li>Can every recipient open the format? A PDF is safer than an editable file for handouts.</li>
+          <li>Is the file small enough for the method you picked?</li>
+          <li>After the lesson, delete downloaded copies from the classroom computer.</li>
+        </ol>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Anything with student data:</strong> names, marks, photos, attendance or support information belong on the
+          school&apos;s own platform.
+        </li>
+        <li>
+          <strong>Coursework and handouts students need later:</strong> a clip disappears after {minutes}.
+        </li>
+        <li>
+          <strong>Sending to the whole class at once:</strong> everyone would need the same code, which is effectively public.
+          A class post on the platform is cleaner.
+        </li>
+        <li>
+          <strong>Schools where outside tools aren&apos;t approved:</strong> follow the school&apos;s rules, even for harmless
+          files.
+        </li>
+      </ul>
+    ),
+    sources: [SRC.classroomMaterials, SRC.classroomAttachments],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 10. Move code snippets, logs or config text from phone to computer
+// ---------------------------------------------------------------------------
+
+function codeSnippets(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          Prose survives being copied between devices; code often doesn&apos;t. A YAML file loses one level of indentation, a
+          shell command gains a curly quote, a JSON log gets cut in half, and suddenly nothing parses. This guide is about the
+          developer-specific problems. For the general ways to get text from a phone to a computer, see{" "}
+          <Link href="/guides/copy-paste-text-between-phone-and-computer">copying text between phone and computer</Link>.
+        </p>
+
+        <h2>The usual ways code gets damaged</h2>
+        <h3>Smart quotes and dashes</h3>
+        <p>
+          Phone keyboards &ldquo;helpfully&rdquo; turn straight quotes into curly ones and double hyphens into dashes. That
+          breaks strings, flags like <code>--force</code> and most config formats. On an iPhone, the setting is called Smart
+          Punctuation and lives in the keyboard settings (<Ext href={SRC.appleKeyboard.href}>Apple: iPhone keyboard</Ext>). On
+          Android with Gboard, auto-correction and related options are under text correction in Gboard&apos;s settings (
+          <Ext href={SRC.gboardCorrections.href}>Gboard Help</Ext>). Turning them off only affects what you type from now on;
+          text that was already converted stays converted.
+        </p>
+        <h3>Auto-correct and auto-capitalisation</h3>
+        <p>
+          Typing code on a phone keyboard is risky in itself: variable names get &ldquo;corrected&rdquo;, the first letter of a
+          command gets capitalised. Copy code from its source rather than retyping it, and paste it into a field that doesn&apos;t
+          reformat text.
+        </p>
+        <h3>Indentation and line endings</h3>
+        <p>
+          Chat apps and some note apps trim leading spaces or merge lines. Windows also uses a different line ending (CRLF) from
+          macOS, Linux and phones (LF); when text is pasted on Windows it often arrives with CRLF endings. Most editors handle
+          both, but shell scripts and some diff tools don&apos;t. If a script fails with odd errors after the transfer, convert
+          the line endings in your editor.
+        </p>
+
+        <h2>A method that keeps text exactly</h2>
+        <ol>
+          <li>On the phone, copy the snippet from where it lives (the app, the log viewer, the documentation).</li>
+          <li>
+            Paste it into <Link href="/">Online Clipboard</Link> and create a clip. Line breaks, tabs and spaces are stored as
+            they are, and the text is shown in a monospace font on the receiving side.
+          </li>
+          <li>On the computer, enter the code and use the Copy text button rather than selecting the text by hand.</li>
+          <li>Paste it into your editor and check it. For anything longer than a few lines, compare it with a diff.</li>
+        </ol>
+        <p>
+          A clip takes up to {fmt(f.maxTextLength)} characters of text and expires after {minutes}. For a one-off, nothing has
+          to be installed or signed in to on either side.
+        </p>
+
+        <h2>Check that it arrived intact</h2>
+        <p>
+          For a short snippet, a glance is enough. For a config file or a long script, compare it properly: count the lines on
+          both sides, or compare a checksum of the file. <code>sha256sum file</code> on Linux, <code>shasum -a 256 file</code>{" "}
+          on macOS and <code>Get-FileHash file</code> in Windows PowerShell all print a SHA-256 hash; if the hashes match, the
+          bytes match. Different line endings change the hash, so normalise them first if you compare across systems.
+        </p>
+
+        <h2>Large logs</h2>
+        <ul>
+          <li>Trim first: the last few hundred lines around the error are usually all anyone needs.</li>
+          <li>
+            For a full log, send it as a file rather than pasted text. Compress it into a ZIP; text logs shrink well, unlike
+            photos or videos. A clip takes one file of up to {f.maxFileMb} MB.
+          </li>
+          <li>Logs from phones are often noisy. Search for the error timestamp before sharing everything.</li>
+        </ul>
+
+        <h2>Never send secrets through any online clipboard</h2>
+        <p>
+          API keys, access tokens, passwords, private keys, <code>.env</code> files, database connection strings and session
+          cookies must never go through an online clipboard, ours included. {CLAIMS.encryption} Logs are the sneaky case: they
+          often contain tokens, internal URLs or customers&apos; email addresses. Redact them before sending, and if a secret slips
+          through, rotate it rather than hoping nobody saw it.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Secrets of any kind</strong>: use your password manager or your platform&apos;s secret store, and rotate
+          anything that leaked.
+        </li>
+        <li>
+          <strong>Code you want to keep or share with a team:</strong> commit it to your repository or a private gist; a clip
+          is gone after {minutes}.
+        </li>
+        <li>
+          <strong>Logs bigger than {f.maxFileMb} MB even after zipping:</strong> attach them to the issue tracker or upload
+          them to your team&apos;s storage.
+        </li>
+        <li>
+          <strong>Customer data in logs</strong>: anonymise first, or keep the log inside your company&apos;s systems.
+        </li>
+      </ul>
+    ),
+    sources: [SRC.appleKeyboard, SRC.gboardCorrections],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 11. Online clipboard vs emailing yourself vs messaging apps
+// ---------------------------------------------------------------------------
+
+function comparison(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          Getting something from one device to another is a daily chore, and most people default to whatever they used last
+          time. Each option makes different trade-offs. This comparison is meant to help you pick, including the cases where an
+          online clipboard such as this site is the weaker choice.
+        </p>
+
+        <h2>The short comparison</h2>
+        <ul>
+          <li>
+            <strong>Speed for a one-off:</strong> an online clipboard or a self-chat in a messenger you&apos;re already signed in
+            to. Email is a little slower but always works.
+          </li>
+          <li>
+            <strong>Privacy of the content:</strong> a messenger with end-to-end encryption wins. Email and online clipboards
+            store your content on the provider&apos;s servers in a form the provider can access.
+          </li>
+          <li>
+            <strong>Finding it again later:</strong> email and messengers keep searchable history. An online clipboard
+            deliberately doesn&apos;t.
+          </li>
+          <li>
+            <strong>Accounts:</strong> email and messengers need you to be signed in on both devices. An online clipboard needs
+            no account anywhere.
+          </li>
+          <li>
+            <strong>Cleanup:</strong> with email and chats, copies stay until you delete them. An online clipboard cleans up by
+            itself.
+          </li>
+        </ul>
+
+        <h2>Emailing yourself</h2>
+        <p>
+          <strong>Good:</strong> works on every device, keeps a permanent and searchable record, and handles attachments.{" "}
+          <strong>Less good:</strong> you have to sign in to your mailbox on the receiving device, which is a real risk on a
+          shared computer, and attachments are capped; Gmail&apos;s limit for personal accounts is 25 MB at the time of writing (
+          <Ext href={SRC.gmailAttachments.href}>Gmail Help</Ext>). Ordinary email is not end-to-end encrypted, and your inbox
+          slowly fills with &ldquo;note to self&rdquo; messages.
+        </p>
+
+        <h2>Messaging apps</h2>
+        <p>
+          <strong>Good:</strong> fast if the app is already on both devices, and some offer strong privacy. WhatsApp says chats
+          with yourself are end-to-end encrypted (<Ext href={SRC.whatsappSelf.href}>WhatsApp Help</Ext>).{" "}
+          <strong>Less good:</strong> not every app works the same way. Telegram, for example, says its regular cloud chats are
+          not end-to-end encrypted; only its secret chats are, and those stay on one device (
+          <Ext href={SRC.telegramFaq.href}>Telegram FAQ</Ext>). Using a messenger on a computer usually means linking the
+          desktop or web version to your phone, which you shouldn&apos;t do on a computer you don&apos;t own.
+        </p>
+
+        <h2>An online clipboard</h2>
+        <p>
+          <strong>Good:</strong> no app, no sign-in on either device, and nothing left in an inbox or chat history. The clip and
+          its file are deleted {minutes} after creation. It holds up to {fmt(f.maxTextLength)} characters of text and one file
+          of up to {f.maxFileMb} MB.
+        </p>
+        <p>
+          <strong>Less good:</strong> {CLAIMS.encryption} Anyone with the code can open the clip until it expires. There is no
+          history to search, no way to delete a clip early, and the file size limit is modest.
+        </p>
+
+        <h2>Cleaning up afterwards</h2>
+        <ul>
+          <li>
+            <strong>Email:</strong> delete the message, then empty the bin or trash folder; deleted mail usually sits there for a
+            while before it is gone for good. Copies may still exist on the other device if it downloaded the message.
+          </li>
+          <li>
+            <strong>Messengers:</strong> delete the message in the chat with yourself. Linked desktop or web sessions you no
+            longer need should be logged out from the app&apos;s linked-devices list.
+          </li>
+          <li>
+            <strong>Online clipboard:</strong> the clip removes itself, but the downloaded file is still on the receiving
+            computer. Delete it there, especially on a shared machine.
+          </li>
+        </ul>
+
+        <h2>When an online clipboard is the worse choice</h2>
+        <p>
+          It is the wrong tool whenever privacy or permanence matters more than convenience. A private message to someone,
+          anything you&apos;ll want to find next month, a file larger than {f.maxFileMb} MB, or something you might want to take
+          back: an end-to-end encrypted messenger, email or a cloud drive handles each of those better.
+        </p>
+
+        <h2>A rule of thumb: three questions</h2>
+        <ol>
+          <li>
+            Is it sensitive? Then use an end-to-end encrypted messenger, never a clipboard site, and stop here.
+          </li>
+          <li>
+            Will you want it again later? Then email it to yourself or save it in a notes app or cloud drive.
+          </li>
+          <li>
+            Are both devices yours and already signed in? Use the messenger or email you have. If one device isn&apos;t yours
+            or you won&apos;t use it again, an online clipboard avoids signing in there.
+          </li>
+        </ol>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Private conversations:</strong> an end-to-end encrypted messenger protects content far better.
+        </li>
+        <li>
+          <strong>Notes and files you&apos;ll need again:</strong> email or a notes app keeps them; a clip is gone after{" "}
+          {minutes}.
+        </li>
+        <li>
+          <strong>Regular transfers between your own devices:</strong> the messenger or email you&apos;re already signed in to
+          is one step shorter.
+        </li>
+        <li>
+          <strong>Files over {f.maxFileMb} MB:</strong> use a cloud drive share link.
+        </li>
+      </ul>
+    ),
+    sources: [SRC.gmailAttachments, SRC.whatsappSelf, SRC.telegramFaq],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 12. What is an online clipboard and how does it work?
+// ---------------------------------------------------------------------------
+
+function whatIsIt(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          &ldquo;Clipboard&rdquo; is one of those computer words everyone uses and few people think about. Understanding what
+          your device&apos;s clipboard really is makes it much clearer what an online clipboard can and can&apos;t do for you.
+        </p>
+
+        <h2>The clipboard on your device</h2>
+        <p>
+          When you press copy, your operating system puts the selected text, image or file reference into a holding area in
+          memory. Paste reads it back. Traditionally the clipboard holds one item at a time and belongs to that single device:
+          copy something new and the old item is gone; switch devices and it isn&apos;t there.
+        </p>
+        <p>
+          Modern systems stretch this a little. Windows can keep a clipboard history you open with Windows key + V, and can sync
+          copied text between your own devices when you sign in with the same account (
+          <Ext href={SRC.windowsClipboard.href}>Microsoft: using the clipboard</Ext>). Apple&apos;s Universal Clipboard shares
+          copies between nearby Apple devices on the same Apple Account (
+          <Ext href={SRC.universalClipboard.href}>Apple: Universal Clipboard</Ext>). These work only within one company&apos;s
+          ecosystem and only for devices signed in as you.
+        </p>
+
+        <h2>What makes a clipboard &ldquo;online&rdquo;</h2>
+        <p>
+          An online clipboard puts the holding area on a server instead of in your device&apos;s memory. Instead of an account
+          linking your devices, a short code links the person who stores something with the person who fetches it. That is why
+          it works between any two devices with a browser, including ones that aren&apos;t yours.
+        </p>
+
+        <h2>How it works, step by step</h2>
+        <ol>
+          <li>You paste text or choose a file in the web page. It is sent to the server over HTTPS.</li>
+          <li>
+            The server stores it and gives it a short code. Here that is 6 random digits, picked so that no two live clips share
+            a code.
+          </li>
+          <li>On another device, someone enters the code. The server checks that it exists and hasn&apos;t expired.</li>
+          <li>If it matches, the server sends back the text, or a short-lived link to download the file.</li>
+          <li>
+            When the time is up, the code stops working, and {CLAIMS.deletion}.
+          </li>
+        </ol>
+
+        <h2>What the code does, and doesn&apos;t, do</h2>
+        <p>
+          The code is the only key. There is no password and no list of allowed people, so anyone holding the code can open the
+          clip, as many times as they like, until it expires. That makes sharing effortless and is exactly why codes should only
+          be given to the intended person. Six digits give a million possibilities; to make guessing slow, this site pauses
+          lookups for up to {plural(f.rateWindowMinutes, "minute", "minutes")} after {plural(f.lookupFailures, "wrong code", "wrong codes")}{" "}
+          from the same connection.
+        </p>
+
+        <h2>Why clips expire</h2>
+        <p>
+          Expiry is a safety feature, not a limitation. A clip that disappears after {minutes} can&apos;t be found next week by
+          someone who stumbled on an old code, and the service doesn&apos;t become an accidental archive of everyone&apos;s
+          documents. The trade-off is that an online clipboard is a hand-off, not storage.
+        </p>
+
+        <h2>Common misunderstandings</h2>
+        <ul>
+          <li>
+            <strong>&ldquo;It&apos;s like a cloud drive.&rdquo;</strong> No: there are no folders, no account and no way to come
+            back to your files later.
+          </li>
+          <li>
+            <strong>&ldquo;The code is my password.&rdquo;</strong> You don&apos;t choose it and can&apos;t change it; it is closer
+            to a ticket number that anyone holding it can use.
+          </li>
+          <li>
+            <strong>&ldquo;It vanishes once the other person reads it.&rdquo;</strong> Here it doesn&apos;t. Opening a clip leaves
+            it in place until it expires; some other services work differently, so check before relying on that.
+          </li>
+        </ul>
+
+        <h2>What it is good and not good for</h2>
+        <p>
+          It shines for small, short-lived, low-risk hand-offs: a link onto a borrowed laptop, a file onto a print-shop computer,
+          a paragraph from phone to PC. It is the wrong place for anything secret, because {CLAIMS.encryption.charAt(0).toLowerCase()}
+          {CLAIMS.encryption.slice(1)} It is also the wrong place for anything you want to keep. If you want to see it in action,
+          the <Link href="/">Online Clipboard home page</Link> has the tool and a short FAQ.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Your own devices on one account:</strong> the built-in clipboard sync (Windows clipboard history, Universal
+          Clipboard) is quicker once set up.
+        </li>
+        <li>
+          <strong>Storing anything:</strong> clips are designed to vanish after {minutes}.
+        </li>
+        <li>
+          <strong>Secrets:</strong> a code is a key anyone can use; keep passwords and keys in a password manager.
+        </li>
+        <li>
+          <strong>Many files or big ones:</strong> one file per clip, up to {f.maxFileMb} MB.
+        </li>
+      </ul>
+    ),
+    sources: [SRC.windowsClipboard, SRC.universalClipboard],
+  };
+}
+
 export const GUIDE_BODIES: Record<string, (f: SiteFacts) => GuideBody> = {
+  "send-a-document-to-a-print-shop": printShop,
+  "share-files-in-a-classroom": classroom,
+  "send-code-snippets-from-phone-to-computer": codeSnippets,
+  "online-clipboard-vs-email-yourself": comparison,
+  "what-is-an-online-clipboard": whatIsIt,
   "send-files-too-big-for-email": tooBigForEmail,
   "use-a-shared-computer-safely": sharedComputer,
   "transfer-photos-from-iphone-to-windows-pc": iphonePhotosToWindows,

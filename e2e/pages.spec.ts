@@ -1,8 +1,8 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { GUIDES, guidePath } from "../content/guides/index";
+import { GUIDES, GUIDE_CATEGORIES, guidePath } from "../content/guides/index";
 import { SITE_PAGES } from "../lib/sitePages";
 import { expect, test } from "./helpers";
 
@@ -73,7 +73,7 @@ test("guides follow the template: summary, date, steps, honesty section, sources
     for (const e of external) {
       expect(e.rel, e.href).toContain("noopener");
       expect(e.rel, e.href).toContain("noreferrer");
-      expect(new URL(e.href).hostname, e.href).toMatch(/(^|\.)(apple|microsoft|google|whatsapp)\.com$/);
+      expect(new URL(e.href).hostname, e.href).toMatch(/(^|\.)((apple|microsoft|google|whatsapp)\.com|telegram\.org)$/);
     }
 
     const article = (await jsonLdTypes(page)).find((d) => d["@type"] === "Article")!;
@@ -198,4 +198,75 @@ test("unknown guide slugs return a real 404 status (also with odd characters)", 
     expect(res.status(), path).toBe(404);
   }
   expect((await request.get("/guides/send-files-too-big-for-email")).status()).toBe(200);
+});
+
+test("every guide has a valid category, and /guides groups them under category headings", async ({ page, consoleProblems }) => {
+  void consoleProblems;
+  const categoryIds = GUIDE_CATEGORIES.map((c) => c.id as string);
+  for (const g of GUIDES) {
+    expect(g.category, `${g.slug}: category`).toBeTruthy();
+    expect(categoryIds, `${g.slug}: known category`).toContain(g.category);
+  }
+  await page.goto("/guides");
+  for (const cat of GUIDE_CATEGORIES) {
+    const members = GUIDES.filter((g) => g.category === cat.id);
+    if (members.length === 0) continue;
+    const section = page.locator(`section#${cat.id}`);
+    await expect(section.getByRole("heading", { level: 2, name: cat.title })).toBeVisible();
+    for (const g of members) {
+      await expect(section.getByRole("link", { name: g.title, exact: true })).toHaveAttribute("href", guidePath(g.slug));
+    }
+    await expect(section.locator("h3")).toHaveCount(members.length);
+  }
+  // Every guide appears exactly once on the hub.
+  await expect(page.locator("main section h3")).toHaveCount(GUIDES.length);
+});
+
+/** Visible guide body text (before "Official help pages"), with typographic quotes normalised. */
+async function guideBodyText(page: import("@playwright/test").Page, slug: string): Promise<string> {
+  await page.goto(guidePath(slug));
+  return page.evaluate(() => {
+    const art = document.querySelector("article > div")!;
+    let out = "";
+    for (const el of Array.from(art.children)) {
+      if (el.tagName === "H2" && /Official help pages|Related guides/.test(el.textContent ?? "")) break;
+      out += (el as HTMLElement).innerText + "\n";
+    }
+    return out;
+  });
+}
+const normText = (s: string) => s.replace(/[‘’]/g, "'").replace(/\s+/g, " ").trim().toLowerCase();
+
+test("no sentence is shared between two guides (except the approved claims wording)", async ({ page }) => {
+  const ALLOWED = ["text and files travel over https, but they are not end-to-end encrypted.", "until a clip expires, it sits on our servers"];
+  const owners = new Map<string, Set<string>>();
+  for (const g of GUIDES) {
+    const text = await guideBodyText(page, g.slug);
+    for (const sentence of text.split(/(?<=[.!?])\s+/).map(normText).filter((x) => x.split(" ").length >= 6)) {
+      if (!owners.has(sentence)) owners.set(sentence, new Set());
+      owners.get(sentence)!.add(g.slug);
+    }
+  }
+  const shared = [...owners].filter(([s, v]) => v.size > 1 && !ALLOWED.some((a) => s.startsWith(a)));
+  expect(shared.map(([s, v]) => `${s} => ${[...v].join(", ")}`)).toEqual([]);
+});
+
+test("every quote in docs/verification-checklist.md appears on its guide page", async ({ page }) => {
+  const doc = readFileSync(join(process.cwd(), "docs", "verification-checklist.md"), "utf8");
+  let slug: string | null = null;
+  const checks: Array<{ slug: string; quote: string }> = [];
+  for (const line of doc.split(/\r?\n/)) {
+    const h = /^## \d+\..*\(`\/guides\/([^`]+)`\)/.exec(line);
+    if (h) slug = h[1];
+    else if (/^## /.test(line)) slug = null; // e.g. "Site-wide"
+    const q = /^\s*> "(.+)"\s*$/.exec(line);
+    if (q && slug) checks.push({ slug, quote: q[1] });
+  }
+  expect(checks.length).toBeGreaterThan(40);
+  const slugs = new Set(checks.map((c) => c.slug));
+  expect(slugs.size, "every guide has a section").toBe(GUIDES.length);
+  const texts = new Map<string, string>();
+  for (const s of slugs) texts.set(s, normText(await guideBodyText(page, s)));
+  const missing = checks.filter((c) => !texts.get(c.slug)!.includes(normText(c.quote)));
+  expect(missing).toEqual([]);
 });
