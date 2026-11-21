@@ -86,6 +86,9 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 | `CONTACT_EMAIL` | No (shown publicly on /contact) | optional general address; falls back to `ABUSE_CONTACT_EMAIL`. On a real domain the build fails unless one of them is set. |
 | `SITE_URL` | No | your site's address, e.g. `https://<your-project>.vercel.app` (correct share previews; a temporary host is never indexed). Your real domain from Step 7 of `docs/growth-plan.md`. See `docs/seo.md`. |
 | `ALLOW_INDEXING` | No | leave empty. `false` = never let search engines index the site (kill switch). |
+| `ADS_ENABLED` | No | leave empty until Growth Step 9. `true` shows ads on guide pages only, and only on an indexable real domain. See `docs/ads-plan.md`. |
+| `ADSENSE_CLIENT_ID` | No | leave empty until Step 9. `ca-pub-` + 16 digits. On a real domain it adds the AdSense verification meta tag and `/ads.txt`. |
+| `ADSENSE_SLOT_GUIDE_AFTER_INTRO`, `ADSENSE_SLOT_GUIDE_BEFORE_RELATED`, `ADSENSE_SLOT_GUIDES_HUB` | No | leave empty until Step 9. Numeric ad unit IDs from AdSense. |
 | `CLIP_EXPIRY_MINUTES` | No | `30` |
 | `MAX_FILE_SIZE_MB` | No | `25` (must not exceed the bucket limit of 25 MB) |
 | `MAX_LIVE_CLIPS` | No | `200` |
@@ -250,6 +253,8 @@ takes seconds. Then fix the bug in git and push; the next push deploys normally.
 
 **Environment variables:** change them back in *Settings → Environment Variables*, then
 redeploy.
+
+**Ads:** set `ADS_ENABLED=false` (or delete it) and redeploy. Details in `docs/ads-plan.md` §8.
 
 **Database:** rollbacks don't undo SQL. The migrations only ever add things, and the old
 code ignores the extra tables, functions and columns. So rolling the code back one step

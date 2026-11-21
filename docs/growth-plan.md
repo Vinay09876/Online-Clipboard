@@ -8,7 +8,8 @@ One step at a time; each step is reviewed before the next starts.
 - No paid tools or services. Ask before adding any npm dependency.
 - No domain until Step 7. Until then the site must NOT be indexed.
 - No ads until Step 9. No analytics, cookies, third-party scripts, fonts or images until then;
-  the strict CSP stays strict.
+  the strict CSP stays strict. (Step 4 adds ad code that stays OFF until `ADS_ENABLED=true` on
+  the real domain; with ads off the site is byte-for-byte as before. See `docs/ads-plan.md`.)
 - No Vercel-only features (hosting moves to Netlify's free plan in Step 5).
 - API routes change only for real bugs, and every such change is reported.
 - After every step: typecheck, lint, build and all test suites pass
@@ -45,8 +46,12 @@ One step at a time; each step is reviewed before the next starts.
         /guides grouped into 4 categories (`category` field). `docs/verification-checklist.md`
         lists every claim to test on real devices. *(Done 2026-11-21; awaiting review.)*
   (Topic list is the owner's plan and may change.)
-- [ ] **4. Ad-ready code, switched OFF**: ad slot component behind an env flag (never on
-      received-clip or download screens), drafted privacy text, EEA/UK consent plan, CSP plan.
+- [x] **4. Ad-ready code, switched OFF**: `lib/ads.ts` decides (`ADS_ENABLED` + indexable +
+      `ADSENSE_CLIENT_ID`); `<AdSlot>` on guides (2) and the hub (1) only, never the tool,
+      legal or error pages; ads.txt + verification meta tag; CSP and referrer changes only on
+      ad pages while active; ads-aware privacy/terms wording; consent plan (Google CMP); build
+      guard; `e2e/ads.spec.ts`. Plan and Step 9 checklist: `docs/ads-plan.md`.
+      *(Done 2026-11-21; awaiting review.)*
 - [ ] **5. Move hosting to Netlify (free)**: client-IP reading for rate limits (+ re-run the
       spoof test), cleanup schedule URL, env vars, docs; re-check CSP, proxy.ts and after().
 - [ ] **6. Pre-launch quality pass**: speed, accessibility, mobile, broken links, spelling,
@@ -57,7 +62,10 @@ One step at a time; each step is reviewed before the next starts.
 - [ ] **7. Buy the domain**: connect to Netlify, set `SITE_URL`, turn indexing on, www redirect,
       Google Search Console + Bing Webmaster Tools, submit the sitemap. Checklist in `docs/seo.md`.
 - [ ] **8. Grow traffic**: check indexing, fix issues (mostly waiting).
-- [ ] **9. AdSense**: apply, ads.txt, consent, update Privacy/Terms/CSP, turn ad slots on.
+- [ ] **9. AdSense**: follow `docs/ads-plan.md` §5 (sign up, verify with the meta tag or
+      ads.txt, Auto ads OFF, create 3 ad units, publish the European regulations message), then
+      set `ADS_ENABLED=true` + slot IDs and run the launch checklist (§7). Verify the CSP on
+      the live site (Report-Only first if needed).
 
 ## Log
 
@@ -80,3 +88,13 @@ One step at a time; each step is reviewed before the next starts.
 - **Step 3c** (2026-11-21): 12 guides in 4 hub categories, all 700+ words. New permanent tests:
   no sentence shared between guides (except `content/claims.ts` wording), and every quote in
   `docs/verification-checklist.md` must appear on its guide page (70 guide quotes). Step 3 complete.
+- **Step 4** (2026-11-21): ad-ready code, OFF by default. One decision function
+  (`adsActive()` in `lib/ads.ts`); placements enumerated in code (guide after intro, guide
+  before related, hub between categories; max 2 per page); manual units only, lazy-requested,
+  labelled "Advertisements", reserved 280 px; AdSense script with the CSP nonce only on pages
+  with a slot; `/ads.txt` (404 when unset) and the `google-adsense-account` meta tag, both only
+  with a client ID on an indexable domain; CSP widened (scheme sources, no domains) and
+  referrer policy relaxed only on ad pages while active; "no cookies / no analytics" claims
+  switch off and an Advertising section appears on /privacy and /terms when active. Build guard
+  extended. Tests: `e2e/ads.spec.ts` (default, real domain without ads, ads active with a fake
+  publisher ID, temporary host and kill switch with ad flags).

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { connection } from "next/server";
 import { BASE_OPEN_GRAPH, DEFAULT_TITLE, INDEXABLE, SITE_DESCRIPTION, SITE_NAME, SITE_ORIGIN } from "@/lib/site";
+import { adsenseAccountId } from "@/lib/ads";
 import { LogoMark } from "@/components/LogoMark";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import "./globals.css";
@@ -17,6 +18,8 @@ import "./globals.css";
  * segment opts out of the prerendered shell.
  */
 export const instant = false;
+
+const ADSENSE_ACCOUNT = adsenseAccountId();
 
 export const metadata: Metadata = {
   // Absolute base for canonical / Open Graph URLs. Only set when SITE_URL is configured.
@@ -34,6 +37,10 @@ export const metadata: Metadata = {
     title: DEFAULT_TITLE,
     description: SITE_DESCRIPTION,
   },
+  // AdSense site-ownership verification: <meta name="google-adsense-account" content="ca-pub-…">
+  // on every page, only when ADSENSE_CLIENT_ID is set on an indexable domain (lib/ads.ts).
+  // A plain meta tag: it loads no Google script.
+  ...(ADSENSE_ACCOUNT ? { other: { "google-adsense-account": ADSENSE_ACCOUNT } } : {}),
 };
 
 export const viewport: Viewport = {

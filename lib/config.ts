@@ -1,5 +1,6 @@
 import "server-only";
 
+import { ADS_ENV_ERRORS } from "@/lib/ads";
 import { parseSiteUrl } from "@/lib/site";
 
 /**
@@ -109,6 +110,10 @@ const allowIndexing = process.env.ALLOW_INDEXING?.trim().toLowerCase();
 if (allowIndexing && allowIndexing !== "true" && allowIndexing !== "false") {
   errors.push(`ALLOW_INDEXING must be "true" or "false" (got "${process.env.ALLOW_INDEXING}").`);
 }
+
+// Ads (logic lives in lib/ads.ts; default off). Malformed ADS_ENABLED / ADSENSE_* values stop startup.
+// Missing settings on a real domain are caught by the build guard (scripts/check-placeholders.ts).
+errors.push(...ADS_ENV_ERRORS);
 
 if (errors.length > 0) {
   throw new Error(

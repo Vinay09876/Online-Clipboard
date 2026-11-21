@@ -6,6 +6,7 @@
  */
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AdvertisingSection } from "@/components/AdvertisingSection";
 import { ContentPage } from "@/components/ContentPage";
 import { CLAIMS } from "@/content/claims";
 import { LEGAL_LAST_UPDATED, OWNER } from "@/content/legal";
@@ -64,6 +65,10 @@ export default function TermsPage() {
         limits are reached, or shut down at any time, and clips may be lost before they expire. Don&apos;t use it as the
         only copy of anything important. To the extent the law allows, we are not liable for any loss from using it.
       </p>
+
+      {f.adsActive && (
+        <AdvertisingSection extra="We don't choose individual ads and don't endorse what they advertise." />
+      )}
 
       <h2>Report abuse</h2>
       <p>

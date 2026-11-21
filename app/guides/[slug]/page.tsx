@@ -4,6 +4,7 @@ import { GuideLayout } from "@/components/guides/GuideLayout";
 import { GUIDE_BODIES } from "@/content/guides/bodies";
 import { GUIDES, getGuide, guidePath } from "@/content/guides/index";
 import { getSiteFacts } from "@/lib/facts";
+import { adPageMetadata } from "@/lib/ads";
 import { pageUrls } from "@/lib/site";
 
 export async function generateMetadata({ params }: PageProps<"/guides/[slug]">): Promise<Metadata> {
@@ -14,6 +15,7 @@ export async function generateMetadata({ params }: PageProps<"/guides/[slug]">):
     title: guide.title,
     description: guide.description,
     ...pageUrls(guidePath(guide.slug), guide.title),
+    ...adPageMetadata(),
   };
 }
 

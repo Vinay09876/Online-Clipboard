@@ -9,6 +9,7 @@ import {
   RATE_LIMITS,
   RATE_LIMIT_WINDOW_SECONDS,
 } from "@/lib/config";
+import { adsActive } from "@/lib/ads";
 import { DOWNLOAD_URL_TTL_SECONDS } from "@/lib/files";
 
 /**
@@ -30,6 +31,8 @@ export type SiteFacts = {
   downloadLinkSeconds: number;
   abuseEmail: string | null;
   contactEmail: string | null;
+  /** Ads switched on (lib/ads.ts). Changes privacy wording: see trackingClaims in content/claims.ts. */
+  adsActive: boolean;
 };
 
 export function getSiteFacts(): SiteFacts {
@@ -43,6 +46,7 @@ export function getSiteFacts(): SiteFacts {
     downloadLinkSeconds: DOWNLOAD_URL_TTL_SECONDS,
     abuseEmail: ABUSE_CONTACT_EMAIL,
     contactEmail: CONTACT_EMAIL,
+    adsActive: adsActive(),
   };
 }
 
