@@ -7,6 +7,7 @@
  *   3231  SITE_URL on a temporary host (*.vercel.app)    → not indexable
  *   3232  SITE_URL=https://example.com                   → indexable
  *   3233  SITE_URL=https://example.com, ALLOW_INDEXING=false → kill switch, not indexable
+ *   3234  MAX_FILE_SIZE_MB=7, CLIP_EXPIRY_MINUTES=15, RATE_LIMIT_LOOKUP_FAILURES=4 → copy follows config
  *
  * Set E2E_SKIP_BUILD=1 to reuse the last build.
  */
@@ -20,6 +21,8 @@ export const SERVERS = [
   { port: 3231, env: { SITE_URL: "https://online-clipboard-test.vercel.app", ALLOW_INDEXING: "" } },
   { port: 3232, env: { SITE_URL: "https://example.com", ALLOW_INDEXING: "" } },
   { port: 3233, env: { SITE_URL: "https://example.com", ALLOW_INDEXING: "false" } },
+  // Small limits: the home page copy must show these numbers, not the defaults.
+  { port: 3234, env: { SITE_URL: "", ALLOW_INDEXING: "", MAX_FILE_SIZE_MB: "7", CLIP_EXPIRY_MINUTES: "15", RATE_LIMIT_LOOKUP_FAILURES: "4" } },
 ];
 
 if (!process.env.E2E_SKIP_BUILD) {
