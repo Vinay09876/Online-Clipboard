@@ -8,7 +8,7 @@
  *    the plain text of the same segments, so the structured data always matches the page.
  */
 
-import { CLAIMS } from "./claims";
+import { CLAIMS, trackingClaims } from "./claims";
 import { fmt as n, plural } from "./text";
 
 /** Values read from server config (lib/facts.ts, via app/page.tsx). */
@@ -24,6 +24,8 @@ export type HomeFacts = {
   rateLimitRetentionHours: number;
   /** Public abuse contact, or null if not configured. */
   abuseEmail: string | null;
+  /** Ads switched on (lib/ads.ts): changes the "What we keep about you" wording. */
+  adsActive: boolean;
 };
 
 /** A piece of a paragraph: plain text, or a link. */
@@ -132,7 +134,7 @@ export function homeContent(f: HomeFacts): HomeContent {
         {
           title: "What we keep about you",
           text: [
-            `No accounts, no cookies, no analytics. To stop abuse we keep ${CLAIMS.ipHash(f.rateLimitRetentionHours)}. Details are in the `,
+            `${trackingClaims(f.adsActive).home} To stop abuse we keep ${CLAIMS.ipHash(f.rateLimitRetentionHours)}. Details are in the `,
             privacyPolicy,
             ".",
           ],

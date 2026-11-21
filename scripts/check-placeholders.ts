@@ -5,7 +5,10 @@
  * INDEXABLE (SITE_URL is a real https domain and ALLOW_INDEXING isn't "false", see
  * lib/site.ts), the build FAILS if:
  *   - any "[[ADD: …]]" placeholder remains in shipped source (app, components, content, lib), or
- *   - no contact email is configured (CONTACT_EMAIL or ABUSE_CONTACT_EMAIL).
+ *   - no contact email is configured (CONTACT_EMAIL or ABUSE_CONTACT_EMAIL), or
+ *   - ADS_ENABLED=true but ADSENSE_CLIENT_ID or every ad unit ID is missing (lib/ads.ts).
+ * Malformed ADS_* / ADSENSE_* values fail the build on ANY host (they would also stop the
+ * server at startup, lib/config.ts).
  * On temporary hosts (*.vercel.app, *.netlify.app, localhost) it only reports, and passes.
  *
  *   npm run check:placeholders                 uses the current env (+ .env.local, if present)
@@ -37,6 +40,8 @@ async function main() {
 
   // Imported after loading .env.local, because lib/site.ts reads env at import time.
   const { INDEXABLE, INDEXING_OFF_REASON } = await import("../lib/site");
+  const { parseAdsEnv, missingAdsSettings } = await import("../lib/ads");
+  const ads = parseAdsEnv(process.env);
 
   const found: string[] = [];
   for (const file of dirs.flatMap((d) => walk(d))) {
@@ -58,9 +63,23 @@ async function main() {
   for (const f of found) console.log(`  ${f}`);
   if (contactMissing) console.log("  (no CONTACT_EMAIL or ABUSE_CONTACT_EMAIL set)");
 
+  if (ads.errors.length > 0) {
+    console.error("\nBUILD BLOCKED: invalid ad settings:\n" + ads.errors.map((e) => `  - ${e}`).join("\n"));
+    process.exit(1);
+  }
+  const adsMissing = missingAdsSettings(ads);
+
   if (!INDEXABLE) {
-    console.log(`Indexing is off (${INDEXING_OFF_REASON}), so this is not blocking.`);
+    console.log(`Indexing is off (${INDEXING_OFF_REASON}), so this is not blocking (ads stay off here too).`);
     return;
+  }
+  if (adsMissing.length > 0) {
+    console.error(
+      "\nBUILD BLOCKED: ADS_ENABLED=true on an indexable domain, but required ad settings are missing:\n" +
+        adsMissing.map((m) => `  - ${m}`).join("\n") +
+        "\nSet them (see docs/ads-plan.md) or set ADS_ENABLED=false.",
+    );
+    process.exit(1);
   }
   if (found.length > 0 || contactMissing) {
     console.error(

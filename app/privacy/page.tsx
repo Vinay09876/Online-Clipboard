@@ -2,26 +2,29 @@
  * TEMPLATE, NOT LEGAL ADVICE. A plain-language privacy policy for a small free hobby site.
  * Review it (ideally with someone who knows data-protection law where you operate, and for
  * EEA/UK visitors) before sharing the site publicly. Every statement must stay true for the
- * current code. Do not mention ads or advertising cookies until they exist (Growth Step 9).
+ * current code. Ads and advertising cookies are mentioned ONLY while ads are active
+ * (lib/ads.ts → adsActive); with ads off, nothing here may mention them.
  */
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AdvertisingSection } from "@/components/AdvertisingSection";
 import { ContentPage } from "@/components/ContentPage";
-import { CLAIMS } from "@/content/claims";
+import { CLAIMS, trackingClaims } from "@/content/claims";
 import { HOSTING, LEGAL_LAST_UPDATED, OWNER } from "@/content/legal";
 import { getSiteFacts, plural } from "@/lib/facts";
+import { adsActive } from "@/lib/ads";
 import { pageUrls } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Privacy policy",
-  description:
-    "What Online Clipboard stores, for how long, and what it never collects: no accounts, no cookies, no analytics.",
+  description: trackingClaims(adsActive()).privacyMeta,
   ...pageUrls("/privacy", "Privacy policy | Online Clipboard"),
 };
 
 export default function PrivacyPage() {
   const f = getSiteFacts();
   const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  const ads = f.adsActive;
 
   return (
     <ContentPage
@@ -65,12 +68,28 @@ export default function PrivacyPage() {
       <h2>What we don&apos;t collect</h2>
       <ul>
         <li>No accounts, names or email addresses (unless you email us).</li>
-        <li>
-          No cookies. If you switch to the dark theme, that choice is saved in your browser&apos;s local storage on your
-          device only; it is never sent to us.
-        </li>
-        <li>No analytics, no tracking scripts, no third-party fonts or images.</li>
+        {ads ? (
+          <>
+            <li>
+              The site&apos;s own code doesn&apos;t set cookies. Google&apos;s ad code on the guide pages can,
+              including cookies under this site&apos;s address, as described under <a href="#advertising">Advertising</a>.
+              If you switch to the dark theme, that choice is saved in your
+              browser&apos;s local storage on your device only; it is never sent to us.
+            </li>
+            <li>We don&apos;t run our own analytics tools or load third-party fonts.</li>
+          </>
+        ) : (
+          <>
+            <li>
+              No cookies. If you switch to the dark theme, that choice is saved in your browser&apos;s local storage on
+              your device only; it is never sent to us.
+            </li>
+            <li>No analytics, no tracking scripts, no third-party fonts or images.</li>
+          </>
+        )}
       </ul>
+
+      {ads && <AdvertisingSection />}
 
       <h2>Service providers</h2>
       <p>

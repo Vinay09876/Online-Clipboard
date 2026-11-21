@@ -8,7 +8,7 @@
  */
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { CLAIMS } from "@/content/claims";
+import { CLAIMS, trackingClaims } from "@/content/claims";
 import { fmt, plural } from "@/content/text";
 import type { SiteFacts } from "@/lib/facts";
 
@@ -441,7 +441,7 @@ function isItSafe(f: SiteFacts): GuideBody {
             {plural(f.downloadLinkSeconds, "second", "seconds")}.
           </li>
           <li>
-            <strong>Little data about you.</strong> No accounts, cookies or analytics. For rate limiting we keep{" "}
+            <strong>Little data about you.</strong> {trackingClaims(f.adsActive).guide} For rate limiting we keep{" "}
             {CLAIMS.ipHash(f.rateLimitRetentionHours)}.
           </li>
         </ul>

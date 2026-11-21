@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { ContentPage } from "@/components/ContentPage";
 import type { Source } from "@/content/guides/bodies";
 import { guidePath, type GuideMeta } from "@/content/guides/index";
@@ -32,7 +33,10 @@ export function articleJsonLd(guide: GuideMeta): Record<string, unknown> {
 /**
  * Shared structure for every guide: breadcrumbs, one h1, summary, last-updated date, body,
  * the required "When this tool is not the right choice" section, official sources, related
- * guides and a calm link back to the tool. Server Component, no client JavaScript.
+ * guides and a calm link back to the tool. Server Component.
+ *
+ * Ad placements (lib/ads.ts; render nothing unless ads are active): one after the intro
+ * ("In short" + date), one after the article and its sources, before "Related guides".
  */
 export function GuideLayout({
   guide,
@@ -70,6 +74,8 @@ export function GuideLayout({
       }
       extraJsonLd={[articleJsonLd(guide)]}
     >
+      <AdSlot placement="guide-after-intro" />
+
       {body}
 
       <h2 id="not-the-right-choice">When this tool is not the right choice</h2>
@@ -96,6 +102,8 @@ export function GuideLayout({
           </ul>
         </>
       )}
+
+      <AdSlot placement="guide-before-related" />
 
       <h2>Related guides</h2>
       <ul>

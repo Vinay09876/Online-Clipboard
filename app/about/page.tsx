@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentPage } from "@/components/ContentPage";
-import { CLAIMS } from "@/content/claims";
+import { CLAIMS, trackingClaims } from "@/content/claims";
 import { OWNER } from "@/content/legal";
 import { fmt, getSiteFacts, plural } from "@/lib/facts";
+import { adsActive } from "@/lib/ads";
 import { pageUrls } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "About",
   description:
-    "What Online Clipboard is, why it exists, how it works, and what it deliberately does not do: no accounts, no tracking.",
+    `What Online Clipboard is, why it exists, how it works, and what it deliberately does not do: ${trackingClaims(adsActive()).aboutMeta}.`,
   ...pageUrls("/about", "About | Online Clipboard"),
 };
 
@@ -50,7 +51,7 @@ export default function AboutPage() {
       <h2>What it does not do</h2>
       <ul>
         <li>No accounts and no sign-up.</li>
-        <li>No cookies, no analytics, no tracking scripts.</li>
+        <li>{trackingClaims(f.adsActive).about}</li>
         <li>No end-to-end encryption. {CLAIMS.encryption}</li>
         <li>No permanent storage, no file previews, no early delete button, no public API.</li>
       </ul>

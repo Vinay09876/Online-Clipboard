@@ -4,10 +4,13 @@
  * Started by playwright.config.ts (webServer); stopped by Playwright when tests end.
  *
  *   3230  no SITE_URL                                   → existing UI tests, not indexable
- *   3231  SITE_URL on a temporary host (*.vercel.app)    → not indexable
- *   3232  SITE_URL=https://example.com                   → indexable
- *   3233  SITE_URL=https://example.com, ALLOW_INDEXING=false → kill switch, not indexable
+ *   3231  SITE_URL on a temporary host (*.vercel.app)    → not indexable; ad flags set → still no ads
+ *   3232  SITE_URL=https://example.com                   → indexable, ads not configured (default)
+ *   3233  SITE_URL=https://example.com, ALLOW_INDEXING=false → kill switch; ad flags set → still no ads
  *   3234  MAX_FILE_SIZE_MB=7, CLIP_EXPIRY_MINUTES=15, RATE_LIMIT_LOOKUP_FAILURES=4, CONTACT_EMAIL → copy follows config
+ *   3235  SITE_URL=https://example.com + ad flags          → ads ACTIVE (HTML/header tests only)
+ *
+ * The ad flags use an obviously fake publisher ID (all zeros). Tests never load Google's script.
  *
  * Set E2E_SKIP_BUILD=1 to reuse the last build.
  */
@@ -16,13 +19,29 @@ import { createServer } from "node:http";
 
 const NEXT_BIN = "node_modules/next/dist/bin/next";
 
+const NO_ADS = {
+  ADS_ENABLED: "",
+  ADSENSE_CLIENT_ID: "",
+  ADSENSE_SLOT_GUIDE_AFTER_INTRO: "",
+  ADSENSE_SLOT_GUIDE_BEFORE_RELATED: "",
+  ADSENSE_SLOT_GUIDES_HUB: "",
+};
+const FAKE_ADS = {
+  ADS_ENABLED: "true",
+  ADSENSE_CLIENT_ID: "ca-pub-0000000000000000",
+  ADSENSE_SLOT_GUIDE_AFTER_INTRO: "1111111111",
+  ADSENSE_SLOT_GUIDE_BEFORE_RELATED: "2222222222",
+  ADSENSE_SLOT_GUIDES_HUB: "3333333333",
+};
+
 export const SERVERS = [
-  { port: 3230, env: { SITE_URL: "", ALLOW_INDEXING: "" } },
-  { port: 3231, env: { SITE_URL: "https://online-clipboard-test.vercel.app", ALLOW_INDEXING: "" } },
-  { port: 3232, env: { SITE_URL: "https://example.com", ALLOW_INDEXING: "" } },
-  { port: 3233, env: { SITE_URL: "https://example.com", ALLOW_INDEXING: "false" } },
+  { port: 3230, env: { ...NO_ADS, SITE_URL: "", ALLOW_INDEXING: "" } },
+  { port: 3231, env: { ...FAKE_ADS, SITE_URL: "https://online-clipboard-test.vercel.app", ALLOW_INDEXING: "" } },
+  { port: 3232, env: { ...NO_ADS, SITE_URL: "https://example.com", ALLOW_INDEXING: "" } },
+  { port: 3233, env: { ...FAKE_ADS, SITE_URL: "https://example.com", ALLOW_INDEXING: "false" } },
   // Small limits: the home page copy must show these numbers, not the defaults.
-  { port: 3234, env: { SITE_URL: "", ALLOW_INDEXING: "", MAX_FILE_SIZE_MB: "7", CLIP_EXPIRY_MINUTES: "15", RATE_LIMIT_LOOKUP_FAILURES: "4", CONTACT_EMAIL: "hello@example.org" } },
+  { port: 3234, env: { ...NO_ADS, SITE_URL: "", ALLOW_INDEXING: "", MAX_FILE_SIZE_MB: "7", CLIP_EXPIRY_MINUTES: "15", RATE_LIMIT_LOOKUP_FAILURES: "4", CONTACT_EMAIL: "hello@example.org" } },
+  { port: 3235, env: { ...FAKE_ADS, SITE_URL: "https://example.com", ALLOW_INDEXING: "" } },
 ];
 
 if (!process.env.E2E_SKIP_BUILD) {
