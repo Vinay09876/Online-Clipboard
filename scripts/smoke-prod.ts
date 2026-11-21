@@ -130,7 +130,10 @@ async function main() {
   check(!!n1 && !!n2 && n1 !== n2, "two requests got DIFFERENT nonces (no page served from a cache)", { n1, n2 });
   if (n1 && n1 === n2) explain("A CDN cached the HTML: the nonce is reused, which weakens the CSP. See docs/deploy-netlify.md.");
   const cc = home.headers.get("cache-control") ?? "";
-  check(/no-store/.test(cc) && /private/.test(cc), "page Cache-Control is private, no-store", cc);
+  // Next.js sends "private, no-store"; Vercel rewrites the browser-facing header to
+  // "public, max-age=0, must-revalidate" (its edge only caches with s-maxage). Both forbid reuse.
+  const noReuse = /no-store/.test(cc) || (/max-age=0\b/.test(cc) && !/s-maxage=[1-9]/.test(cc));
+  check(noReuse, "page Cache-Control forbids reusing the page (no-store, or max-age=0 without s-maxage)", cc);
   const cacheStatus = home2.headers.get("cache-status");
   if (cacheStatus) {
     console.log(`  info  Cache-Status: ${cacheStatus}`);
