@@ -144,3 +144,25 @@ sitemap and /guides hub pick up new guides from the registry.
 - One guide per genuinely different question. If two planned topics would share most of their
   text, merge them or make one link to the other.
 - Every guide gets real internal links (related guides and the hub), and appears in the hub.
+
+## 10. No overlap between guides (one search intent per page)
+
+- Every guide has a `primaryQuery` in `content/guides/index.ts`: the one phrase it answers, in
+  natural lowercase search wording (e.g. "transfer photos from iphone to windows pc").
+- **No two guides may share a primary query.** A Playwright test (`e2e/pages.spec.ts`) fails on
+  an empty or duplicate `primaryQuery`.
+- The test can only catch exact duplicates. Before adding a guide, also ask: would someone
+  searching this land happily on an existing guide? If yes, extend that guide or link to it.
+  Example: "send a file from phone to PC" (guide 2) already covers Quick Share, Phone Link,
+  Bluetooth and iCloud; the photo guides cover only what is photo-specific (HEIC, Live Photos,
+  import errors) and link back to guide 2.
+- No sentence may be copied between guides. Each guide's "When this tool is not the right
+  choice" list must be specific to its topic.
+- Every guide lists exactly 3 related guides (enforced by the same test).
+
+## 11. Shared claims
+
+Statements about encryption, IP hashing, deletion timing and browser support are worded once
+in `content/claims.ts` and reused everywhere. Don't rephrase them inline. The deletion-timing
+claim depends on the scheduled clean-up job (`docs/cleanup-scheduling.md`); if that schedule
+changes, update `CLEANUP_INTERVAL_MINUTES`.

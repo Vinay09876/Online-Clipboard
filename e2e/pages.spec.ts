@@ -57,10 +57,13 @@ test("guides follow the template: summary, date, steps, honesty section, sources
     // Related guides: every listed one, plus the hub.
     const relatedHeading = page.getByRole("heading", { name: "Related guides" });
     await expect(relatedHeading).toBeVisible();
+    expect(g.related).toHaveLength(3);
     for (const slug of g.related) {
       const r = GUIDES.find((x) => x.slug === slug)!;
-      await expect(page.locator("article").getByRole("link", { name: r.title })).toHaveAttribute("href", guidePath(slug));
+      await expect(page.locator("article").getByRole("link", { name: r.title, exact: true })).toHaveAttribute("href", guidePath(slug));
     }
+    // Exactly 3 related guides + the "All guides" link in the Related guides list.
+    await expect(page.locator("article ul").last().locator("li")).toHaveCount(4);
     await expect(page.locator("article").getByRole("link", { name: "Open Online Clipboard" })).toHaveAttribute("href", "/");
 
     // Outbound links: official docs only, with rel="noopener noreferrer".
@@ -168,4 +171,31 @@ test("placeholder guard: blocks a real domain with leftovers, passes when clean 
     rmSync(withMarker, { recursive: true, force: true });
     rmSync(clean, { recursive: true, force: true });
   }
+});
+
+test("guide registry: unique, non-empty primary queries (no two guides for one search intent); 3 valid related each", () => {
+  const norm = (q: string) => q.trim().toLowerCase().replace(/\s+/g, " ");
+  const seen = new Map<string, string>();
+  for (const g of GUIDES) {
+    expect(norm(g.primaryQuery ?? ""), `${g.slug}: primaryQuery must not be empty`).not.toBe("");
+    const q = norm(g.primaryQuery);
+    expect(seen.get(q), `"${q}" is the primary query of both ${seen.get(q)} and ${g.slug}`).toBeUndefined();
+    seen.set(q, g.slug);
+
+    expect(g.related, `${g.slug}: exactly 3 related guides`).toHaveLength(3);
+    expect(new Set(g.related).size, `${g.slug}: related guides are distinct`).toBe(3);
+    for (const r of g.related) {
+      expect(r, `${g.slug}: doesn't relate to itself`).not.toBe(g.slug);
+      expect(GUIDES.some((x) => x.slug === r), `${g.slug}: related "${r}" exists`).toBe(true);
+    }
+  }
+  expect(new Set(GUIDES.map((g) => g.slug)).size, "slugs are unique").toBe(GUIDES.length);
+});
+
+test("unknown guide slugs return a real 404 status (also with odd characters)", async ({ request }) => {
+  for (const path of ["/guides/no-such-guide", "/guides/Send-Files-Too-Big-For-Email", "/guides/%3Cscript%3E"]) {
+    const res = await request.get(path);
+    expect(res.status(), path).toBe(404);
+  }
+  expect((await request.get("/guides/send-files-too-big-for-email")).status()).toBe(200);
 });

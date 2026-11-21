@@ -7,6 +7,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentPage } from "@/components/ContentPage";
+import { CLAIMS } from "@/content/claims";
 import { HOSTING, LEGAL_LAST_UPDATED, OWNER } from "@/content/legal";
 import { getSiteFacts, plural } from "@/lib/facts";
 import { pageUrls } from "@/lib/site";
@@ -21,7 +22,6 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   const f = getSiteFacts();
   const minutes = plural(f.expiryMinutes, "minute", "minutes");
-  const hours = plural(f.rateLimitRetentionHours, "hour", "hours");
 
   return (
     <ContentPage
@@ -42,22 +42,19 @@ export default function PrivacyPage() {
       <h2>What you send us</h2>
       <p>
         When you create a clip, we store the text and/or the one file you add, its file name and size, the 6-digit code,
-        and when it was created and expires. Text and files travel over HTTPS, but they are stored on our servers in a
-        readable form: clips are <strong>not end-to-end encrypted</strong>. Anyone with the code can open a clip until
-        it expires, as often as they like.
+        and when it was created and expires. {CLAIMS.encryption} Anyone with the code can open a clip until it expires,
+        as often as they like.
       </p>
 
       <h2>How long we keep it</h2>
       <ul>
         <li>
-          <strong>Clips:</strong> each clip expires {minutes} after it is created. Its code stops working at once, and
-          the text and file are deleted by an automatic clean-up job, usually within minutes. Uploads that were never
-          finished are deleted too.
+          <strong>Clips:</strong> each clip expires {minutes} after it is created. Its code stops working at once, and{" "}
+          {CLAIMS.deletion}. Uploads that were never finished are deleted too.
         </li>
         <li>
-          <strong>Abuse protection:</strong> to limit spam and code guessing, we keep a <em>hashed</em> (scrambled,
-          non-reversible) form of your IP address together with request counters. These are deleted after about{" "}
-          {hours}. Your raw IP address is never stored by the app.
+          <strong>Abuse protection:</strong> to limit spam and code guessing, we keep {CLAIMS.ipHash(f.rateLimitRetentionHours)}.
+          Your raw IP address is never stored by the app.
         </li>
         <li>
           <strong>Download totals:</strong> we count how many bytes are downloaded per month in total, to stay within

@@ -46,6 +46,5 @@ export function getSiteFacts(): SiteFacts {
   };
 }
 
-// Small text helpers shared by content files.
-export const fmt = (x: number) => x.toLocaleString("en-US");
-export const plural = (x: number, one: string, many: string) => `${fmt(x)} ${x === 1 ? one : many}`;
+// Small text helpers, re-exported for pages (defined in content/text.ts).
+export { fmt, plural } from "@/content/text";
