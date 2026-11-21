@@ -117,6 +117,11 @@ Known hosts at the time of writing, for reading reports only (do **not** turn in
 allowlist): `pagead2.googlesyndication.com` (library), `googleads.g.doubleclick.net`,
 `tpc.googlesyndication.com` (ad frames), `fundingchoicesmessages.google.com` (consent message).
 
+On Netlify, headers from `next.config.ts` are applied *after* middleware (Netlify's Next.js
+docs), so the static `Referrer-Policy: no-referrer` there may override the ad-page value set in
+`proxy.ts`. Check the header on a guide in Step 9; if needed, move `Referrer-Policy` out of
+`next.config.ts` into `proxy.ts`. (The `<meta name="referrer">` from the page metadata applies either way.)
+
 Not verified yet (Step 9): whether `frame-src/img-src/connect-src/style-src/font-src https:` is
 enough in practice, and whether `Permissions-Policy: autoplay=()` (next.config.ts) blocks some
 video ads. Google recommends testing first with `Content-Security-Policy-Report-Only`.

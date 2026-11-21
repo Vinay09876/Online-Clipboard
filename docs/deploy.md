@@ -1,5 +1,9 @@
 # Deploying Online Clipboard (Vercel Hobby + Supabase Free)
 
+> **Netlify:** the app also runs on Netlify's free plan; see `docs/deploy-netlify.md`
+> (Growth Step 5). Vercel stays live until the domain step. On Vercel, `HOSTING_PROVIDER` can
+> stay unset (Vercel is detected via `VERCEL=1`) or be set to `vercel`.
+
 A step-by-step guide. Do the steps in order. Dashboards change their wording now and
 then; if a button isn't exactly where described, look for the closest match.
 
@@ -86,6 +90,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 | `CONTACT_EMAIL` | No (shown publicly on /contact) | optional general address; falls back to `ABUSE_CONTACT_EMAIL`. On a real domain the build fails unless one of them is set. |
 | `SITE_URL` | No | your site's address, e.g. `https://<your-project>.vercel.app` (correct share previews; a temporary host is never indexed). Your real domain from Step 7 of `docs/growth-plan.md`. See `docs/seo.md`. |
 | `ALLOW_INDEXING` | No | leave empty. `false` = never let search engines index the site (kill switch). |
+| `HOSTING_PROVIDER` | No on Vercel (auto-detected) | `vercel`. Decides which header carries the real visitor IP for rate limiting. **Required on Netlify** (`netlify`). |
 | `ADS_ENABLED` | No | leave empty until Growth Step 9. `true` shows ads on guide pages only, and only on an indexable real domain. See `docs/ads-plan.md`. |
 | `ADSENSE_CLIENT_ID` | No | leave empty until Step 9. `ca-pub-` + 16 digits. On a real domain it adds the AdSense verification meta tag and `/ads.txt`. |
 | `ADSENSE_SLOT_GUIDE_AFTER_INTRO`, `ADSENSE_SLOT_GUIDE_BEFORE_RELATED`, `ADSENSE_SLOT_GUIDES_HUB` | No | leave empty until Step 9. Numeric ad unit IDs from AdSense. |

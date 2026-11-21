@@ -1,0 +1,23 @@
+# Netlify build settings (Growth Step 5). Setup: docs/deploy-netlify.md.
+# NO secrets here: this file is public. Every runtime setting (Supabase keys, CRON_SECRET,
+# HOSTING_PROVIDER, SITE_URL, …) goes in Netlify → Project configuration → Environment variables,
+# because values set in this file are only available during the build, not to the functions.
+#
+# Next.js support comes from Netlify's OpenNext adapter (@netlify/plugin-nextjs). Netlify
+# installs it automatically and recommends not pinning it, so it is NOT listed here and NOT
+# added to package.json.
+
+[build]
+  command = "npm run build"   # also runs the prebuild placeholder/ads guard
+  publish = ".next"
+
+  # Skip a build when a push only changes documentation: every production deploy costs credits
+  # (docs/deploy-netlify.md, "Credits"). Exit 0 = skip, exit 1 = build.
+  # Always builds the very first time, on retries of the same commit, and if git can't compare.
+  ignore = 'if [ -z "$CACHED_COMMIT_REF" ] || [ "$CACHED_COMMIT_REF" = "$COMMIT_REF" ]; then exit 1; fi; git diff --quiet "$CACHED_COMMIT_REF" "$COMMIT_REF" -- . ":(exclude)docs" ":(exclude)*.md"'
+
+[build.environment]
+  # Same major version as local development (Next.js 16 needs Node 20.9+).
+  NODE_VERSION = "22"
+  # Don't send Next.js telemetry from the build machine.
+  NEXT_TELEMETRY_DISABLED = "1"

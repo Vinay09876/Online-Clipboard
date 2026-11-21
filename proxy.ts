@@ -65,7 +65,9 @@ export function buildCsp(nonce: string, isDev: boolean, ads = false): string {
 }
 
 export function proxy(request: NextRequest) {
-  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  // Web-standard APIs only (btoa + crypto.randomUUID): on Netlify this proxy runs as an Edge
+  // Function (Deno), where Node's Buffer is not guaranteed. Same value format as before.
+  const nonce = btoa(crypto.randomUUID());
   const adPage = isActiveAdPage(request.nextUrl.pathname); // always false while ads are off
   const csp = buildCsp(nonce, process.env.NODE_ENV === "development", adPage);
 
@@ -86,9 +88,22 @@ export function proxy(request: NextRequest) {
   // Belt and braces next to <meta name="robots">: also covers robots.txt, the sitemap,
   // icons and the share image on temporary hosts. (API routes always get it: next.config.ts.)
   if (!INDEXABLE) response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  // Every page carries a fresh nonce, so no CDN may ever store a page (Netlify's CDN and other
+  // CDNs read these; Next.js already sends Cache-Control: private, no-store for these pages).
+  // Files with an extension and the share image are left alone (they hold no nonce).
+  if (isPagePath(request.nextUrl.pathname)) {
+    response.headers.set("CDN-Cache-Control", "no-store");
+    response.headers.set("Netlify-CDN-Cache-Control", "no-store");
+  }
   // Google's consent message needs cross-origin referrers (default is no-referrer, next.config.ts).
   if (adPage) response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   return response;
+}
+
+/** HTML pages (rendered per request, with a nonce), as opposed to files like /robots.txt or /icon.svg. */
+export function isPagePath(pathname: string): boolean {
+  const last = pathname.split("/").pop() ?? "";
+  return !last.includes(".") && pathname !== "/opengraph-image";
 }
 
 export const config = {

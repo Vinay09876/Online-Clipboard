@@ -1,8 +1,9 @@
 import "server-only";
 
 import { createHash, createHmac } from "node:crypto";
-import { isIP } from "node:net";
+import { clientIpFrom } from "@/lib/clientIp";
 import {
+  HOSTING_PROVIDER,
   IP_HASH_SALT,
   RATE_LIMITS,
   RATE_LIMIT_WINDOW_SECONDS,
@@ -52,58 +53,25 @@ const SALT: string =
     return createHash("sha256").update(`ip-hash-salt:${SUPABASE_SERVICE_ROLE_KEY}`).digest("hex");
   })();
 
+/** Logged once per instance when the trusted client-IP header is missing. */
+let warnedUnknownIp = false;
+
 /**
- * The caller's IP.
- *
- * On Vercel: `x-real-ip` (fallback: first `x-forwarded-for` entry). Vercel's edge
- * OVERWRITES both headers with the real client address, so clients cannot spoof them.
- *
- * Anywhere else (next dev, next start, other hosts): the same headers are read, but
- * Next.js passes whatever the client sent straight through, so a client can set
- * `X-Forwarded-For: <anything>` and get a fresh limit per request. That is acceptable
- * locally (tests rely on it) but NOT in production outside Vercel without a proxy that
- * overwrites these headers.
+ * The caller's IP, read from the header that HOSTING_PROVIDER trusts (lib/clientIp.ts:
+ * x-real-ip on Vercel, x-nf-client-connection-ip on Netlify, X-Forwarded-For locally).
+ * API routes call this; they don't know which platform they run on.
  */
 export function getClientIp(headers: Headers): string {
-  const xff = headers.get("x-forwarded-for")?.split(",")[0];
-  const xri = headers.get("x-real-ip");
-  const raw = process.env.VERCEL === "1" ? (xri ?? xff) : (xff ?? xri);
-  return normalizeIp(raw) ?? "unknown";
-}
-
-/**
- * Canonical form used for the key:
- *  - strips ports/brackets, lowercases, unwraps IPv4-mapped IPv6
- *  - IPv6 is reduced to its /64 prefix, because one user typically controls a whole /64
- *    and could otherwise rotate addresses to dodge the limit
- */
-function normalizeIp(raw: string | null | undefined): string | null {
-  if (!raw) return null;
-  let ip = raw.trim();
-  const bracketed = /^\[([^\]]+)\](?::\d+)?$/.exec(ip);
-  if (bracketed) ip = bracketed[1];
-  else if (/^\d{1,3}(\.\d{1,3}){3}:\d+$/.test(ip)) ip = ip.replace(/:\d+$/, "");
-  ip = ip.toLowerCase().split("%")[0]; // drop IPv6 zone id
-  const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/.exec(ip);
-  if (mapped) ip = mapped[1];
-
-  const version = isIP(ip);
-  if (version === 4) return ip;
-  if (version === 6) return ipv6Prefix64(ip);
-  return null;
-}
-
-function ipv6Prefix64(ip: string): string {
-  let groups: string[];
-  if (ip.includes("::")) {
-    const [head, tail] = ip.split("::");
-    const h = head ? head.split(":") : [];
-    const t = tail ? tail.split(":") : [];
-    groups = [...h, ...Array<string>(Math.max(0, 8 - h.length - t.length)).fill("0"), ...t];
-  } else {
-    groups = ip.split(":");
+  const ip = clientIpFrom(headers, HOSTING_PROVIDER);
+  if (ip === "unknown" && !warnedUnknownIp && HOSTING_PROVIDER !== "local") {
+    warnedUnknownIp = true;
+    // Every visitor would share one "unknown" bucket: limits would hit everyone at once.
+    console.error(
+      `[rateLimit] no client IP in the trusted header for HOSTING_PROVIDER=${HOSTING_PROVIDER}. ` +
+        "Check HOSTING_PROVIDER (docs/deploy-netlify.md).",
+    );
   }
-  return groups.slice(0, 4).map((g) => parseInt(g || "0", 16).toString(16)).join(":") + "::/64";
+  return ip;
 }
 
 /** Exported for tests: the exact key stored in rate_limits for a bucket + IP. */

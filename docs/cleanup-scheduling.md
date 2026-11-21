@@ -6,7 +6,12 @@
 > Until then, trigger cleanup manually (see "Testing" in Step 4) or rely on the
 > lazy cleanup that runs after each new clip.
 
-Vercel Hobby only allows cron jobs once a day, so the schedule lives in Supabase:
+> **Netlify (Growth Step 5):** while both hosts are live, a second job calls the Netlify URL.
+> See `docs/deploy-netlify.md` §6. The endpoint budgets ~20 s of work (`lib/cleanupJob.ts`),
+> inside Vercel's 30 s `maxDuration`, Netlify's 60 s limit and the 30 s `timeout_milliseconds` below.
+
+Vercel Hobby only allows cron jobs once a day, so the schedule lives in Supabase
+(this also keeps it independent of the hosting provider):
 `pg_cron` fires every 10 minutes and `pg_net` sends an HTTP POST to
 `/api/cron/cleanup` with the secret. The API route does the actual work (it must:
 files can only be deleted through the Storage API, not SQL).

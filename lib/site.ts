@@ -13,7 +13,16 @@
  * Deliberately free of secrets and imports, so proxy.ts can use it too. Values are read
  * when the server starts (per instance), so changing them needs a restart / redeploy.
  */
-import { isIP } from "node:net";
+/**
+ * IP-address check without node:net. proxy.ts imports this file, and on Netlify the proxy runs
+ * as an Edge Function (Deno), so it sticks to plain JavaScript. Hostnames come from `new URL()`,
+ * which already normalises IPv4 forms (127.1 → 127.0.0.1) and strips IPv6 brackets.
+ */
+function isIpAddress(host: string): boolean {
+  if (host.includes(":")) return true; // IPv6: a DNS hostname can never contain ":"
+  const parts = host.split(".");
+  return parts.length === 4 && parts.every((p) => /^\d{1,3}$/.test(p) && Number(p) <= 255);
+}
 
 /** Hosts that must never be indexed: platform preview/temporary domains and local addresses. */
 const TEMPORARY_HOST_SUFFIXES = [".vercel.app", ".netlify.app", ".localhost"];
@@ -44,7 +53,7 @@ export function isTemporaryHost(hostname: string): boolean {
   const host = hostname.toLowerCase().replace(/^\[|\]$/g, ""); // strip IPv6 brackets
   if (TEMPORARY_HOSTS.has(host)) return true;
   if (TEMPORARY_HOST_SUFFIXES.some((s) => host.endsWith(s))) return true;
-  if (isIP(host) !== 0) return true; // any IPv4 / IPv6 address, incl. 127.0.0.1 and ::1
+  if (isIpAddress(host)) return true; // any IPv4 / IPv6 address, incl. 127.0.0.1 and ::1
   return false;
 }
 

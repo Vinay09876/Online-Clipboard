@@ -1,6 +1,7 @@
 import "server-only";
 
 import { ADS_ENV_ERRORS } from "@/lib/ads";
+import { parseHostingProvider, type HostingProvider } from "@/lib/clientIp";
 import { parseSiteUrl } from "@/lib/site";
 
 /**
@@ -111,6 +112,14 @@ if (allowIndexing && allowIndexing !== "true" && allowIndexing !== "false") {
   errors.push(`ALLOW_INDEXING must be "true" or "false" (got "${process.env.ALLOW_INDEXING}").`);
 }
 
+// Hosting platform: decides which header carries the real client IP (lib/clientIp.ts).
+const hostingCheck = parseHostingProvider({
+  HOSTING_PROVIDER: process.env.HOSTING_PROVIDER,
+  VERCEL: process.env.VERCEL,
+  NETLIFY: process.env.NETLIFY,
+});
+if (!hostingCheck.ok) errors.push(hostingCheck.error);
+
 // Ads (logic lives in lib/ads.ts; default off). Malformed ADS_ENABLED / ADSENSE_* values stop startup.
 // Missing settings on a real domain are caught by the build guard (scripts/check-placeholders.ts).
 errors.push(...ADS_ENV_ERRORS);
@@ -124,6 +133,8 @@ if (errors.length > 0) {
 }
 
 export const SUPABASE_URL: string = supabaseUrl;
+/** Where the real client IP comes from (rate limiting). See lib/clientIp.ts. */
+export const HOSTING_PROVIDER: HostingProvider = hostingCheck.ok ? hostingCheck.provider : "local";
 export const SUPABASE_SERVICE_ROLE_KEY: string = supabaseServiceRoleKey;
 export const CLIP_EXPIRY_MINUTES: number = clipExpiryMinutes;
 export const MAX_FILE_SIZE_MB: number = maxFileSizeMb;

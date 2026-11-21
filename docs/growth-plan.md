@@ -52,8 +52,12 @@ One step at a time; each step is reviewed before the next starts.
       ad pages while active; ads-aware privacy/terms wording; consent plan (Google CMP); build
       guard; `e2e/ads.spec.ts`. Plan and Step 9 checklist: `docs/ads-plan.md`.
       *(Done 2026-11-21; awaiting review.)*
-- [ ] **5. Move hosting to Netlify (free)**: client-IP reading for rate limits (+ re-run the
-      spoof test), cleanup schedule URL, env vars, docs; re-check CSP, proxy.ts and after().
+- [ ] **5. Move hosting to Netlify (free)**: code and docs done 2026-11-21 (awaiting review):
+      `HOSTING_PROVIDER` + `lib/clientIp.ts` (x-nf-client-connection-ip on Netlify), edge-safe
+      `proxy.ts`, CDN no-store on pages, clean-up time budget (`lib/cleanupJob.ts`),
+      `netlify.toml`, smoke test for any URL, `docs/deploy-netlify.md`. **Owner:** import the
+      repo on Netlify, set env vars, deploy, run `npm run smoke:prod` (incl. the spoof check),
+      add the second cron job. Vercel stays live until Step 7.
 - [ ] **6. Pre-launch quality pass**: speed, accessibility, mobile, broken links, spelling,
       full test run.
 
@@ -98,3 +102,12 @@ One step at a time; each step is reviewed before the next starts.
   switch off and an Advertising section appears on /privacy and /terms when active. Build guard
   extended. Tests: `e2e/ads.spec.ts` (default, real domain without ads, ads active with a fake
   publisher ID, temporary host and kill switch with ad flags).
+- **Step 5** (2026-11-21, code): provider-neutral hosting. Client IP by `HOSTING_PROVIDER`
+  (vercel: x-real-ip; netlify: x-nf-client-connection-ip only; local: X-Forwarded-For,
+  spoofable, dev/tests only), auto-detected when unset. `proxy.ts` uses only web APIs (Netlify
+  runs it as an Edge Function). Pages send `CDN-Cache-Control` / `Netlify-CDN-Cache-Control:
+  no-store`. Clean-up job extracted to `lib/cleanupJob.ts` with a ~20 s budget (fits Vercel 30 s,
+  Netlify 60 s, pg_net 30 s). `netlify.toml` (Node 22, docs-only pushes skip the build).
+  `smoke:prod` works for any URL: nonce freshness, proxy/page indexing agreement, unknown guide
+  404, ads.txt 404, multi-header spoof check, response times. Netlify Free runs functions in
+  Ohio (region change needs Pro); Supabase is in Mumbai: measure, decide at Step 7.
