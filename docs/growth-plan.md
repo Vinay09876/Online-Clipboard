@@ -23,10 +23,21 @@ One step at a time; each step is reviewed before the next starts.
       See `docs/seo.md`. *(Done 2026-11-20; reviewed, committed and deployed.)*
 - [x] **2. Home page content**: explanatory content below the tool (what it is, how it works,
       FAQ, privacy points) and FAQ structured data. Copy in `content/home.ts`; rules in
-      `docs/content-guidelines.md`. *(Done 2026-11-20; awaiting review.)*
-- [ ] **3. Guide pages and trust pages**: guides hub + 10-15 original guides (topics approved by
-      the owner), About, Contact, Privacy Policy; reusable page template; internal links.
-      Add each public page to `lib/sitePages.ts`.
+      `docs/content-guidelines.md`. *(Done 2026-11-20; reviewed, committed and deployed.)*
+- **3. Guide pages and trust pages**, split into three passes:
+  - [x] **3a.** Trust pages (/terms and /privacy split, /about, /contact), guide system
+        (registry, layout, hub, Article + BreadcrumbList JSON-LD), placeholder guard, and 3 guides:
+        (1) How to copy and paste text between your phone and computer,
+        (2) How to send a file from your phone to a PC without a cable,
+        (3) Is an online clipboard safe? What you should never share.
+        *(Done 2026-11-21; awaiting review. Owner must fill the [[ADD]] placeholders and
+        test the device steps on real phones before launch.)*
+  - [ ] **3b.** Guides: Android to Windows file transfer options; iPhone to Windows PC;
+        sending large files past email limits; using a shared computer safely.
+  - [ ] **3c.** Guides: sending files to a print shop; sharing files in a classroom; moving code
+        snippets or logs from phone to computer; online clipboard vs emailing yourself or
+        messaging apps; what an online clipboard is and how it works.
+  (Topic list is the owner's plan and may change.)
 - [ ] **4. Ad-ready code, switched OFF**: ad slot component behind an env flag (never on
       received-clip or download screens), drafted privacy text, EEA/UK consent plan, CSP plan.
 - [ ] **5. Move hosting to Netlify (free)**: client-IP reading for rate limits (+ re-run the
@@ -49,3 +60,8 @@ One step at a time; each step is reviewed before the next starts.
   generated from the same data. Note: Google retired FAQ rich results in 2026, so the FAQ
   markup has no visible effect in Google; it's kept because it's harmless and matches the page.
   Spacing above the tool tightened so the tool stays above the fold at 1280×720.
+- **Step 3a** (2026-11-21): /terms and /privacy split; /about, /contact (email only); guide
+  registry in `content/guides/index.ts` (metadata) + `content/guides/bodies.tsx` (bodies);
+  /guides hub and /guides/[slug]; header nav (Guides, About, Contact) and footer nav (Home,
+  Guides, About, Contact, Terms, Privacy); `npm run build` runs a placeholder guard
+  (`scripts/check-placeholders.ts`) that blocks indexable builds with owner placeholders left.

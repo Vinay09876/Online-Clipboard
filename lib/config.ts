@@ -87,16 +87,20 @@ const maxTotalStorageMb = readPositiveInt("MAX_TOTAL_STORAGE_MB", 800, 1_000_000
 // Egress guard: file download bytes per calendar month (UTC). Supabase free = 5 GB egress.
 const maxMonthlyDownloadMb = readPositiveInt("MAX_MONTHLY_DOWNLOAD_MB", 4000, 10_000_000);
 
-// Public contact for abuse reports, shown on /terms. Optional; validated if set.
-const abuseContactEmail = (() => {
-  const v = process.env.ABUSE_CONTACT_EMAIL?.trim();
+/** Optional email setting; validated if set. */
+function readOptionalEmail(name: string): string | null {
+  const v = process.env[name]?.trim();
   if (!v) return null;
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
-    errors.push(`ABUSE_CONTACT_EMAIL must be an email address (got "${v}").`);
+    errors.push(`${name} must be an email address (got "${v}").`);
     return null;
   }
   return v;
-})();
+}
+
+// Public contacts, shown on /contact, /terms and /privacy.
+const abuseContactEmail = readOptionalEmail("ABUSE_CONTACT_EMAIL");
+const contactEmail = readOptionalEmail("CONTACT_EMAIL");
 
 // Site URL + indexing (logic lives in lib/site.ts; here we only turn mistakes into startup errors).
 const siteUrlCheck = parseSiteUrl(process.env.SITE_URL);
@@ -146,3 +150,5 @@ export const MAX_MONTHLY_DOWNLOAD_MB: number = maxMonthlyDownloadMb;
 export const MAX_MONTHLY_DOWNLOAD_BYTES: number = maxMonthlyDownloadMb * 1024 * 1024;
 /** null when not configured: /terms then shows a clearly marked placeholder. */
 export const ABUSE_CONTACT_EMAIL: string | null = abuseContactEmail;
+/** General contact (/contact). Falls back to ABUSE_CONTACT_EMAIL; null if neither is set. */
+export const CONTACT_EMAIL: string | null = contactEmail ?? abuseContactEmail;

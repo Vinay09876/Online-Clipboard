@@ -222,7 +222,7 @@ test("unknown page shows a 404 with the site footer", async ({ page, consoleProb
   await page.getByRole("link", { name: "Go to Online Clipboard" }).click();
   await expect(page.getByRole("tab", { name: "Send" })).toBeVisible();
   await page.goBack();
-  await expect(page.getByRole("link", { name: "Terms & privacy" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Site" }).getByRole("link", { name: "Privacy" })).toBeVisible();
 });
 
 test("whitespace-only text can't be sent; 'Get clip' button fetches like auto-fetch @mobile", async ({ page, consoleProblems }) => {

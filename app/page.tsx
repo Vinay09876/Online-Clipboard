@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { ClipboardApp } from "@/components/ClipboardApp";
 import { HomeContent } from "@/components/HomeContent";
-import { homeContent, plainText, type HomeFacts } from "@/content/home";
+import { JsonLd } from "@/components/JsonLd";
+import { homeContent, plainText } from "@/content/home";
 import { MAX_TEXT_LENGTH } from "@/lib/clips";
-import {
-  ABUSE_CONTACT_EMAIL,
-  CLIP_EXPIRY_MINUTES,
-  MAX_FILE_SIZE_BYTES,
-  MAX_FILE_SIZE_MB,
-  RATE_LIMITS,
-  RATE_LIMIT_WINDOW_SECONDS,
-} from "@/lib/config";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_ORIGIN, pageUrls, serializeJsonLd } from "@/lib/site";
+import { CLIP_EXPIRY_MINUTES, MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB } from "@/lib/config";
+import { getSiteFacts } from "@/lib/facts";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_ORIGIN, pageUrls } from "@/lib/site";
 
 export const metadata: Metadata = {
   // Title/description come from the layout defaults; this page adds its canonical URL.
@@ -31,18 +25,8 @@ export default async function Home() {
     expiryMinutes: CLIP_EXPIRY_MINUTES,
   };
 
-  // Every number in the page copy comes from here, so the text stays true if config changes.
-  const facts: HomeFacts = {
-    maxFileMb: MAX_FILE_SIZE_MB,
-    maxTextLength: MAX_TEXT_LENGTH,
-    expiryMinutes: CLIP_EXPIRY_MINUTES,
-    lookupFailures: RATE_LIMITS.lookupFailures,
-    rateWindowMinutes: Math.round(RATE_LIMIT_WINDOW_SECONDS / 60),
-    // Same rule as lib/cleanup.ts (counters kept max(1 h, one window)) and the Terms page.
-    rateLimitRetentionHours: Math.max(1, Math.ceil(RATE_LIMIT_WINDOW_SECONDS / 3600)),
-    abuseEmail: ABUSE_CONTACT_EMAIL,
-  };
-  const content = homeContent(facts);
+  // Every number in the page copy comes from server config (lib/facts.ts).
+  const content = homeContent(getSiteFacts());
 
   // Structured data for search engines. Static, server-built values only.
   const webApp = {
@@ -67,21 +51,10 @@ export default async function Home() {
       acceptedAnswer: { "@type": "Answer", text: item.answer.map(plainText).join(" ") },
     })),
   };
-  // Same per-request nonce that proxy.ts put in the CSP (JSON-LD isn't executed, but the
-  // nonce keeps every <script> tag consistent with the policy).
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
     <div className="mx-auto w-full max-w-xl flex-1 px-4 pb-10 pt-5 sm:pt-6">
-      {[webApp, faqPage].map((data) => (
-        <script
-          key={data["@type"]}
-          type="application/ld+json"
-          nonce={nonce}
-          // Escaped by serializeJsonLd: "<" can't close the tag. No user data is included.
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(data) }}
-        />
-      ))}
+      <JsonLd data={[webApp, faqPage]} />
 
       <div className="mb-5 space-y-2 text-center">
         <h1 className="tracking-tight">

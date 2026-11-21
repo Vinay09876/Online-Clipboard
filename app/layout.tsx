@@ -44,6 +44,21 @@ export const viewport: Viewport = {
   ],
 };
 
+const MAIN_NAV = [
+  { href: "/guides", label: "Guides" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
+const FOOTER_NAV = [
+  { href: "/", label: "Home" },
+  ...MAIN_NAV,
+  { href: "/terms", label: "Terms" },
+  { href: "/privacy", label: "Privacy" },
+];
+
+const headerLinkClass =
+  "rounded text-zinc-700 underline-offset-4 hover:text-zinc-950 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-zinc-300 dark:hover:text-white";
+
 const linkClass =
   "underline underline-offset-2 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:hover:text-zinc-100";
 
@@ -62,7 +77,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         </a>
 
         <header className="px-4 pt-4">
-          <div className="mx-auto flex w-full max-w-xl items-center">
+          <div className="mx-auto flex w-full max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <Link
               href="/"
               className="inline-flex items-center gap-2 rounded text-sm font-semibold text-zinc-800 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-zinc-200 dark:hover:text-white"
@@ -70,6 +85,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               <LogoMark className="size-6" />
               {SITE_NAME}
             </Link>
+            <nav aria-label="Main" className="flex gap-4 text-sm">
+              {MAIN_NAV.map((l) => (
+                <Link key={l.href} href={l.href} className={headerLinkClass}>
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
           </div>
         </header>
 
@@ -79,13 +101,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
 
         <footer className="px-4 pb-6 text-center text-xs text-zinc-600 dark:text-zinc-400">
           <p>No account needed. Don&apos;t share passwords or sensitive personal data.</p>
-          <nav aria-label="Site" className="mt-2 flex justify-center gap-4">
-            <Link href="/" className={linkClass}>
-              Home
-            </Link>
-            <Link href="/terms" className={linkClass}>
-              Terms &amp; privacy
-            </Link>
+          <nav aria-label="Site" className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1">
+            {FOOTER_NAV.map((l) => (
+              <Link key={l.href} href={l.href} className={linkClass}>
+                {l.label}
+              </Link>
+            ))}
           </nav>
         </footer>
       </body>

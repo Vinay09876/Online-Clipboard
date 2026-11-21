@@ -82,7 +82,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 | `SUPABASE_SERVICE_ROLE_KEY` | **Yes, Sensitive** | the new `vercel-production` key from step 1.3 |
 | `CRON_SECRET` | **Yes, Sensitive** | **new** random value (command above). You'll also put it in Supabase Vault in step 4. |
 | `IP_HASH_SALT` | **Yes, Sensitive** | **new** random value (command above) |
-| `ABUSE_CONTACT_EMAIL` | No (shown publicly on /terms) | an address you actually read, e.g. a dedicated Gmail |
+| `ABUSE_CONTACT_EMAIL` | No (shown publicly on /contact) | an address you actually read, e.g. a dedicated Gmail |
+| `CONTACT_EMAIL` | No (shown publicly on /contact) | optional general address; falls back to `ABUSE_CONTACT_EMAIL`. On a real domain the build fails unless one of them is set. |
 | `SITE_URL` | No | your site's address, e.g. `https://<your-project>.vercel.app` (correct share previews; a temporary host is never indexed). Your real domain from Step 7 of `docs/growth-plan.md`. See `docs/seo.md`. |
 | `ALLOW_INDEXING` | No | leave empty. `false` = never let search engines index the site (kill switch). |
 | `CLIP_EXPIRY_MINUTES` | No | `30` |
@@ -213,7 +214,8 @@ Supabase emails the organization owner as limits get close. Make sure that email
 
 - [ ] **Terms reviewed.** `/terms` is a template (see the comment at the top of
       `app/terms/page.tsx`). Read it, adapt it, ideally get it checked.
-- [ ] **`ABUSE_CONTACT_EMAIL` set**, and `/terms` shows it (not the yellow placeholder).
+- [ ] **`ABUSE_CONTACT_EMAIL` (or `CONTACT_EMAIL`) set**, and `/contact` shows it (not the yellow note).
+- [ ] **Every `[[ADD: …]]` placeholder replaced** (About, Terms, Privacy). `npm run check:placeholders` lists them; a build on a real domain fails while any remain.
 - [ ] **Secrets set in Vercel and fresh**: `SUPABASE_SERVICE_ROLE_KEY` (a production key),
       `CRON_SECRET` (same value in Vault), `IP_HASH_SALT`. `npm run scan:secrets` passes.
 - [ ] **`npm run smoke:prod -- https://<your-project>.vercel.app` passes**, including the
