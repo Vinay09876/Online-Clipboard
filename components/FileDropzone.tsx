@@ -109,7 +109,7 @@ export function FileDropzone({
           setDragging(false);
           if (!disabled) accept(e.dataTransfer.files);
         }}
-        className={`flex cursor-pointer flex-col items-center gap-1 rounded-lg border-2 border-dashed px-4 py-5 text-center text-sm transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-indigo-500 ${
+        className={`flex cursor-pointer flex-col items-center gap-1 rounded-lg border-2 border-dashed px-4 py-4 text-center text-sm transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-indigo-500 ${
           dragging
             ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40"
             : "border-zinc-300 hover:border-zinc-400 dark:border-zinc-700 dark:hover:border-zinc-600"
@@ -132,7 +132,9 @@ export function FileDropzone({
           onChange={(e) => accept(e.currentTarget.files)}
         />
       </label>
-      <p id={errorId} role="alert" className="mt-1.5 min-h-5 text-sm text-red-700 dark:text-red-300">
+      {/* No reserved height: the message only appears right after the user picks a file, and
+          layout shifts within 0.5 s of user input do not count towards CLS. */}
+      <p id={errorId} role="alert" className="mt-1.5 text-sm text-red-700 empty:mt-0 dark:text-red-300">
         {error}
       </p>
     </div>

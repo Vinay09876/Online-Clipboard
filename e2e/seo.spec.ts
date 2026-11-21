@@ -150,11 +150,15 @@ test("@real JSON-LD WebApplication: valid JSON, expected fields, carries the CSP
   });
   expect(typeof data.description).toBe("string");
   // Count real tags (the string also appears inside Next.js's own inline page data).
-  expect(html.match(/<script type="application\/ld\+json"/g)?.length, "only one JSON-LD block (no FAQ yet)").toBe(1);
+  // Two blocks since Step 2: WebApplication + FAQPage (the FAQ is checked in home-content.spec.ts).
+  const types = [...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map(
+    (m) => JSON.parse(m[1])["@type"],
+  );
+  expect(types).toEqual(["WebApplication", "FAQPage"]);
 
   // Also visible to the browser as valid JSON.
   await page.goto("/");
-  const inPage = await page.locator('script[type="application/ld+json"]').textContent();
+  const inPage = await page.locator('script[type="application/ld+json"]').first().textContent();
   expect(JSON.parse(inPage!)["@type"]).toBe("WebApplication");
 });
 

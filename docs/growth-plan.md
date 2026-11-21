@@ -20,9 +20,10 @@ One step at a time; each step is reviewed before the next starts.
 
 - [x] **1. SEO foundation in code**: `SITE_URL` + indexing switch, metadata, icons, manifest,
       Open Graph image, robots.txt, sitemap, JSON-LD, landmarks, Lighthouse baseline, tests, docs.
-      See `docs/seo.md`. *(Done 2026-11-20; awaiting review.)*
-- [ ] **2. Home page content**: explanatory content below the tool (what it is, how it works,
-      FAQ, privacy points) and FAQ structured data.
+      See `docs/seo.md`. *(Done 2026-11-20; reviewed, committed and deployed.)*
+- [x] **2. Home page content**: explanatory content below the tool (what it is, how it works,
+      FAQ, privacy points) and FAQ structured data. Copy in `content/home.ts`; rules in
+      `docs/content-guidelines.md`. *(Done 2026-11-20; awaiting review.)*
 - [ ] **3. Guide pages and trust pages**: guides hub + 10-15 original guides (topics approved by
       the owner), About, Contact, Privacy Policy; reusable page template; internal links.
       Add each public page to `lib/sitePages.ts`.
@@ -43,3 +44,8 @@ One step at a time; each step is reviewed before the next starts.
 ## Log
 
 - **Step 1** (2026-11-20): see the Step 1 section in `docs/seo.md` for what was built.
+- **Step 2** (2026-11-20): home page sections below the tool (How it works, What you can share,
+  Common uses, Privacy and security, FAQ with 11 questions, closing line), FAQPage JSON-LD
+  generated from the same data. Note: Google retired FAQ rich results in 2026, so the FAQ
+  markup has no visible effect in Google; it's kept because it's harmless and matches the page.
+  Spacing above the tool tightened so the tool stays above the fold at 1280×720.

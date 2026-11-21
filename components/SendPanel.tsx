@@ -229,7 +229,7 @@ export function SendPanel({ limits }: { limits: SendLimits }) {
           maxLength={maxTextLength}
           disabled={formDisabled}
           aria-describedby={counterId}
-          rows={7}
+          rows={6}
           placeholder="Paste or type anything…"
           spellCheck={false}
           className="block w-full resize-y rounded-lg border border-zinc-300 bg-white p-3 font-mono text-sm text-zinc-900 placeholder:text-zinc-400 focus-visible:border-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500"

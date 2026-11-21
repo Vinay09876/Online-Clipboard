@@ -204,10 +204,10 @@ test("CSP: strict header with a per-request nonce, and every script carries it",
 test("terms page and footer link", async ({ page, consoleProblems }) => {
   void consoleProblems;
   await page.goto("/");
-  await page.getByRole("link", { name: "Terms & privacy" }).click();
+  await page.getByRole("navigation", { name: "Site" }).getByRole("link", { name: "Terms & privacy" }).click();
   await expect(page).toHaveURL(/\/terms$/);
   await expect(page.getByRole("heading", { name: "Terms & privacy" })).toBeVisible();
-  await expect(page.getByText("Not end-to-end encrypted")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Not end-to-end encrypted" })).toBeVisible();
   await page.getByRole("link", { name: "← Back to Online Clipboard" }).click();
   await expect(page.getByRole("tab", { name: "Send" })).toBeVisible();
 });

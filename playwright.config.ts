@@ -29,10 +29,21 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   projects: [
-    { name: "desktop", testIgnore: /seo\.spec\.ts/, use: { ...devices["Desktop Chrome"] } },
+    { name: "desktop", testIgnore: /seo\.spec\.ts/, grepInvert: /@config/, use: { ...devices["Desktop Chrome"] } },
     { name: "mobile", testIgnore: /seo\.spec\.ts/, use: { ...devices["Pixel 7"] }, grep: /@mobile/ },
     // Against an external server (E2E_BASE_URL) only the UI projects run.
     ...(external ? [] : seoProjects),
+    // Home page copy must follow config: server 3234 runs with small limits.
+    ...(external
+      ? []
+      : [
+          {
+            name: "content-config",
+            testMatch: /home-content\.spec\.ts/,
+            grep: /@config/,
+            use: { ...devices["Desktop Chrome"], baseURL: "http://localhost:3234" },
+          },
+        ]),
   ],
   // Without E2E_BASE_URL: build once and start all test servers (see scripts/e2e-servers.mjs).
   webServer: external
