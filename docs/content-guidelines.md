@@ -166,3 +166,15 @@ Statements about encryption, IP hashing, deletion timing and browser support are
 in `content/claims.ts` and reused everywhere. Don't rephrase them inline. The deletion-timing
 claim depends on the scheduled clean-up job (`docs/cleanup-scheduling.md`); if that schedule
 changes, update `CLEANUP_INTERVAL_MINUTES`.
+
+## 12. Categories, the verification checklist, and the tests that enforce these rules
+
+- Every guide has a `category` (see `GUIDE_CATEGORIES` in `content/guides/index.ts`); the
+  /guides hub groups guides by it. A test fails if a guide has no valid category.
+- Every device or third-party claim that hasn't been tested on a real device goes into
+  `docs/verification-checklist.md`, under its guide, quoting the exact sentence. A test fails if
+  a quoted sentence no longer appears on the page, so editing a guide means updating the
+  checklist too. When the owner ticks an item off, the claim is confirmed; if a check fails,
+  soften or remove the sentence (and the quote).
+- A test fails if any sentence of 6+ words appears in two guides. The only exception is the
+  shared wording from `content/claims.ts`, which is reused on purpose.

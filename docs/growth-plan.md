@@ -24,7 +24,7 @@ One step at a time; each step is reviewed before the next starts.
 - [x] **2. Home page content**: explanatory content below the tool (what it is, how it works,
       FAQ, privacy points) and FAQ structured data. Copy in `content/home.ts`; rules in
       `docs/content-guidelines.md`. *(Done 2026-11-20; reviewed, committed and deployed.)*
-- **3. Guide pages and trust pages**, split into three passes:
+- [x] **3. Guide pages and trust pages**, split into three passes. *(Complete 2026-11-21.)*
   - [x] **3a.** Trust pages (/terms and /privacy split, /about, /contact), guide system
         (registry, layout, hub, Article + BreadcrumbList JSON-LD), placeholder guard, and 3 guides:
         (1) How to copy and paste text between your phone and computer,
@@ -38,10 +38,12 @@ One step at a time; each step is reviewed before the next starts.
         (5) How to use a shared or public computer safely,
         (6) How to transfer photos from an iPhone to a Windows PC,
         (7) How to transfer photos from an Android phone to a computer.
-        Each guide now shows 3 related guides. *(Done 2026-11-21; awaiting review.)*
-  - [ ] **3c.** Guides: sending files to a print shop; sharing files in a classroom; moving code
-        snippets or logs from phone to computer; online clipboard vs emailing yourself or
-        messaging apps; what an online clipboard is and how it works.
+        Each guide now shows 3 related guides. *(Done 2026-11-21; reviewed and committed.)*
+  - [x] **3c.** Guides 1-3 brought to 700+ words; 5 guides: (8) send a document to a print shop,
+        (9) share files in a classroom, (10) code snippets, logs or config text from phone to computer,
+        (11) online clipboard vs emailing yourself vs messaging apps, (12) what an online clipboard is.
+        /guides grouped into 4 categories (`category` field). `docs/verification-checklist.md`
+        lists every claim to test on real devices. *(Done 2026-11-21; awaiting review.)*
   (Topic list is the owner's plan and may change.)
 - [ ] **4. Ad-ready code, switched OFF**: ad slot component behind an env flag (never on
       received-clip or download screens), drafted privacy text, EEA/UK consent plan, CSP plan.
@@ -75,3 +77,6 @@ One step at a time; each step is reviewed before the next starts.
   ("within about 10 minutes after expiry") depends on the pg_cron job in
   `docs/cleanup-scheduling.md` actually running in production. Guide registry gained
   `primaryQuery`; a test rejects empty or duplicate primary queries and requires 3 related guides.
+- **Step 3c** (2026-11-21): 12 guides in 4 hub categories, all 700+ words. New permanent tests:
+  no sentence shared between guides (except `content/claims.ts` wording), and every quote in
+  `docs/verification-checklist.md` must appear on its guide page (70 guide quotes). Step 3 complete.
