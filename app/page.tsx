@@ -53,7 +53,7 @@ export default async function Home() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-xl flex-1 px-4 pb-10 pt-5 sm:pt-6">
+    <div className="mx-auto w-full max-w-2xl flex-1 px-4 pb-10 pt-5 sm:pt-6">
       <JsonLd data={[webApp, faqPage]} />
 
       <div className="mb-5 space-y-2 text-center">
@@ -69,6 +69,19 @@ export default async function Home() {
       </div>
 
       <ClipboardApp limits={limits} />
+
+      {/* Quick jumps to the explanations below; the content itself stays on the page. */}
+      <nav aria-label="On this page" className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm">
+        {[content.howItWorks, content.privacy, content.faq].map((s) => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className="rounded text-zinc-600 underline underline-offset-4 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-zinc-400 dark:hover:text-zinc-100"
+          >
+            {s.id === "faq" ? "FAQ" : s.title}
+          </a>
+        ))}
+      </nav>
 
       <HomeContent content={content} />
     </div>
