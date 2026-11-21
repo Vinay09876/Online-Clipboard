@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { connection } from "next/server";
 import { BASE_OPEN_GRAPH, DEFAULT_TITLE, INDEXABLE, SITE_DESCRIPTION, SITE_NAME, SITE_ORIGIN } from "@/lib/site";
 import { LogoMark } from "@/components/LogoMark";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import "./globals.css";
 
 // System font stacks only (Tailwind defaults): no web fonts, no external requests.
@@ -37,11 +39,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  colorScheme: "light dark",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f4f4f5" },
-    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
-  ],
+  // Light by default; the dark theme is opt-in (ThemeToggle), not taken from the device.
+  colorScheme: "light",
+  themeColor: "#f4f4f5",
 };
 
 const MAIN_NAV = [
@@ -62,11 +62,23 @@ const headerLinkClass =
 const linkClass =
   "underline underline-offset-2 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:hover:text-zinc-100";
 
+/**
+ * Applies a saved dark-theme choice before the first paint (no flash). Static string, no
+ * user input. Runs with the request's CSP nonce. No saved choice = light.
+ */
+const THEME_SCRIPT =
+  '(function(){try{if(localStorage.getItem("theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}})()';
+
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   await connection();
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
-    <html lang="en" className="h-full antialiased">
+    // suppressHydrationWarning: THEME_SCRIPT may add data-theme before React hydrates.
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+      <head>
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col bg-zinc-100 font-sans text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
         <a
           href="#main"
@@ -76,8 +88,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
 
-        <header className="px-4 pt-4">
-          <div className="mx-auto flex w-full max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        {/* Same width and side padding as every page column (max-w-2xl px-4), so edges line up. */}
+        <header className="pt-4">
+          <div className="mx-auto flex w-full max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4">
             <Link
               href="/"
               className="inline-flex items-center gap-2 rounded text-sm font-semibold text-zinc-800 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-zinc-200 dark:hover:text-white"
@@ -85,13 +98,16 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               <LogoMark className="size-6" />
               {SITE_NAME}
             </Link>
-            <nav aria-label="Main" className="flex gap-4 text-sm">
-              {MAIN_NAV.map((l) => (
-                <Link key={l.href} href={l.href} className={headerLinkClass}>
-                  {l.label}
-                </Link>
-              ))}
-            </nav>
+            <div className="flex items-center gap-3">
+              <nav aria-label="Main" className="flex gap-4 text-sm">
+                {MAIN_NAV.map((l) => (
+                  <Link key={l.href} href={l.href} className={headerLinkClass}>
+                    {l.label}
+                  </Link>
+                ))}
+              </nav>
+              <ThemeToggle />
+            </div>
           </div>
         </header>
 

@@ -65,7 +65,10 @@ export default function PrivacyPage() {
       <h2>What we don&apos;t collect</h2>
       <ul>
         <li>No accounts, names or email addresses (unless you email us).</li>
-        <li>No cookies.</li>
+        <li>
+          No cookies. If you switch to the dark theme, that choice is saved in your browser&apos;s local storage on your
+          device only; it is never sent to us.
+        </li>
         <li>No analytics, no tracking scripts, no third-party fonts or images.</li>
       </ul>
 

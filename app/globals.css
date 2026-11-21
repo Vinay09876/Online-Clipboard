@@ -2,9 +2,27 @@
 
 /*
  * Tailwind's default font-sans / font-mono are system font stacks, so no web fonts
- * are loaded. Dark mode uses Tailwind's default `dark:` variant, which follows
- * prefers-color-scheme.
+ * are loaded.
+ *
+ * Theme: light by default. <html data-theme="dark"> when the visitor switched to dark
+ * (ThemeToggle + the inline script in app/layout.tsx). The device setting is not used.
  */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Native form controls and scrollbars follow the theme too. */
+:root {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Smooth scrolling for in-page links, only when the visitor hasn't asked for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,
