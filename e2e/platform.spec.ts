@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { CLEANUP_BUDGET, runCleanupJob, type CleanupDeps } from "../lib/cleanupJob";
 import { clientIpFrom, parseHostingProvider, type HostingProvider } from "../lib/clientIp";
-import { isTemporaryHost } from "../lib/site";
+import { decideHost, isTemporaryHost, parseLegacyHosts } from "../lib/site";
 import { isPagePath } from "../proxy";
 import { expect, test } from "./helpers";
 
@@ -219,4 +219,41 @@ test("cleanup: an error part-way keeps the totals gathered so far (the route rep
   const deps = { ...f.deps, cleanupRateLimits: async () => Promise.reject(new Error("db down")) };
   await expect(runCleanupJob(deps, totals)).rejects.toThrow("db down");
   expect(totals.deletedClips).toBe(1_000);
+});
+
+// --------------------------------------------------------------------------- canonical host (Step 7)
+
+test("decideHost: inert without a real domain; www/legacy redirect; other hosts noindex; localhost untouched", () => {
+  const legacy = new Set(["old.vercel.app"]);
+  const d = (host: string | null, method = "GET", path = "/a?b=1", canonical: string | null = "vinaycode.com") =>
+    decideHost(host, method, path, canonical, legacy);
+
+  expect(d("www.vinaycode.com", "GET", "/a?b=1", null)).toEqual({ kind: "inert" });
+  expect(d("vinaycode.com")).toEqual({ kind: "canonical" });
+  expect(d("VinayCode.com:443")).toEqual({ kind: "canonical" });
+  expect(d("www.vinaycode.com")).toEqual({ kind: "redirect", status: 301, location: "https://vinaycode.com/a?b=1" });
+  expect(d("www.vinaycode.com", "HEAD")).toMatchObject({ kind: "redirect", status: 301 });
+  expect(d("www.vinaycode.com", "POST")).toMatchObject({ kind: "redirect", status: 308 });
+  expect(d("old.vercel.app")).toEqual({ kind: "redirect", status: 301, location: "https://vinaycode.com/a?b=1" });
+  expect(d("old.vercel.app", "POST")).toEqual({ kind: "noindex" });
+  expect(d("online-clipboard-git-main-x.vercel.app")).toEqual({ kind: "noindex" });
+  expect(d(null)).toEqual({ kind: "noindex" });
+  expect(d("localhost:3000")).toEqual({ kind: "local" });
+  expect(d("127.0.0.1:3232")).toEqual({ kind: "local" });
+  // A www canonical works the other way round.
+  expect(d("vinaycode.com", "GET", "/", "www.vinaycode.com")).toMatchObject({ kind: "redirect", location: "https://www.vinaycode.com/" });
+});
+
+test("LEGACY_HOSTS: host names only, never the site's own host", () => {
+  expect(parseLegacyHosts("")).toEqual({ ok: true, hosts: [] });
+  expect(parseLegacyHosts(" A.vercel.app , b.netlify.app ,", "vinaycode.com")).toEqual({ ok: true, hosts: ["a.vercel.app", "b.netlify.app"] });
+  for (const bad of ["https://a.vercel.app", "a.vercel.app/x", "a vercel app", "localhost"]) {
+    const r = parseLegacyHosts(bad, "vinaycode.com");
+    expect(r.ok, bad).toBe(false);
+    expect(!r.ok && r.error, bad).toMatch(/LEGACY_HOSTS must be host names/);
+  }
+  for (const own of ["vinaycode.com", "www.vinaycode.com"]) {
+    const r = parseLegacyHosts(own, "vinaycode.com");
+    expect(!r.ok && r.error, own).toMatch(/must not contain the site's own host/);
+  }
 });

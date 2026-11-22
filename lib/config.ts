@@ -2,7 +2,7 @@ import "server-only";
 
 import { ADS_ENV_ERRORS } from "@/lib/ads";
 import { parseHostingProvider, type HostingProvider } from "@/lib/clientIp";
-import { parseSiteUrl } from "@/lib/site";
+import { parseLegacyHosts, parseSiteUrl } from "@/lib/site";
 
 /**
  * Central place to read and validate environment variables.
@@ -111,6 +111,10 @@ const allowIndexing = process.env.ALLOW_INDEXING?.trim().toLowerCase();
 if (allowIndexing && allowIndexing !== "true" && allowIndexing !== "false") {
   errors.push(`ALLOW_INDEXING must be "true" or "false" (got "${process.env.ALLOW_INDEXING}").`);
 }
+
+// Old addresses that redirect to SITE_URL once it is a real domain (lib/site.ts → decideHost).
+const legacyCheck = parseLegacyHosts(process.env.LEGACY_HOSTS);
+if (!legacyCheck.ok) errors.push(legacyCheck.error);
 
 // Hosting platform: decides which header carries the real client IP (lib/clientIp.ts).
 const hostingCheck = parseHostingProvider({

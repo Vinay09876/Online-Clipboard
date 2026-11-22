@@ -7,6 +7,10 @@
  *   npm run smoke:prod -- <url> --skip-spoof-test
  *   npm run smoke:prod -- <url> --lookup-limit 30   (if you raised RATE_LIMIT_LOOKUP_FAILURES)
  *
+ * Real domain (Growth Step 7): checks https, the http/www redirects, old addresses, canonical
+ * URLs, robots, sitemap, HSTS, and that /api/* is never redirected:
+ *   npm run smoke:prod -- --canonical https://vinaycode.com --legacy https://online-clipboard-rose.vercel.app
+ *
  * Safe for production: it creates a few tiny text clips and one tiny file clip, which expire
  * on their own. The IP-spoofing check at the end deliberately trips the failed-lookup limit,
  * which LOCKS YOUR OWN IP out of code lookups for up to 10 minutes (sending and the rest of
@@ -19,7 +23,12 @@ import { randomBytes } from "node:crypto";
 import { isTemporaryHost } from "../lib/site";
 
 const args = process.argv.slice(2);
-const baseArg = args.find((a) => /^https?:\/\//.test(a));
+/** Values that follow a flag (e.g. --legacy https://x.vercel.app, may repeat). */
+const flagValues = (flag: string) => args.flatMap((a, i) => (a === flag && args[i + 1] ? [args[i + 1]] : []));
+const CANONICAL = flagValues("--canonical")[0]?.replace(/\/+$/, "");
+const LEGACY = flagValues("--legacy").map((u) => u.replace(/\/+$/, ""));
+const flagged = new Set([...flagValues("--canonical"), ...flagValues("--legacy")]);
+const baseArg = CANONICAL ?? args.find((a) => /^https?:\/\//.test(a) && !flagged.has(a));
 const skipSpoof = args.includes("--skip-spoof-test");
 const limitIdx = args.indexOf("--lookup-limit");
 const LOOKUP_LIMIT = limitIdx >= 0 ? Number(args[limitIdx + 1]) : 10;
@@ -27,7 +36,10 @@ const LOOKUP_LIMIT = limitIdx >= 0 ? Number(args[limitIdx + 1]) : 10;
 const WINDOW_SECONDS = 600;
 
 if (!baseArg || !Number.isInteger(LOOKUP_LIMIT) || LOOKUP_LIMIT < 1) {
-  console.error("Usage: npm run smoke:prod -- <baseUrl> [--skip-spoof-test] [--lookup-limit N]");
+  console.error(
+    "Usage: npm run smoke:prod -- <baseUrl> [--skip-spoof-test] [--lookup-limit N]\n" +
+      "       npm run smoke:prod -- --canonical https://yourdomain.com [--legacy https://old.vercel.app] [--skip-spoof-test]",
+  );
   process.exit(2);
 }
 const BASE = baseArg.replace(/\/+$/, "");
@@ -186,6 +198,8 @@ async function main() {
   check(adsTxt.status === 404, "/ads.txt -> 404 while ads are off", adsTxt.status);
   check(!/adsbygoogle|google-adsense-account/.test(home.text + guide.text), "no ad code or AdSense meta tag on pages");
 
+  if (CANONICAL) await checkRealDomain();
+
   // ------------------------------------------------------------- text clip
   console.log("\n4) Text clip");
   const marker = `smoke test ${new Date().toISOString()}`;
@@ -315,6 +329,81 @@ async function main() {
       : `\n${failures} CHECK(S) FAILED`,
   );
   process.exit(failures === 0 ? 0 : 1);
+}
+
+/**
+ * --canonical mode (Growth Step 7): the real domain and its redirects.
+ * Every redirect check uses redirect: "manual", so we see the 301 itself, not where it ends.
+ */
+async function checkRealDomain() {
+  const canon = new URL(CANONICAL!);
+  const host = canon.host;
+  const www = host.startsWith("www.") ? host.slice(4) : `www.${host}`;
+  console.log(`\n8) Real domain: ${host}`);
+
+  const raw = async (url: string, init: RequestInit = {}) => {
+    try {
+      const res = await fetch(url, { redirect: "manual", ...init });
+      await res.body?.cancel().catch(() => {});
+      return { status: res.status, location: res.headers.get("location"), headers: res.headers };
+    } catch (e) {
+      return { status: 0, location: null, headers: new Headers(), error: e instanceof Error ? e.message : String(e) };
+    }
+  };
+
+  // HTTPS and the http → https redirect (done by the host platform).
+  const home = await raw(`https://${host}/`);
+  check(home.status === 200, `https://${host}/ answers 200 (certificate OK)`, home);
+  const http = await raw(`http://${host}/guides?x=1`);
+  check(
+    [301, 302, 307, 308].includes(http.status) && http.location === `https://${host}/guides?x=1`,
+    `http://${host} redirects to https, keeping path and query`,
+    http,
+  );
+  check(
+    /max-age=\d{7,}/.test(home.headers.get("strict-transport-security") ?? ""),
+    "Strict-Transport-Security (HSTS) is sent",
+    home.headers.get("strict-transport-security"),
+  );
+
+  // www → apex (our proxy), and old addresses → the domain.
+  const w = await raw(`https://${www}/guides?x=1`);
+  // 301 from our proxy, or 308 if you chose Vercel's own "redirect www" option: both are permanent.
+  check([301, 308].includes(w.status) && w.location === `https://${host}/guides?x=1`, `https://${www} → permanent redirect to https://${host}, same path and query`, w);
+  if (w.status === 0) explain(`${www} doesn't answer over https: add it as a domain in the host's dashboard too (docs/launch-day.md).`);
+  for (const old of LEGACY) {
+    const r = await raw(`${old}/guides?x=1`);
+    check(r.status === 301 && r.location === `https://${host}/guides?x=1`, `${old} → 301 to https://${host}`, r);
+    if (r.status !== 301) explain("Set LEGACY_HOSTS to this host name on the live host and redeploy.");
+  }
+
+  // The API is never redirected, on any of these hosts.
+  for (const origin of [`https://${host}`, `https://${www}`, ...LEGACY]) {
+    const health = await raw(`${origin}/api/health`);
+    check(health.status === 200, `${origin}/api/health → 200 (not redirected)`, health);
+    const cron = await raw(`${origin}/api/cron/cleanup`, { method: "POST" });
+    check(cron.status === 401, `${origin}/api/cron/cleanup without the secret → 401 (not redirected)`, cron);
+  }
+
+  // Indexing on the real domain.
+  const page = await fetch(`https://${host}/guides`);
+  const html = await page.text();
+  check(!/noindex/.test(page.headers.get("x-robots-tag") ?? ""), "no X-Robots-Tag: noindex on the domain", page.headers.get("x-robots-tag"));
+  check(/<meta name="robots" content="index, follow"/.test(html), '<meta name="robots" content="index, follow">');
+  check(html.includes(`<link rel="canonical" href="https://${host}/guides"/>`), `canonical URL is https://${host}/guides`);
+  const robots = await (await fetch(`https://${host}/robots.txt`)).text();
+  check(
+    /Allow: \/\s/.test(robots) && /Disallow: \/api\//.test(robots) && robots.includes(`Sitemap: https://${host}/sitemap.xml`),
+    "robots.txt allows /, blocks /api/, names the sitemap",
+    robots,
+  );
+  const sitemap = await (await fetch(`https://${host}/sitemap.xml`)).text();
+  const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  check(
+    locs.length >= 10 && locs.every((l) => l.startsWith(`https://${host}/`)) && locs.includes(`https://${host}/guides`),
+    `sitemap lists ${locs.length} pages, all under https://${host}/`,
+    locs.slice(0, 5),
+  );
 }
 
 function printTimings() {

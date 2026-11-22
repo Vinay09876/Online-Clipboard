@@ -124,6 +124,10 @@ test("pasting a full code fills all six boxes and fetches", async ({ page, brows
 
 test("429: after 10 failed lookups the form is locked with a live countdown", async ({ page, request, ip, consoleProblems }) => {
   void consoleProblems;
+  // Rate-limit windows are aligned to the clock (every 600 s by default). If the failures below
+  // straddled a boundary, the counter would reset half-way: start with at least 45 s left.
+  const left = 600 - ((Date.now() / 1000) % 600);
+  if (left < 45) await page.waitForTimeout((left + 2) * 1000);
   for (let i = 0; i < 10; i++) {
     const r = await request.get(`/api/clips/${await unusedCode()}`, { headers: { "x-forwarded-for": ip } });
     expect(r.status()).toBe(404);

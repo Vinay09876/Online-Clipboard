@@ -165,8 +165,10 @@ test("placeholder guard: blocks a real domain with leftovers, passes when clean 
     expect(run({ SITE_URL: "https://example.com" }, clean).status, "real domain + no contact email → fail").toBe(1);
     expect(run({ SITE_URL: "https://foo.vercel.app" }, withMarker).status, "temporary host → pass").toBe(0);
     expect(run({ ...real, ALLOW_INDEXING: "false" }, withMarker).status, "kill switch → pass").toBe(0);
-    // The real source still has owner placeholders, so a real domain must be blocked today.
-    expect(run(real).status, "current source on a real domain → fail").toBe(1);
+    // The owner filled every placeholder (Step 6), so the real source passes on a real domain,
+    // and still fails there without a contact email.
+    expect(run(real).status, "current source on a real domain → pass").toBe(0);
+    expect(run({ SITE_URL: "https://example.com" }).status, "current source, no contact email → fail").toBe(1);
   } finally {
     rmSync(withMarker, { recursive: true, force: true });
     rmSync(clean, { recursive: true, force: true });

@@ -255,3 +255,89 @@ test("@real icons, manifest and share image are served locally", async ({ reques
     expect((await request.get(icon.src)).status()).toBe(200);
   }
 });
+
+// --------------------------------------------------------------------------- canonical host (Step 7)
+// Server 3232: SITE_URL=https://example.com, LEGACY_HOSTS=old-clipboard.vercel.app,old-clipboard.netlify.app.
+// Requests carry a different Host header to act as www / an old address / a preview host.
+
+const asHost = (host: string) => ({ headers: { Host: host }, maxRedirects: 0 });
+
+test("@real www and legacy hosts redirect pages to SITE_URL with 301, keeping path and query", async ({ request }) => {
+  for (const host of ["www.example.com", "old-clipboard.vercel.app", "old-clipboard.netlify.app"]) {
+    for (const path of ["/", "/guides?ref=x&y=1", `/guides/what-is-an-online-clipboard`, "/robots.txt"]) {
+      const res = await request.get(path, asHost(host));
+      expect(res.status(), `${host}${path}`).toBe(301);
+      expect(res.headers()["location"], `${host}${path}`).toBe(`${REAL}${path}`);
+    }
+    const head = await request.head("/terms", asHost(host));
+    expect(head.status(), `${host} HEAD`).toBe(301);
+  }
+  // Non-GET on www keeps the method (308); on a legacy host it is served (noindex), not redirected.
+  expect((await request.post("/", asHost("www.example.com"))).status()).toBe(308);
+  const legacyPost = await request.post("/", asHost("old-clipboard.vercel.app"));
+  expect(legacyPost.status()).not.toBe(301);
+  expect(legacyPost.headers()["x-robots-tag"]).toBe("noindex, nofollow");
+});
+
+test("@real the API is never redirected on any host (clean-up job and health checks can't follow redirects)", async ({ request }) => {
+  for (const host of ["www.example.com", "old-clipboard.vercel.app", "preview-abc123.vercel.app", "example.com"]) {
+    const health = await request.get("/api/health", asHost(host));
+    expect([200, 429, 503], `${host} /api/health`).toContain(health.status());
+    const cron = await request.post("/api/cron/cleanup", asHost(host));
+    expect(cron.status(), `${host} /api/cron/cleanup without the secret`).toBe(401);
+    const clip = await request.get("/api/clips/abc", asHost(host));
+    expect(clip.status(), `${host} /api/clips/abc`).toBe(400);
+  }
+});
+
+test("@real other hosts are served but noindex; the canonical host is indexable and gets HSTS", async ({ request }) => {
+  for (const host of ["preview-abc123.vercel.app", "deploy-preview-7--x.netlify.app", "odd.example.org"]) {
+    const res = await request.get("/guides", asHost(host));
+    expect(res.status(), host).toBe(200);
+    expect(res.headers()["x-robots-tag"], host).toBe("noindex, nofollow");
+    // The canonical link still names the real site.
+    expect(await res.text(), host).toContain(`<link rel="canonical" href="${REAL}/guides"/>`);
+  }
+  const canonical = await request.get("/guides", asHost("example.com"));
+  expect(canonical.status()).toBe(200);
+  expect(canonical.headers()["x-robots-tag"]).toBeUndefined();
+  expect(canonical.headers()["strict-transport-security"]).toBe("max-age=63072000");
+  // localhost (tests, `next start`) is left alone: no redirect, no noindex, no HSTS.
+  const local = await request.get("/guides", { maxRedirects: 0 });
+  expect(local.status()).toBe(200);
+  expect(local.headers()["x-robots-tag"]).toBeUndefined();
+  expect(local.headers()["strict-transport-security"]).toBeUndefined();
+});
+
+test("@real every URL in JSON-LD on every page is absolute under SITE_URL", async ({ request }) => {
+  const URL_KEYS = new Set(["url", "@id", "item", "image", "logo", "sameAs"]);
+  for (const p of SITE_PAGES) {
+    const html = await (await request.get(p.path)).text();
+    const blocks = [...html.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+    const urls: string[] = [];
+    const walk = (v: unknown, key = "") => {
+      if (typeof v === "string" && URL_KEYS.has(key)) urls.push(v);
+      else if (Array.isArray(v)) v.forEach((x) => walk(x, key));
+      else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) walk(x, k);
+    };
+    blocks.forEach((b) => walk(b));
+    expect(urls.length, p.path).toBeGreaterThan(0);
+    for (const u of urls) expect(u, `${p.path}: ${u}`).toMatch(new RegExp(`^${REAL}/`));
+  }
+});
+
+test("@temp @nosite @killswitch canonical-host handling is inert unless SITE_URL is a real domain", async ({ request }, testInfo) => {
+  // Same hosts as above, but on servers without a real SITE_URL: nothing is redirected and
+  // nothing changes compared with before Step 7 (the kill switch server has a real SITE_URL,
+  // so www still redirects there; its pages stay noindex through ALLOW_INDEXING=false).
+  const killswitch = testInfo.project.name === "seo-kill-switch";
+  for (const host of ["www.example.com", "old-clipboard.vercel.app", "preview-abc123.vercel.app"]) {
+    const res = await request.get("/guides", asHost(host));
+    if (killswitch && host === "www.example.com") {
+      expect(res.status()).toBe(301);
+      continue;
+    }
+    expect(res.status(), host).toBe(200);
+    expect(res.headers()["strict-transport-security"], host).toBeUndefined();
+  }
+});

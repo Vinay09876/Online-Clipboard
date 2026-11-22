@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { GUIDES } from "@/content/guides/index";
 import { isActiveAdPage } from "@/lib/ads";
-import { INDEXABLE } from "@/lib/site";
+import { INDEXABLE, decideHost } from "@/lib/site";
 
 const GUIDE_SLUGS = new Set(GUIDES.map((g) => g.slug));
 
@@ -65,6 +65,12 @@ export function buildCsp(nonce: string, isDev: boolean, ads = false): string {
 }
 
 export function proxy(request: NextRequest) {
+  // Canonical host (Growth Step 7; inert until SITE_URL is a real domain): www and old
+  // addresses redirect to SITE_URL's host, every other host is noindex. /api/* never reaches
+  // this proxy (see the matcher), so the API is never redirected.
+  const host = decideHost(request.headers.get("host"), request.method, request.nextUrl.pathname + request.nextUrl.search);
+  if (host.kind === "redirect") return NextResponse.redirect(host.location, host.status);
+
   // Web-standard APIs only (btoa + crypto.randomUUID): on Netlify this proxy runs as an Edge
   // Function (Deno), where Node's Buffer is not guaranteed. Same value format as before.
   const nonce = btoa(crypto.randomUUID());
@@ -87,7 +93,10 @@ export function proxy(request: NextRequest) {
   response.headers.set("Content-Security-Policy", csp);
   // Belt and braces next to <meta name="robots">: also covers robots.txt, the sitemap,
   // icons and the share image on temporary hosts. (API routes always get it: next.config.ts.)
-  if (!INDEXABLE) response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  if (!INDEXABLE || host.kind === "noindex") response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  // HTTPS only, for this one host (no includeSubDomains/preload: other subdomains stay free).
+  // Vercel already sends this on custom domains; Netlify doesn't. Only on the real domain.
+  if (host.kind === "canonical") response.headers.set("Strict-Transport-Security", "max-age=63072000");
   // Every page carries a fresh nonce, so no CDN may ever store a page (Netlify's CDN and other
   // CDNs read these; Next.js already sends Cache-Control: private, no-store for these pages).
   // Files with an extension and the share image are left alone (they hold no nonce).

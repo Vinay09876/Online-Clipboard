@@ -51,6 +51,10 @@ and menu names when you do it.
 
 ## B. Step 7 procedure
 
+> **For vinaycode.com on Vercel, follow `docs/launch-day.md`**: the exact click-by-click
+> runbook (Porkbun, Vercel, env vars, clean-up URL, Search Console, Bing, monitor, rollback).
+> The notes below stay as the general reference, including Netlify.
+
 ### B1. Choose and buy the domain (YOU)
 1. **Name:** short, easy to say and type, no hyphens or numbers. `.com` if available.
 2. **Trademarks:** don't use or imitate a brand (Google, Apple, Dropbox, WhatsApp, existing

@@ -72,8 +72,11 @@ One step at a time; each step is reviewed before the next starts.
 
 ### Domain required
 
-- [ ] **7. Buy the domain**: connect to Netlify, set `SITE_URL`, turn indexing on, www redirect,
-      Google Search Console + Bing Webmaster Tools, submit the sitemap. Checklist in `docs/seo.md`.
+- [ ] **7. Domain: vinaycode.com**: code and docs done 2026-11-22 (awaiting review), inert
+      until `SITE_URL=https://vinaycode.com`: www → apex and `LEGACY_HOSTS` → 301 (pages only,
+      never `/api/*`), every other host noindex, HSTS on the domain, `smoke:prod --canonical`.
+      **Owner:** follow `docs/launch-day.md` (Porkbun DNS, Vercel, SITE_URL, cleanup URL,
+      Search Console, Bing, uptime monitor, final smoke test).
 - [ ] **8. Grow traffic**: check indexing, fix issues (mostly waiting).
 - [ ] **9. AdSense**: follow `docs/ads-plan.md` §5 (sign up, verify with the meta tag or
       ads.txt, Auto ads OFF, create 3 ad units, publish the European regulations message), then
@@ -126,3 +129,9 @@ One step at a time; each step is reviewed before the next starts.
   strict). axe: one contrast fix (404 page). WebKit run found a real bug (text typed before
   hydration ignored), fixed with a regression test. Known: iPhone 13 fold (~46 px), accented
   download names in Playwright WebKit; real-device checks listed in `docs/accessibility.md`.
+- **Step 7** (2026-11-22, code): `decideHost()` in `lib/site.ts` + proxy: inert unless SITE_URL is
+  a real https domain; localhost always untouched (tests, `next start`). New env `LEGACY_HOSTS`
+  (validated). HSTS `max-age=63072000` only on the canonical host (Vercel already sends it on
+  custom domains; Netlify doesn't). Tests: redirects, API never redirected, noindex elsewhere,
+  absolute JSON-LD, inert on temporary/no-site/kill-switch servers. Runbook `docs/launch-day.md`,
+  Step 8 routine `docs/growth-monitoring.md`.
