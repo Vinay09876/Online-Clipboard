@@ -52,7 +52,12 @@ One step at a time; each step is reviewed before the next starts.
       ad pages while active; ads-aware privacy/terms wording; consent plan (Google CMP); build
       guard; `e2e/ads.spec.ts`. Plan and Step 9 checklist: `docs/ads-plan.md`.
       *(Done 2026-11-21; awaiting review.)*
-- [ ] **5. Move hosting to Netlify (free)**: code and docs done 2026-11-21 (awaiting review):
+- [x] **5. Move hosting to Netlify (free)**: *(Done 2026-11-22. Netlify live at
+      online-clipboard-tool.netlify.app, smoke test ALL PASSED incl. the spoof check, Netlify
+      cron job returns 200. Vercel stays the main site until Step 7: Netlify Free runs functions
+      in Ohio, so DB calls to Mumbai make clip creation ~3 s vs ~0.25 s on Vercel. Netlify's
+      free-plan badge script stays blocked by the CSP: one harmless console error.)*
+      Code and docs done 2026-11-21:
       `HOSTING_PROVIDER` + `lib/clientIp.ts` (x-nf-client-connection-ip on Netlify), edge-safe
       `proxy.ts`, CDN no-store on pages, clean-up time budget (`lib/cleanupJob.ts`),
       `netlify.toml`, smoke test for any URL, `docs/deploy-netlify.md`. **Owner:** import the
