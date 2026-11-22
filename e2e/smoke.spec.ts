@@ -46,7 +46,7 @@ test("text: send, then receive by typing the code and via a #link @mobile", asyn
   await other.close();
 });
 
-test("file: send with progress bar, receive, download identical bytes", async ({ page, context, ip, consoleProblems }) => {
+test("file: send with progress bar, receive, download identical bytes", async ({ page, context, ip, browserName, consoleProblems }) => {
   void consoleProblems;
   const bytes = randomBytes(6 * 1024 * 1024);
   const name = "report (1) é.bin";
@@ -74,7 +74,10 @@ test("file: send with progress bar, receive, download identical bytes", async ({
   const downloadPromise = recv.waitForEvent("download");
   await recv.getByRole("button", { name: "Download" }).click();
   const download = await downloadPromise;
-  expect(download.suggestedFilename()).toBe(name);
+  // The server sends both filename="report (1) _.bin" (ASCII fallback) and
+  // filename*=UTF-8''report%20(1)%20%C3%A9.bin. Chromium and Firefox use the UTF-8 name;
+  // Playwright's WebKit build for Windows uses the fallback (real Safari: docs/accessibility.md).
+  expect(download.suggestedFilename()).toBe(browserName === "webkit" ? "report (1) _.bin" : name);
   const got = await readFile((await download.path())!);
   expect(got.equals(bytes)).toBe(true);
   await recv.close();
@@ -101,8 +104,11 @@ test("wrong code shows 'not found', clears the boxes and refocuses", async ({ pa
   await expect(page.getByRole("textbox", { name: "Digit 1 of 6" })).toHaveValue("");
 });
 
-test("pasting a full code fills all six boxes and fetches", async ({ page, consoleProblems }) => {
+test("pasting a full code fills all six boxes and fetches", async ({ page, browserName, consoleProblems }) => {
   void consoleProblems;
+  // The test fakes a paste with a synthetic ClipboardEvent; Firefox ignores the data in
+  // synthetic events. Real pasting in Firefox is on the manual list (docs/accessibility.md).
+  test.skip(browserName === "firefox", "synthetic paste events carry no data in Firefox");
   const code = await unusedCode();
   await page.goto("/");
   await page.getByRole("tab", { name: "Receive" }).click();

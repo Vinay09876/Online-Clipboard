@@ -37,6 +37,19 @@ const adsProjects = [
   use: { ...devices["Desktop Chrome"], baseURL: `http://localhost:${p.port}` },
 }));
 
+/**
+ * Other browser engines (Growth Step 6), opt-in: `npm run test:browsers` (E2E_BROWSERS=1).
+ * The core flows on Firefox, WebKit (Safari's engine) and an iPhone-sized WebKit.
+ */
+const CORE_FLOWS = /(smoke|ui-extra|home-content|keyboard)\.spec\.ts/;
+const browserProjects = process.env.E2E_BROWSERS
+  ? [
+      { name: "firefox", testMatch: CORE_FLOWS, grepInvert: /@config/, use: { ...devices["Desktop Firefox"] } },
+      { name: "webkit", testMatch: CORE_FLOWS, grepInvert: /@config/, use: { ...devices["Desktop Safari"] } },
+      { name: "iphone", testMatch: CORE_FLOWS, grepInvert: /@config/, use: { ...devices["iPhone 13"] } },
+    ]
+  : [];
+
 export default defineConfig({
   testDir: "e2e",
   timeout: 120_000,
@@ -50,6 +63,7 @@ export default defineConfig({
   projects: [
     { name: "desktop", testIgnore: /(seo|ads)\.spec\.ts/, grepInvert: /@config/, use: { ...devices["Desktop Chrome"] } },
     { name: "mobile", testIgnore: /(seo|ads)\.spec\.ts/, use: { ...devices["Pixel 7"] }, grep: /@mobile/ },
+    ...browserProjects,
     // Against an external server (E2E_BASE_URL) only the UI projects run.
     ...(external ? [] : seoProjects),
     ...(external ? [] : adsProjects),

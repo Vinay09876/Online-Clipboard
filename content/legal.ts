@@ -18,7 +18,7 @@ export const LEGAL_LAST_UPDATED = "2026-11-21";
  */
 export const OWNER = {
   /** Who runs the site (person or pseudonym). Shown on About and Privacy. */
-  name: "[[ADD: your name or pseudonym, as it should appear publicly]]",
+  name: "Vinay Ippakayala",
   /** Whose law applies to the Terms. */
-  governingLaw: "[[ADD: the country (and state, if relevant) whose law applies, e.g. India]]",
+  governingLaw: "India",
 } as const;

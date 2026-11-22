@@ -80,6 +80,14 @@ export function SendPanel({ limits }: { limits: SendLimits }) {
   // Abort a running upload if the component goes away.
   useEffect(() => () => abortUpload.current?.(), []);
 
+  // Text typed (or restored by the browser) before React finished loading is in the box but
+  // not in state, which would leave "Create clip" disabled until the next keystroke. Adopt it
+  // once, right after hydration. Slow phones are where this happens.
+  useEffect(() => {
+    const early = textareaRef.current?.value ?? "";
+    if (early) setText(early.slice(0, maxTextLength));
+  }, [maxTextLength]);
+
   const hasText = text.trim().length > 0;
   const canSend = (hasText || file !== null) && blockedUntil === null && state.kind === "compose";
 

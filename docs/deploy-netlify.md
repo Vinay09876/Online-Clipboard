@@ -221,14 +221,45 @@ Deploys are the big one. To keep them down:
    Vercel.
 2. **Docs-only pushes don't build:** `netlify.toml` has an `ignore` command that skips the
    build when only `docs/` or `*.md` files changed.
-3. **Only `main` deploys:** **Project configuration → Build & deploy → Continuous deployment →
-   Branches and deploy contexts → Configure** → **Branch deploys: Deploy only the production
-   branch**. Deploy Previews (for pull requests) cost 0 credits; leave them on or off as you like.
-4. **Pause builds when you're not working on the site:** **Project configuration → Build &
-   deploy → Continuous deployment → Build settings → Configure → Build status: Stopped builds**.
-   The live site keeps running; pushes just don't deploy. Switch back to **Active builds** later.
+3. **Only `main` deploys:** **Project configuration → Developer settings → Branches and deploy
+   contexts → Configure** → **Branch deploys: None** ("Deploy only the production branch") and
+   **Deploy Previews: None** → **Save**.
+4. **Pause automatic builds while Vercel is the live site** (see "Pausing Netlify" below).
 5. **Rollbacks are free:** publishing an older deploy (§9) costs no credits.
 6. Don't add a second uptime monitor for Netlify until it is the main host.
+
+### Pausing Netlify while Vercel is live (saves credits)
+
+From Netlify's [Stop or activate builds](https://docs.netlify.com/build/configure-builds/stop-or-activate-builds/)
+page (checked 2026-11-22):
+
+**Pause (YOU):**
+1. Netlify → your project → **Project configuration → Developer settings → Continuous
+   deployment → Build settings → Configure**.
+2. **Build status: Stopped builds** → **Save**.
+
+While stopped, Netlify **never builds**: not on pushes, build hooks, API requests or the
+"Trigger deploy" button. The last published deploy **keeps serving**
+`online-clipboard-tool.netlify.app`, so it still works but no longer gets updates.
+
+3. Also pause the Netlify clean-up job, which is the other steady credit cost (about 12-24
+   credits a month). In Supabase → SQL Editor:
+   ```sql
+   select cron.unschedule('cleanup-expired-clips-netlify');
+   ```
+   (The Vercel job keeps cleaning the shared database, so nothing piles up.)
+
+**Resume (YOU):**
+1. Same place → **Build status: Active builds** → **Save** (or the **Activate builds**
+   button on the project overview or Deploys page). Netlify does **not** build right away.
+2. **Deploys → Trigger deploy → Deploy project** to bring Netlify up to date with `main`.
+   That costs 15 credits.
+3. Re-create the clean-up job with the SQL in §6 (step 2), if you want it.
+
+**Lighter alternative:** **Deploys → Lock to stop auto publishing**. Netlify still *builds*
+every push, but doesn't publish it. Netlify's docs don't say whether those unpublished builds
+count as production deploys for credits. Use **Stopped
+builds** to save credits.
 
 ## 8. Region and speed (Free plan: Ohio)
 

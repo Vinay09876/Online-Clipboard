@@ -92,7 +92,12 @@ function checkSecurityHeaders(label: string, h: Headers) {
 function checkNonce(label: string, res: Res): string | undefined {
   const csp = res.headers.get("content-security-policy") ?? "";
   const nonce = nonceOf(csp);
-  const scripts = [...res.text.matchAll(/<script\b[^>]*>/g)].map((m) => /nonce="([^"]+)"/.exec(m[0])?.[1]);
+  const tags = [...res.text.matchAll(/<script\b[^>]*>/g)].map((m) => m[0]);
+  // Netlify's free plan injects its badge script (/.netlify/scripts/hud) after our page is
+  // rendered, so it can't carry the nonce; the CSP blocks it (accepted in Growth Step 5).
+  const injected = tags.filter((t) => /src="\/\.netlify\/scripts\//.test(t));
+  if (injected.length > 0 && label === "page /") warn("Netlify's badge script is injected and blocked by the CSP (known, harmless)");
+  const scripts = tags.filter((t) => !injected.includes(t)).map((t) => /nonce="([^"]+)"/.exec(t)?.[1]);
   check(
     !!nonce && scripts.length > 0 && scripts.every((n) => n === nonce),
     `${label}: all ${scripts.length} <script> tags carry the nonce from this response's CSP header`,
@@ -195,25 +200,34 @@ async function main() {
   for (let i = 0; i < 2; i++) {
     const extra = await call("POST", "/api/clips", { text: `${marker} timing ${i + 2}` });
     if (extra.status === 201) time("POST /api/clips (create)", extra.ms);
+    const again = await call("GET", `/api/clips/${created.json.code}`);
+    if (again.status === 200) time("GET /api/clips/<code> (fetch)", again.ms);
   }
 
   // ------------------------------------------------------------- file clip
   console.log("\n5) File clip (direct upload to Supabase, then download)");
   const bytes = randomBytes(2048);
   const fc = await call("POST", "/api/clips", { file: { name: "smoke-test.bin", size: bytes.length } });
+  time("POST /api/clips (create file)", fc.ms);
   const upload = fc.json.upload as { signedUrl?: string } | undefined;
   check(fc.status === 201 && !!upload?.signedUrl, "create file clip -> 201 + signed upload URL", fc.status);
   if (upload?.signedUrl) {
     const put = await fetch(upload.signedUrl, { method: "PUT", headers: { "Content-Type": "application/octet-stream" }, body: new Uint8Array(bytes) });
     check(put.status === 200, "PUT bytes to the signed URL (no API key)", put.status);
     const done = await call("POST", `/api/clips/${fc.json.code}/complete`);
+    time("POST .../complete", done.ms);
     check(done.status === 200, "complete -> 200", done.status);
     const dl = await call("GET", `/api/clips/${fc.json.code}/download`);
+    time("GET .../download (link)", dl.ms);
     check(dl.status === 200 && typeof dl.json.url === "string", "download -> signed URL", dl.status);
     if (typeof dl.json.url === "string") {
       const file = await fetch(dl.json.url);
       const body = Buffer.from(await file.arrayBuffer());
       check(file.status === 200 && body.equals(bytes), "downloaded bytes equal uploaded bytes", file.status);
+    }
+    for (let i = 0; i < 2; i++) {
+      const again = await call("GET", `/api/clips/${fc.json.code}/download`);
+      if (again.status === 200) time("GET .../download (link)", again.ms);
     }
   }
 

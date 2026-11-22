@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <div className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center px-4 py-16 text-center">
-      <p className="font-mono text-5xl font-bold tracking-widest text-zinc-400 dark:text-zinc-600">404</p>
+      <p className="font-mono text-5xl font-bold tracking-widest text-zinc-500 dark:text-zinc-400">404</p>
       <h1 className="mt-4 text-2xl font-bold tracking-tight">Page not found</h1>
       <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
         This page doesn&apos;t exist. If someone gave you a code, open the home page and enter it under Receive.

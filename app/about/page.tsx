@@ -36,7 +36,7 @@ export default function AboutPage() {
 
       <h2>Who runs it, and why</h2>
       <p>Online Clipboard is a non-commercial hobby project run by {OWNER.name}.</p>
-      <p>[[ADD: one or two sentences, in your own words, about why you built this and who it is for]]</p>
+      <p>I built this because I kept emailing files to myself just to open them on another computer.</p>
 
       <h2>How it works</h2>
       <ol>

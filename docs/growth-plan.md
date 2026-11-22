@@ -63,8 +63,12 @@ One step at a time; each step is reviewed before the next starts.
       `netlify.toml`, smoke test for any URL, `docs/deploy-netlify.md`. **Owner:** import the
       repo on Netlify, set env vars, deploy, run `npm run smoke:prod` (incl. the spoof check),
       add the second cron job. Vercel stays live until Step 7.
-- [ ] **6. Pre-launch quality pass**: speed, accessibility, mobile, broken links, spelling,
-      full test run.
+- [x] **6. Pre-launch quality pass**: *(Done 2026-11-22; awaiting review.)* Fewer database
+      round trips (`db/005_fast_paths.sql`, the owner applies it; the app works with or without
+      it), speed measured (`docs/performance.md`), axe + keyboard tests and an NVDA script
+      (`docs/accessibility.md`), Firefox/WebKit/iPhone runs (`npm run test:browsers`), content
+      tests, `check:links`, `export:content`, `load:test`, `db:check`, audits, Netlify pause steps,
+      `docs/launch-checklist.md` (everything before and during Step 7).
 
 ### Domain required
 
@@ -116,3 +120,9 @@ One step at a time; each step is reviewed before the next starts.
   `smoke:prod` works for any URL: nonce freshness, proxy/page indexing agreement, unknown guide
   404, ads.txt 404, multi-header spoof check, response times. Netlify Free runs functions in
   Ohio (region change needs Pro); Supabase is in Mumbai: measure, decide at Step 7.
+- **Step 6** (2026-11-22): API checks combined into single Postgres functions (005, tested on a
+  throwaway local Postgres: 32 checks); routes fall back to the old calls until 005 is applied.
+  Pages: live mobile LCP 1.0-1.5 s, CLS 0; CDN caching rejected (it can't keep the nonce CSP
+  strict). axe: one contrast fix (404 page). WebKit run found a real bug (text typed before
+  hydration ignored), fixed with a regression test. Known: iPhone 13 fold (~46 px), accented
+  download names in Playwright WebKit; real-device checks listed in `docs/accessibility.md`.

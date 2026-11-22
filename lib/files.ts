@@ -95,6 +95,17 @@ export async function completeFileUpload(
 
   if (error) throw new Error(`Complete lookup failed: ${error.code} ${error.message}`);
   if (!row) return "not_found";
+  return finishUpload(row, { maxBytes });
+}
+
+/**
+ * The part of completing an upload after the clip row was found (by completeFileUpload,
+ * or by the one-round-trip gate in lib/gates.ts): check the real object, then mark ready.
+ */
+export async function finishUpload(
+  row: { id: string; file_path: string; ready: boolean },
+  { maxBytes = MAX_FILE_SIZE_BYTES }: { maxBytes?: number } = {},
+): Promise<Exclude<CompleteResult, "not_found">> {
   if (row.ready) return "ok";
 
   const { data: info, error: infoError } = await supabaseAdmin.storage
@@ -160,7 +171,15 @@ export async function getDownloadUrl(code: string): Promise<DownloadResult> {
   if (!row) return { kind: "not_found" };
 
   if ((await reserveDownload(Number(row.file_size ?? 0))) === "paused") return { kind: "paused" };
+  return signDownload(row.file_path, row.file_name);
+}
 
+/** Signed 60-second attachment URL for an object (after the checks in getDownloadUrl or lib/gates.ts). */
+export async function signDownload(
+  filePath: string,
+  fileName: string | null,
+): Promise<{ kind: "ok"; url: string; expiresIn: number }> {
+  const row = { file_path: filePath, file_name: fileName };
   const { data, error: signError } = await supabaseAdmin.storage
     .from(STORAGE_BUCKET)
     .createSignedUrl(row.file_path, DOWNLOAD_URL_TTL_SECONDS);

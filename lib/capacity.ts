@@ -23,9 +23,11 @@ export async function checkCapacity(newFileBytes: number): Promise<CapacityResul
     return "error";
   }
 
-  const liveClips = Number(data.live_clips);
-  const liveBytes = Number(data.live_bytes);
+  return capacityFrom(Number(data.live_clips), Number(data.live_bytes), newFileBytes);
+}
 
+/** The cap decision itself, shared with the one-round-trip path (lib/gates.ts). */
+export function capacityFrom(liveClips: number, liveBytes: number, newFileBytes: number): CapacityResult {
   if (liveClips + 1 > MAX_LIVE_CLIPS) {
     console.warn(`[capacity] live clip cap reached (${liveClips}/${MAX_LIVE_CLIPS})`);
     return "full";

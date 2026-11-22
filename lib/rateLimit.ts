@@ -19,7 +19,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export type Bucket = "lookup-fail" | "create" | "create-file" | "complete" | "download" | "health";
 
-const LIMITS: Record<Bucket, number> = {
+export const LIMITS: Record<Bucket, number> = {
   "lookup-fail": RATE_LIMITS.lookupFailures,
   create: RATE_LIMITS.creates,
   "create-file": RATE_LIMITS.fileCreates,
@@ -101,11 +101,21 @@ function secondsUntil(iso: string): number {
   return Math.max(1, Math.ceil((new Date(iso).getTime() - Date.now()) / 1000));
 }
 
+/** Decision after counting (consume): limited once the count goes OVER the limit. */
+export function afterHit(bucket: Bucket, hits: number, resetAt: string): RateResult {
+  return hits > LIMITS[bucket] ? { kind: "limited", retryAfter: secondsUntil(resetAt) } : { kind: "ok" };
+}
+
+/** Retry-After seconds for a reset time returned by the database. */
+export function retryAfterFrom(resetAt: string): number {
+  return secondsUntil(resetAt);
+}
+
 /** Counts this request, then checks it: limited once the count goes OVER the limit. */
 export async function consume(bucket: Bucket, ip: string): Promise<RateResult> {
   const row = await call("rate_limit_hit", bucket, ip);
   if (!row) return { kind: "error" };
-  return row.hits > LIMITS[bucket] ? { kind: "limited", retryAfter: secondsUntil(row.reset_at) } : { kind: "ok" };
+  return afterHit(bucket, row.hits, row.reset_at);
 }
 
 /** Checks without counting: limited once the count has REACHED the limit. */

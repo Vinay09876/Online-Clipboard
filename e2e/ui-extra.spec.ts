@@ -15,7 +15,8 @@ async function readCode(page: Page): Promise<string> {
   return code;
 }
 
-test("copy code and copy link put the right text on the clipboard", async ({ page, context, consoleProblems }) => {
+test("copy code and copy link put the right text on the clipboard", async ({ page, context, browserName, consoleProblems }) => {
+  test.skip(browserName !== "chromium", "Reading the clipboard needs grantPermissions, which Playwright supports only in Chromium");
   void consoleProblems;
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/");
@@ -37,7 +38,8 @@ test("copy code and copy link put the right text on the clipboard", async ({ pag
   await expect(page.getByRole("button", { name: "Copy code" })).toBeVisible({ timeout: 5000 });
 });
 
-test("text + file together: receiver sees both and can copy the text", async ({ page, context, ip, consoleProblems }) => {
+test("text + file together: receiver sees both and can copy the text", async ({ page, context, ip, browserName, consoleProblems }) => {
+  test.skip(browserName !== "chromium", "Reading the clipboard needs grantPermissions, which Playwright supports only in Chromium");
   void consoleProblems;
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/");
@@ -58,7 +60,8 @@ test("text + file together: receiver sees both and can copy the text", async ({ 
   await recv.close();
 });
 
-test("cancel an upload, then retry it successfully", async ({ page, context, consoleProblems }) => {
+test("cancel an upload, then retry it successfully", async ({ page, context, browserName, consoleProblems }) => {
+  test.skip(browserName !== "chromium", "Slowing the upload uses a Chromium DevTools session (CDP), which only Chromium has");
   void consoleProblems;
   await page.goto("/");
   await page.locator('input[type="file"]').setInputFiles({ name: "slow.bin", mimeType: "application/octet-stream", buffer: Buffer.alloc(3 * 1024 * 1024, 7) });
@@ -80,7 +83,8 @@ test("cancel an upload, then retry it successfully", async ({ page, context, con
   await readCode(page);
 });
 
-test("cancel, then 'Start over' returns to the form with the file still selected", async ({ page, context, consoleProblems }) => {
+test("cancel, then 'Start over' returns to the form with the file still selected", async ({ page, context, consoleProblems, browserName }) => {
+  test.skip(browserName !== "chromium", "Slowing the upload uses a Chromium DevTools session (CDP), which only Chromium has");
   void consoleProblems;
   await page.goto("/");
   await page.locator('input[type="file"]').setInputFiles({ name: "again.bin", mimeType: "application/octet-stream", buffer: Buffer.alloc(2 * 1024 * 1024, 3) });
@@ -236,4 +240,18 @@ test("whitespace-only text can't be sent; 'Get clip' button fetches like auto-fe
   // Fill the first five boxes, then use the button path for the last step.
   await typeCode(page, code);
   await expect(page.getByRole("alert").filter({ hasText: "Clip not found" })).toBeVisible();
+});
+
+test("text typed before the page finished loading is kept and can be sent (slow phones)", async ({ page, consoleProblems }) => {
+  void consoleProblems;
+  // Hold back the page's JavaScript for 1.5 s, so we type while React hasn't hydrated yet.
+  await page.route("**/_next/static/chunks/**", async (route) => {
+    await new Promise((r) => setTimeout(r, 1500));
+    await route.continue();
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.locator("textarea").first().fill("typed early");
+  // Once React is ready, the early text counts: the button is enabled without another keystroke.
+  await expect(page.getByRole("button", { name: "Create clip" })).toBeEnabled({ timeout: 15_000 });
+  await expect(page.getByText("11 / 100,000")).toBeVisible();
 });

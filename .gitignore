@@ -49,3 +49,6 @@ scripts/.cleanup-fixtures.json
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# proofreading export (npm run export:content)
+/content-export/

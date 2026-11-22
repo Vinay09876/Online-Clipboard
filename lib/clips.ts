@@ -2,6 +2,7 @@ import "server-only";
 
 import { randomInt, randomUUID } from "node:crypto";
 import { CLIP_EXPIRY_MINUTES } from "@/lib/config";
+import { fastRpc } from "@/lib/fastRpc";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { Clip, ClipRow } from "@/types/clip";
 
@@ -46,6 +47,11 @@ export function rowToClip(row: ClipRow): Clip {
  * orphaned object is removed later by the orphan sweep.
  */
 async function freeExpiredCode(code: string): Promise<void> {
+  await removeObjects(await deleteExpiredHolder(code));
+}
+
+/** Deletes the expired clip holding `code` (if any) and returns its file path(s). */
+async function deleteExpiredHolder(code: string): Promise<string[]> {
   const { data, error } = await supabaseAdmin
     .from("clips")
     .delete()
@@ -55,10 +61,11 @@ async function freeExpiredCode(code: string): Promise<void> {
 
   if (error) throw new Error(`Failed to delete expired clip: ${error.message}`);
 
-  const paths = (data ?? [])
-    .map((r: { file_path: string | null }) => r.file_path)
-    .filter((p): p is string => !!p);
+  return (data ?? []).map((r: { file_path: string | null }) => r.file_path).filter((p): p is string => !!p);
+}
 
+/** Removes storage objects of freed clips. Failures are logged; the orphan sweep retries. */
+async function removeObjects(paths: string[]): Promise<void> {
   if (paths.length > 0) {
     const { error: storageError } = await supabaseAdmin.storage
       .from(STORAGE_BUCKET)
@@ -72,6 +79,11 @@ async function freeExpiredCode(code: string): Promise<void> {
 export type CreateClipOptions = {
   /** Code generator. Defaults to generateCode; tests pass a fake to force collisions. */
   generateCode?: () => string;
+  /**
+   * Runs work that doesn't need to delay the response (removing a freed clip's old file).
+   * API routes pass `after`; by default it is awaited inline (scripts, tests).
+   */
+  defer?: (task: () => Promise<void>) => void;
 };
 
 /** Already-validated input (see app/api/clips/route.ts and lib/files.ts). */
@@ -109,9 +121,36 @@ export async function createClip(
 
   for (let attempt = 1; attempt <= MAX_CODE_ATTEMPTS && !created; attempt++) {
     const code = nextCode();
-    await freeExpiredCode(code);
-
     const expiresAt = new Date(Date.now() + CLIP_EXPIRY_MINUTES * 60_000).toISOString();
+
+    // Fast path (db/005): free an expired holder + insert, in ONE round trip.
+    const fast = await fastRpc<{ inserted: boolean; out_expires_at: string | null; freed_paths: string[] | null }>(
+      "clip_insert_with_code",
+      {
+        p_id: id,
+        p_code: code,
+        p_text: input.text ?? null,
+        p_file_path: file ? id : null,
+        p_file_name: file ? file.name : null,
+        p_file_size: file ? file.size : null,
+        p_ready: !file,
+        p_expires_at: expiresAt,
+      },
+    );
+    if (fast) {
+      const freed = fast.freed_paths ?? [];
+      if (freed.length > 0) {
+        const task = () => removeObjects(freed);
+        if (options.defer) options.defer(task);
+        else await task();
+      }
+      if (fast.inserted) created = { code, expiresAt: fast.out_expires_at! };
+      else console.warn(`[clips] code collision on attempt ${attempt}, retrying`);
+      continue;
+    }
+
+    // Original path: two round trips.
+    await freeExpiredCode(code);
 
     const { data, error } = await supabaseAdmin
       .from("clips")

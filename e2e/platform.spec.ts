@@ -70,6 +70,26 @@ test("spoofing attempt: 11 requests with different fake headers map to ONE ident
   expect(local.size).toBe(11);
 });
 
+// --------------------------------------------------------------------------- env documentation
+
+test("every environment variable the app reads is in .env.example and the deploy docs", () => {
+  const files = ["lib/config.ts", "lib/site.ts", "lib/ads.ts", "lib/clientIp.ts", "proxy.ts", "next.config.ts", "app/layout.tsx"];
+  const code = files.map(src).join("\n");
+  const names = new Set<string>();
+  for (const m of code.matchAll(/process\.env\.([A-Z_]+)/g)) names.add(m[1]);
+  for (const m of code.matchAll(/(?:readPositiveInt|readOptionalEmail|readOptionalSecret|readRequired|readUrl)\("([A-Z_]+)"/g)) names.add(m[1]);
+  for (const m of code.matchAll(/slotEnv: "([A-Z_]+)"/g)) names.add(m[1]);
+  // Set by the platform or the runtime, not by the owner.
+  for (const platform of ["NODE_ENV", "VERCEL", "NETLIFY"]) names.delete(platform);
+  expect(names.size).toBeGreaterThan(20);
+
+  const example = src(".env.example");
+  const docs = src("docs/deploy.md") + src("docs/deploy-netlify.md") + src("docs/ads-plan.md");
+  const missing = [...names].filter((n) => !new RegExp(`\\b${n}\\b`).test(example)).map((n) => `.env.example: ${n}`);
+  missing.push(...[...names].filter((n) => !new RegExp(`\\b${n}\\b`).test(docs)).map((n) => `docs: ${n}`));
+  expect(missing).toEqual([]);
+});
+
 // --------------------------------------------------------------------------- proxy portability
 
 test("proxy.ts and everything it imports use no Node-only APIs (Netlify runs it as an Edge Function)", () => {

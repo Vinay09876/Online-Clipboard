@@ -13,8 +13,13 @@
     "test:security": "tsx --conditions=react-server --env-file=.env.local scripts/test-security.ts",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
+    "test:browsers": "node scripts/test-browsers.mjs",
     "test:egress": "tsx --conditions=react-server --env-file=.env.local scripts/test-egress.ts",
     "smoke:prod": "tsx scripts/smoke-prod.ts",
+    "check:links": "tsx scripts/check-links.ts",
+    "export:content": "tsx scripts/export-content.ts",
+    "load:test": "tsx --conditions=react-server --env-file=.env.local scripts/load-test.ts",
+    "db:check": "tsx --conditions=react-server --env-file=.env.local scripts/check-db.ts",
     "scan:secrets": "tsx scripts/scan-secrets.ts",
     "icons:generate": "tsx scripts/generate-icons.ts",
     "check:placeholders": "tsx scripts/check-placeholders.ts",
@@ -28,6 +33,7 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.65.1",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/node": "^20",

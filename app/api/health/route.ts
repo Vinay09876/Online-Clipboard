@@ -19,12 +19,13 @@ export async function GET(request: Request) {
     const limit = await consume("health", getClientIp(request.headers)); // DB error -> allow
     if (limit.kind === "limited") return errors.tooMany(limit.retryAfter);
 
-    // Storage: needs a valid service role key.
-    const { error } = await supabaseAdmin.storage.listBuckets();
+    // Storage (needs a valid service role key) and database (needs the clips table and
+    // service_role privileges on it), checked in parallel: they don't depend on each other.
+    const [{ error }, { error: dbError }] = await Promise.all([
+      supabaseAdmin.storage.listBuckets(),
+      supabaseAdmin.from("clips").select("id").limit(1),
+    ]);
     if (error) throw new Error(`Supabase storage check failed: ${error.message}`);
-
-    // Database: needs the clips table and service_role privileges on it.
-    const { error: dbError } = await supabaseAdmin.from("clips").select("id").limit(1);
     if (dbError) throw new Error(`Supabase database check failed: ${dbError.message}`);
 
     return json({ ok: true });
