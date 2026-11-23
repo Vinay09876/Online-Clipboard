@@ -5,10 +5,12 @@
  *
  *   3230  no SITE_URL                                   → existing UI tests, not indexable
  *   3231  SITE_URL on a temporary host (*.vercel.app)    → not indexable; ad flags set → still no ads
- *   3232  SITE_URL=https://example.com + LEGACY_HOSTS     → indexable, ads not configured (default);
+ *   3232  SITE_URL=https://online-clipboard.example.com + LEGACY_HOSTS (apex, www, old hosts)
+ *         → indexable, ads not configured (default); mirrors production (a subdomain is canonical);
  *         requests with Host: www.example.com / a legacy host / another host test the redirects
  *   3233  SITE_URL=https://example.com, ALLOW_INDEXING=false → kill switch; ad flags set → still no ads
- *   3234  MAX_FILE_SIZE_MB=7, CLIP_EXPIRY_MINUTES=15, RATE_LIMIT_LOOKUP_FAILURES=4, CONTACT_EMAIL → copy follows config
+ *   3234  MAX_FILE_SIZE_MB=7, CLIP_EXPIRY_MINUTES=15, RATE_LIMIT_LOOKUP_FAILURES=4, CONTACT_EMAIL → copy follows config;
+ *         tiny global ceiling (3 site-wide failures → 2 per client) for the db/006 test
  *   3235  SITE_URL=https://example.com + ad flags          → ads ACTIVE (HTML/header tests only)
  *
  * The ad flags use an obviously fake publisher ID (all zeros). Tests never load Google's script.
@@ -21,7 +23,7 @@ import { createServer } from "node:http";
 const NEXT_BIN = "node_modules/next/dist/bin/next";
 
 /** Old addresses that must redirect to SITE_URL on the real-domain server (Growth Step 7). */
-const LEGACY = "old-clipboard.vercel.app,old-clipboard.netlify.app";
+const LEGACY = "example.com,www.example.com,old-clipboard.vercel.app,old-clipboard.netlify.app";
 
 const NO_ADS = {
   ADS_ENABLED: "",
@@ -41,10 +43,10 @@ const FAKE_ADS = {
 export const SERVERS = [
   { port: 3230, env: { ...NO_ADS, SITE_URL: "", ALLOW_INDEXING: "" } },
   { port: 3231, env: { ...FAKE_ADS, SITE_URL: "https://online-clipboard-test.vercel.app", ALLOW_INDEXING: "" } },
-  { port: 3232, env: { ...NO_ADS, SITE_URL: "https://example.com", ALLOW_INDEXING: "", LEGACY_HOSTS: LEGACY } },
+  { port: 3232, env: { ...NO_ADS, SITE_URL: "https://online-clipboard.example.com", ALLOW_INDEXING: "", LEGACY_HOSTS: LEGACY } },
   { port: 3233, env: { ...FAKE_ADS, SITE_URL: "https://example.com", ALLOW_INDEXING: "false" } },
   // Small limits: the home page copy must show these numbers, not the defaults.
-  { port: 3234, env: { ...NO_ADS, SITE_URL: "", ALLOW_INDEXING: "", MAX_FILE_SIZE_MB: "7", CLIP_EXPIRY_MINUTES: "15", RATE_LIMIT_LOOKUP_FAILURES: "4", CONTACT_EMAIL: "hello@example.org" } },
+  { port: 3234, env: { ...NO_ADS, SITE_URL: "", ALLOW_INDEXING: "", MAX_FILE_SIZE_MB: "7", CLIP_EXPIRY_MINUTES: "15", RATE_LIMIT_LOOKUP_FAILURES: "4", RATE_LIMIT_GLOBAL_LOOKUP_FAILURES: "3", RATE_LIMIT_LOOKUP_FAILURES_STRICT: "2", CONTACT_EMAIL: "hello@example.org" } },
   { port: 3235, env: { ...FAKE_ADS, SITE_URL: "https://example.com", ALLOW_INDEXING: "" } },
 ];
 

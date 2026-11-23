@@ -21,3 +21,21 @@
   NODE_VERSION = "22"
   # Don't send Next.js telemetry from the build machine.
   NEXT_TELEMETRY_DISABLED = "1"
+
+# Edge rate limit for the API (Growth Step 7c, decision D2): at most 100 requests per minute per
+# IP (per domain) on /api/*. Netlify enforces it at its edge BEFORE any function runs, so a flood
+# from one address can't burn function compute credits. Over the limit Netlify answers 429 itself
+# (the app shows its normal "Too many attempts" message for any 429). Free plan: 2 code rules
+# per project; this uses 1. Normal use is far below the limit: a visit makes 2-6 API calls, the
+# Supabase clean-up job 6 per hour, the uptime monitors a few per hour.
+# Syntax: https://docs.netlify.com/manage/security/secure-access-to-sites/rate-limiting/
+# After deploying, follow the test plan in docs/security-review.md ("D2 test plan").
+[[redirects]]
+  from = "/api/*"
+  to = "/api/:splat"
+  status = 200
+  force = true
+  [redirects.rate_limit]
+    window_limit = 100
+    window_size = 60
+    aggregate_by = ["ip", "domain"]

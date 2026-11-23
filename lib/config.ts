@@ -82,6 +82,15 @@ const rateLimitCreates = readPositiveInt("RATE_LIMIT_CREATES", 20, 100_000);
 const rateLimitFileCreates = readPositiveInt("RATE_LIMIT_FILE_CREATES", 5, 100_000);
 const rateLimitFileOps = readPositiveInt("RATE_LIMIT_FILE_OPS", 30, 100_000);
 const rateLimitHealth = readPositiveInt("RATE_LIMIT_HEALTH", 30, 100_000);
+// Global ceiling on failed lookups (db/006; Growth Step 7c): above this many failures site-wide
+// in one window, each client gets only the strict allowance for the rest of that window.
+const rateLimitGlobalLookupFailures = readPositiveInt("RATE_LIMIT_GLOBAL_LOOKUP_FAILURES", 300, 10_000_000);
+const rateLimitLookupFailuresStrict = readPositiveInt("RATE_LIMIT_LOOKUP_FAILURES_STRICT", 3, 100_000);
+if (rateLimitLookupFailuresStrict > rateLimitLookupFailures) {
+  errors.push(
+    `RATE_LIMIT_LOOKUP_FAILURES_STRICT (${rateLimitLookupFailuresStrict}) must not be larger than RATE_LIMIT_LOOKUP_FAILURES (${rateLimitLookupFailures}).`,
+  );
+}
 
 // Global caps (whole service).
 const maxLiveClips = readPositiveInt("MAX_LIVE_CLIPS", 200, 10_000_000);
@@ -160,6 +169,10 @@ export const RATE_LIMITS = {
   fileOps: rateLimitFileOps,
   /** GET /api/health. */
   health: rateLimitHealth,
+  /** Site-wide failed lookups per window before the strict allowance applies (needs db/006). */
+  globalLookupFailures: rateLimitGlobalLookupFailures,
+  /** Failed lookups per client while the site-wide ceiling is reached. */
+  lookupFailuresStrict: rateLimitLookupFailuresStrict,
 } as const;
 
 export const MAX_LIVE_CLIPS: number = maxLiveClips;

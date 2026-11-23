@@ -44,7 +44,10 @@ test("client IP per provider: the trusted header wins, faked headers are ignored
   expect(clientIpFrom(h(fake), "local")).toBe("6.6.6.6");
 
   // Normalisation still applies on every provider.
-  expect(clientIpFrom(h({ "x-nf-client-connection-ip": "2001:db8:1:2:aaaa::1" }), "netlify")).toBe("2001:db8:1:2::/64");
+  // IPv6 is grouped by /56 (Step 7c): everything inside 2001:db8:1:00xx::/56 is one client.
+  expect(clientIpFrom(h({ "x-nf-client-connection-ip": "2001:db8:1:2:aaaa::1" }), "netlify")).toBe("2001:db8:1:0::/56");
+  expect(clientIpFrom(h({ "x-nf-client-connection-ip": "2001:db8:1:ff:1::1" }), "netlify")).toBe("2001:db8:1:0::/56");
+  expect(clientIpFrom(h({ "x-nf-client-connection-ip": "2001:db8:1:1ff::1" }), "netlify")).toBe("2001:db8:1:100::/56");
   expect(clientIpFrom(h({ "x-nf-client-connection-ip": "::ffff:198.51.100.7" }), "netlify")).toBe("198.51.100.7");
   expect(clientIpFrom(h({ "x-nf-client-connection-ip": "not-an-ip" }), "netlify")).toBe("unknown");
 });
@@ -256,4 +259,29 @@ test("LEGACY_HOSTS: host names only, never the site's own host", () => {
     const r = parseLegacyHosts(own, "vinaycode.com");
     expect(!r.ok && r.error, own).toMatch(/must not contain the site's own host/);
   }
+});
+
+test("decideHost with the real production values: online-clipboard.vinaycode.com is canonical", () => {
+  const canonical = "online-clipboard.vinaycode.com";
+  const legacy = new Set(["vinaycode.com", "www.vinaycode.com", "online-clipboard-tool.netlify.app", "online-clipboard-rose.vercel.app"]);
+  const d = (host: string, method = "GET") => decideHost(host, method, "/guides?x=1", canonical, legacy);
+  expect(d("online-clipboard.vinaycode.com")).toEqual({ kind: "canonical" });
+  for (const old of legacy) {
+    expect(d(old), old).toEqual({ kind: "redirect", status: 301, location: "https://online-clipboard.vinaycode.com/guides?x=1" });
+    expect(d(old, "POST"), `${old} POST`).toEqual({ kind: "noindex" }); // pages only; never a POST redirect
+  }
+  expect(d("deploy-preview-3--online-clipboard-tool.netlify.app")).toEqual({ kind: "noindex" });
+  expect(d("clipboard.vinaycode.com")).toEqual({ kind: "noindex" }); // a look-alike subdomain is not canonical
+  // ads.txt is served on the root domain itself (AdSense reads vinaycode.com/ads.txt), never redirected.
+  expect(decideHost("vinaycode.com", "GET", "/ads.txt", canonical, legacy)).toEqual({ kind: "noindex" });
+  expect(decideHost("online-clipboard.vinaycode.com", "GET", "/ads.txt", canonical, legacy)).toEqual({ kind: "canonical" });
+  expect(parseLegacyHosts([...legacy].join(","), canonical)).toEqual({ ok: true, hosts: [...legacy] });
+  expect(parseLegacyHosts("online-clipboard.vinaycode.com", canonical).ok).toBe(false);
+});
+
+test("netlify.toml: one edge rate-limit rule, 100 requests/min per IP on /api/* (D2)", () => {
+  const toml = src("netlify.toml");
+  const rules = toml.match(/\[redirects\.rate_limit\]/g) ?? [];
+  expect(rules.length, "the free plan allows 2 code rules; we use 1").toBe(1);
+  expect(toml).toMatch(/from = "\/api\/\*"\s+to = "\/api\/:splat"\s+status = 200\s+force = true\s+\[redirects\.rate_limit\]\s+window_limit = 100\s+window_size = 60\s+aggregate_by = \["ip", "domain"\]/);
 });

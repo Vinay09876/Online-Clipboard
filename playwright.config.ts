@@ -73,7 +73,7 @@ export default defineConfig({
       : [
           {
             name: "content-config",
-            testMatch: /(home-content|pages)\.spec\.ts/,
+            testMatch: /(home-content|pages|abuse)\.spec\.ts/,
             grep: /@config/,
             use: { ...devices["Desktop Chrome"], baseURL: "http://localhost:3234" },
           },

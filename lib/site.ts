@@ -79,7 +79,7 @@ export const INDEXABLE: boolean = INDEXING_OFF_REASON === null;
 // ---------------------------------------------------------------------------------------------
 
 /**
- * The one host search engines should see, e.g. "vinaycode.com", once SITE_URL is a real https
+ * The one host search engines should see, e.g. "online-clipboard.vinaycode.com", once SITE_URL is a real https
  * domain (not a temporary host). Null otherwise: then no redirects happen and every host
  * behaves as before. Independent of the ALLOW_INDEXING kill switch (redirects stay useful
  * while indexing is switched off; the kill switch still makes every page noindex).
@@ -95,7 +95,8 @@ export type LegacyHostsParse = { ok: true; hosts: string[] } | { ok: false; erro
 
 /**
  * LEGACY_HOSTS: comma-separated hostnames (no https://, no path), e.g.
- * "online-clipboard-rose.vercel.app,online-clipboard-tool.netlify.app". Page requests on these
+ * "vinaycode.com,www.vinaycode.com,online-clipboard-tool.netlify.app,online-clipboard-rose.vercel.app".
+ * Page requests on these
  * hosts are redirected to the canonical host. Exported so lib/config.ts can report errors.
  */
 export function parseLegacyHosts(raw: string | undefined, canonical: string | null = CANONICAL_HOST): LegacyHostsParse {
@@ -117,7 +118,10 @@ export function parseLegacyHosts(raw: string | undefined, canonical: string | nu
 const legacyParse = parseLegacyHosts(process.env.LEGACY_HOSTS);
 export const LEGACY_HOSTS: ReadonlySet<string> = new Set(legacyParse.ok ? legacyParse.hosts : []);
 
-/** "vinaycode.com" ↔ "www.vinaycode.com". */
+/**
+ * "example.com" ↔ "www.example.com". For a subdomain canonical (online-clipboard.vinaycode.com) the
+ * twin is "www.online-clipboard…", which nobody uses; the bare domain and its www go in LEGACY_HOSTS.
+ */
 function wwwTwin(host: string): string {
   return host.startsWith("www.") ? host.slice(4) : `www.${host}`;
 }
@@ -150,6 +154,11 @@ export function decideHost(
   const host = (hostHeader ?? "").trim().toLowerCase().replace(/:\d+$/, "");
   if (LOOPBACK.has(host)) return { kind: "local" };
   if (host === canonical) return { kind: "canonical" };
+  // ads.txt must be readable on the ROOT domain (e.g. vinaycode.com/ads.txt) when the site lives on
+  // a subdomain: ad crawlers look there first, and following a redirect to another host isn't
+  // guaranteed. Served as-is on every host (its content doesn't depend on the host; 404 until
+  // AdSense is configured).
+  if (pathAndQuery === "/ads.txt" || pathAndQuery.startsWith("/ads.txt?")) return { kind: "noindex" };
   const readOnly = method === "GET" || method === "HEAD";
   const location = `https://${canonical}${pathAndQuery}`;
   if (host === wwwTwin(canonical)) return { kind: "redirect", status: readOnly ? 301 : 308, location };

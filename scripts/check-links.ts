@@ -3,7 +3,7 @@
  * Not part of the normal test run: it talks to many other websites.
  *
  *   npm run check:links                                  against http://localhost:3000
- *   npm run check:links -- https://online-clipboard-rose.vercel.app
+ *   npm run check:links -- https://online-clipboard.vinaycode.com
  *
  * Polite: one request at a time per website, 1.5 s between requests to the same website,
  * a normal browser-like User-Agent, HEAD first and GET only when HEAD isn't allowed.

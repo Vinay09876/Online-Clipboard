@@ -35,7 +35,7 @@ export async function POST(request: Request, ctx: RouteContext<"/api/clips/[code
         return json({ error: `File is too large. The limit is ${MAX_FILE_SIZE_MB} MB.` }, 413);
     }
   } catch (err) {
-    console.error(`[POST /api/clips/${code}/complete]`, err);
+    console.error("[POST /api/clips/[code]/complete]", err); // never log the code: it is the clip's key
     return errors.internal();
   }
 }

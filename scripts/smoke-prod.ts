@@ -9,7 +9,7 @@
  *
  * Real domain (Growth Step 7): checks https, the http/www redirects, old addresses, canonical
  * URLs, robots, sitemap, HSTS, and that /api/* is never redirected:
- *   npm run smoke:prod -- --canonical https://vinaycode.com --legacy https://online-clipboard-rose.vercel.app
+ *   npm run smoke:prod -- --canonical https://online-clipboard.vinaycode.com --legacy https://vinaycode.com --legacy https://online-clipboard-tool.netlify.app
  *
  * Safe for production: it creates a few tiny text clips and one tiny file clip, which expire
  * on their own. The IP-spoofing check at the end deliberately trips the failed-lookup limit,
@@ -338,7 +338,11 @@ async function main() {
 async function checkRealDomain() {
   const canon = new URL(CANONICAL!);
   const host = canon.host;
-  const www = host.startsWith("www.") ? host.slice(4) : `www.${host}`;
+  // The www name people might type: www.<root domain>. For a subdomain canonical such as
+  // online-clipboard.vinaycode.com that is www.vinaycode.com (not www.online-clipboard…).
+  const labels = host.split(".");
+  const root = labels.slice(-2).join(".");
+  const www = host.startsWith("www.") ? host.slice(4) : `www.${labels.length > 2 ? root : host}`;
   console.log(`\n8) Real domain: ${host}`);
 
   const raw = async (url: string, init: RequestInit = {}) => {
@@ -370,7 +374,7 @@ async function checkRealDomain() {
   const w = await raw(`https://${www}/guides?x=1`);
   // 301 from our proxy, or 308 if you chose Vercel's own "redirect www" option: both are permanent.
   check([301, 308].includes(w.status) && w.location === `https://${host}/guides?x=1`, `https://${www} → permanent redirect to https://${host}, same path and query`, w);
-  if (w.status === 0) explain(`${www} doesn't answer over https: add it as a domain in the host's dashboard too (docs/launch-day-netlify.md).`);
+  if (w.status === 0) explain(`${www} doesn't answer over https: add it as a domain (or alias) in the host's dashboard (docs/launch-day-netlify.md).`);
   for (const old of LEGACY) {
     const r = await raw(`${old}/guides?x=1`);
     check(r.status === 301 && r.location === `https://${host}/guides?x=1`, `${old} → 301 to https://${host}`, r);
@@ -378,7 +382,9 @@ async function checkRealDomain() {
   }
 
   // The API is never redirected, on any of these hosts.
-  for (const origin of [`https://${host}`, `https://${www}`, ...LEGACY]) {
+  // The API is checked on the canonical host and the old hosts. Not on www: Netlify itself
+  // redirects every www path (incl. /api) to the primary domain, so nothing may call the API via www.
+  for (const origin of [`https://${host}`, ...LEGACY]) {
     const health = await raw(`${origin}/api/health`);
     check(health.status === 200, `${origin}/api/health → 200 (not redirected)`, health);
     const cron = await raw(`${origin}/api/cron/cleanup`, { method: "POST" });

@@ -8,13 +8,13 @@ import { expect, test } from "./helpers";
  * scripts/e2e-servers.mjs):
  *   @nosite      no SITE_URL
  *   @temp        SITE_URL on a temporary host (*.vercel.app)
- *   @real        SITE_URL=https://example.com
+ *   @real        SITE_URL=https://online-clipboard.example.com (a subdomain, like production)
  *   @killswitch  SITE_URL=https://example.com + ALLOW_INDEXING=false
  * Every page load also goes through the consoleProblems fixture: no CSP violations,
  * console errors or page errors.
  */
 
-const REAL = "https://example.com";
+const REAL = "https://online-clipboard.example.com";
 const TEMP = "https://online-clipboard-test.vercel.app";
 
 async function metaRobots(page: Page) {
@@ -257,13 +257,14 @@ test("@real icons, manifest and share image are served locally", async ({ reques
 });
 
 // --------------------------------------------------------------------------- canonical host (Step 7)
-// Server 3232: SITE_URL=https://example.com, LEGACY_HOSTS=old-clipboard.vercel.app,old-clipboard.netlify.app.
+// Server 3232: SITE_URL=https://online-clipboard.example.com (canonical, like online-clipboard.vinaycode.com),
+// LEGACY_HOSTS=example.com,www.example.com,old-clipboard.vercel.app,old-clipboard.netlify.app.
 // Requests carry a different Host header to act as www / an old address / a preview host.
 
 const asHost = (host: string) => ({ headers: { Host: host }, maxRedirects: 0 });
 
 test("@real www and legacy hosts redirect pages to SITE_URL with 301, keeping path and query", async ({ request }) => {
-  for (const host of ["www.example.com", "old-clipboard.vercel.app", "old-clipboard.netlify.app"]) {
+  for (const host of ["example.com", "www.example.com", "old-clipboard.vercel.app", "old-clipboard.netlify.app"]) {
     for (const path of ["/", "/guides?ref=x&y=1", `/guides/what-is-an-online-clipboard`, "/robots.txt"]) {
       const res = await request.get(path, asHost(host));
       expect(res.status(), `${host}${path}`).toBe(301);
@@ -272,15 +273,19 @@ test("@real www and legacy hosts redirect pages to SITE_URL with 301, keeping pa
     const head = await request.head("/terms", asHost(host));
     expect(head.status(), `${host} HEAD`).toBe(301);
   }
-  // Non-GET on www keeps the method (308); on a legacy host it is served (noindex), not redirected.
-  expect((await request.post("/", asHost("www.example.com"))).status()).toBe(308);
+  // Non-GET on the canonical host's own www twin keeps the method (308); on a legacy host
+  // (incl. the bare domain and its www) it is served (noindex), not redirected.
+  expect((await request.post("/", asHost("www.online-clipboard.example.com"))).status()).toBe(308);
+  const apexPost = await request.post("/", asHost("example.com"));
+  expect(apexPost.status()).not.toBe(301);
+  expect(apexPost.headers()["x-robots-tag"]).toBe("noindex, nofollow");
   const legacyPost = await request.post("/", asHost("old-clipboard.vercel.app"));
   expect(legacyPost.status()).not.toBe(301);
   expect(legacyPost.headers()["x-robots-tag"]).toBe("noindex, nofollow");
 });
 
 test("@real the API is never redirected on any host (clean-up job and health checks can't follow redirects)", async ({ request }) => {
-  for (const host of ["www.example.com", "old-clipboard.vercel.app", "preview-abc123.vercel.app", "example.com"]) {
+  for (const host of ["example.com", "www.example.com", "old-clipboard.vercel.app", "preview-abc123.vercel.app", "online-clipboard.example.com"]) {
     const health = await request.get("/api/health", asHost(host));
     expect([200, 429, 503], `${host} /api/health`).toContain(health.status());
     const cron = await request.post("/api/cron/cleanup", asHost(host));
@@ -298,7 +303,7 @@ test("@real other hosts are served but noindex; the canonical host is indexable 
     // The canonical link still names the real site.
     expect(await res.text(), host).toContain(`<link rel="canonical" href="${REAL}/guides"/>`);
   }
-  const canonical = await request.get("/guides", asHost("example.com"));
+  const canonical = await request.get("/guides", asHost("online-clipboard.example.com"));
   expect(canonical.status()).toBe(200);
   expect(canonical.headers()["x-robots-tag"]).toBeUndefined();
   expect(canonical.headers()["strict-transport-security"]).toBe("max-age=63072000");
@@ -358,4 +363,11 @@ test("@temp a domain connected before the flip stays hidden: vinaycode.com answe
   expect(robots).toMatch(/Disallow: \/\s*$/m);
   expect(robots).not.toMatch(/Sitemap:/i);
   expect(await (await request.get("/sitemap.xml", asDomain)).text()).not.toContain("<url>");
+});
+
+test("@real /ads.txt is served on the bare domain itself (ad crawlers read it there), never redirected", async ({ request }) => {
+  for (const host of ["example.com", "online-clipboard.example.com"]) {
+    const res = await request.get("/ads.txt", asHost(host));
+    expect(res.status(), host).toBe(404); // no ADSENSE_CLIENT_ID on this server: a real 404, not a 301
+  }
 });

@@ -57,8 +57,9 @@ export function clientIpFrom(headers: Headers, provider: HostingProvider): strin
 /**
  * Canonical form used for the key:
  *  - strips ports/brackets, lowercases, unwraps IPv4-mapped IPv6
- *  - IPv6 is reduced to its /64 prefix, because one user typically controls a whole /64
- *    and could otherwise rotate addresses to dodge the limit
+ *  - IPv6 is reduced to its /56 prefix (Growth Step 7c, was /64): one customer usually gets a
+ *    /56 or /48, and rotating addresses or /64s inside it must not give a fresh limit. A /48
+ *    holder now has 256 buckets instead of 65,536.
  */
 export function normalizeIp(raw: string | null | undefined): string | null {
   if (!raw) return null;
@@ -72,11 +73,11 @@ export function normalizeIp(raw: string | null | undefined): string | null {
 
   const version = isIP(ip);
   if (version === 4) return ip;
-  if (version === 6) return ipv6Prefix64(ip);
+  if (version === 6) return ipv6Prefix56(ip);
   return null;
 }
 
-function ipv6Prefix64(ip: string): string {
+function ipv6Prefix56(ip: string): string {
   let groups: string[];
   if (ip.includes("::")) {
     const [head, tail] = ip.split("::");
@@ -86,5 +87,7 @@ function ipv6Prefix64(ip: string): string {
   } else {
     groups = ip.split(":");
   }
-  return groups.slice(0, 4).map((g) => parseInt(g || "0", 16).toString(16)).join(":") + "::/64";
+  const g = groups.slice(0, 4).map((x) => parseInt(x || "0", 16));
+  g[3] = g[3] & 0xff00; // keep the first 56 bits: 3 full groups + the high byte of the 4th
+  return g.map((n) => n.toString(16)).join(":") + "::/56";
 }

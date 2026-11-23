@@ -10,6 +10,7 @@ import {
   type ApiError,
   type ClipData,
 } from "@/lib/apiClient";
+import { riskyExtension } from "@/lib/fileRisk";
 import { CodeInput, emptyDigits, type CodeInputHandle } from "./CodeInput";
 import { ExpiryLine, RateLimitNotice } from "./Countdown";
 import { CopyButton } from "./CopyButton";
@@ -234,6 +235,7 @@ function FileCard({ code, name, size, maxFileMb }: { code: string; name: string;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [blockedUntil, setBlockedUntil] = useState<number | null>(null);
+  const riskId = useId();
 
   async function download() {
     setBusy(true);
@@ -249,6 +251,8 @@ function FileCard({ code, name, size, maxFileMb }: { code: string; name: string;
       setError(errorMessage(res.error, { maxFileMb }));
     }
   }
+
+  const risky = riskyExtension(name);
 
   return (
     <section className={`${card} space-y-3`} aria-label="File">
@@ -268,12 +272,27 @@ function FileCard({ code, name, size, maxFileMb }: { code: string; name: string;
           type="button"
           onClick={download}
           disabled={busy || blockedUntil !== null}
+          aria-describedby={risky ? riskId : undefined}
           className={`${btnPrimary} w-full shrink-0 sm:w-auto`}
         >
           {busy ? <Spinner /> : <DownloadIcon />}
           {busy ? "Preparing…" : "Download"}
         </button>
       </div>
+      {risky && (
+        // A warning, not a block: shown before the visitor downloads (Growth Step 7c, D3).
+        <p
+          id={riskId}
+          data-testid="risky-file-warning"
+          className="flex gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+        >
+          <AlertIcon className="mt-0.5 size-4 shrink-0" />
+          <span>
+            This is a program or script file (.{risky}). Opening it can change or harm your device. Only open it if
+            you know and trust the person who sent it.
+          </span>
+        </p>
+      )}
       <div aria-live="polite">
         {error && (
           <p className={errorBox} role="alert">

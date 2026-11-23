@@ -72,13 +72,21 @@ One step at a time; each step is reviewed before the next starts.
 
 ### Domain required
 
-- [ ] **7. Domain: vinaycode.com**: code and docs done 2026-11-22 (awaiting review), inert
-      until `SITE_URL=https://vinaycode.com`: www → apex and `LEGACY_HOSTS` → 301 (pages only,
+- [ ] **7. Domain: online-clipboard.vinaycode.com** (canonical since 2026-11-23; vinaycode.com is
+      an alias): code and docs done (awaiting review), inert until
+      `SITE_URL=https://online-clipboard.vinaycode.com`: `LEGACY_HOSTS` (bare domain, www, old hosts) → 301 (pages only,
       never `/api/*`), every other host noindex, HSTS on the domain, `smoke:prod --canonical`.
       **Decision 2026-11-22: Netlify Free is the final host** (Vercel = temporary fallback).
       **Owner:** follow `docs/launch-day-netlify.md` (deploy latest code to Netlify, measure,
       connect vinaycode.com via Porkbun DNS while still noindex, the flip, clean-up URL,
       Search Console, Bing, monitor, retire Vercel, rollback).
+- [ ] **7c. Final address + security decisions**: *(code done 2026-11-23; awaiting review.)*
+      Canonical `online-clipboard.vinaycode.com`; D1 (/56 + `db/006` ceiling, awaiting approval),
+      D2 (Netlify edge rate limit), D3 (risky-file warning). Next: deploy, D2 test plan, monitors,
+      then the flip (`docs/launch-day-netlify.md` e).
+- [ ] **7b. Security and abuse review**: *(code done 2026-11-23; awaiting review.)* Findings,
+      fixes and decisions in `docs/security-review.md`. Verdict: not ready for the flip until the
+      edge rate limit (D2) is decided and this step is deployed with both monitors set up.
 - [ ] **8. Grow traffic**: check indexing, fix issues (mostly waiting).
 - [ ] **9. AdSense**: follow `docs/ads-plan.md` §5 (sign up, verify with the meta tag or
       ads.txt, Auto ads OFF, create 3 ad units, publish the European regulations message), then
@@ -145,3 +153,19 @@ One step at a time; each step is reviewed before the next starts.
   re-checked (300 free, alerts at 50/75/100 %, Personal $9 = 1,000, region still Pro-only),
   monthly routine and a visitor estimate in `docs/deploy-netlify.md` §7. Speed options in
   `docs/performance.md` (recommended if needed: database in us-east-2 next to Netlify).
+- **Step 7b** (2026-11-23): security review. Fixed: clip codes no longer in error logs;
+  `GET /api/health/cleanup` alerts when the clean-up stops (no migration); refused clients get
+  their 429 from memory without a database trip (credit-drain mitigation). Verified: identical
+  404s for nonexistent/expired/not-ready codes (incl. timing), crypto code generator, no secrets in
+  the client bundle, Supabase serves uploaded HTML as text/plain + nosniff from its own domain.
+  Decisions pending: D1 guessing (recommend IPv6 /56 + global ceiling), D2 Netlify edge rate limit,
+  D3 receiver warning for executables, D4 delete-now button (design + `db/006` proposal), D5 analytics
+  (wait), D6 HSTS duplicate (keep).
+- **Step 7c** (2026-11-23): canonical address `https://online-clipboard.vinaycode.com` (Netlify
+  primary domain; vinaycode.com an alias that Netlify doesn't redirect, www redirected by Netlify for
+  every path incl. /api). `LEGACY_HOSTS` = bare domain, www, netlify.app and vercel.app names; `/api/*`
+  and `/ads.txt` never redirected by our code (ads.txt must be readable on the root domain). Tests now
+  use a subdomain canonical like production. D1: IPv6 /56 (code) + global failed-lookup ceiling
+  (`db/006_lookup_ceiling.sql`, additive, tested on a throwaway Postgres; not applied). D2:
+  `netlify.toml` edge rate limit 100/min/IP on /api/* (needs the post-deploy test plan). D3:
+  warning before downloading program/script files (no blocking). D4 kept for after launch.

@@ -35,7 +35,7 @@ export async function GET(request: Request, ctx: RouteContext<"/api/clips/[code]
       }
     }
   } catch (err) {
-    console.error(`[GET /api/clips/${code}/download]`, err);
+    console.error("[GET /api/clips/[code]/download]", err); // never log the code: it is the clip's key
     return errors.internal();
   }
 }

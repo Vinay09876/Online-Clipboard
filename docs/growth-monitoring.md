@@ -1,7 +1,8 @@
 # Growth monitoring (Step 8): a weekly routine
 
 About **30 minutes once a week**, same day each week. Everything happens in Google Search
-Console (search.google.com/search-console), property `vinaycode.com`.
+Console (search.google.com/search-console), Domain property `vinaycode.com` (it covers the site at
+`online-clipboard.vinaycode.com`; use the Pages report filtered to that host).
 
 ## Honest expectations first
 
@@ -18,7 +19,7 @@ Console (search.google.com/search-console), property `vinaycode.com`.
 - Under **"Why pages aren't indexed"**:
   - *Discovered/Crawled – currently not indexed*: normal for a new site; Google hasn't decided yet. Wait.
   - *Page with redirect*: fine for `www.` and old `vercel.app` addresses (they redirect on purpose).
-  - *Excluded by 'noindex' tag*: should only list preview/old addresses. **If a vinaycode.com page is
+  - *Excluded by 'noindex' tag*: should only list preview/old addresses. **If an online-clipboard.vinaycode.com page is
     listed, tell me** (something is wrong).
   - *Not found (404)*: open the URL; if it's a link we publish, fix the link.
   - *Server error (5xx)*: check the uptime monitor and Vercel logs.
@@ -72,6 +73,6 @@ whole site, which is far worse than having no links.
 
 ## When to tell me
 
-- A vinaycode.com page is "Excluded by noindex", or the indexed count drops sharply.
+- An online-clipboard.vinaycode.com page is "Excluded by noindex", or the indexed count drops sharply.
 - The uptime monitor reports downtime more than once.
 - A query you'd like to target with a new guide (bring the query and its impressions).

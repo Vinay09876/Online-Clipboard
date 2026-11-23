@@ -2,10 +2,21 @@ import "server-only";
 
 import { capacityFrom, checkCapacity, type CapacityResult } from "@/lib/capacity";
 import { getClipByCode, type NewClipInput } from "@/lib/clips";
-import { MAX_MONTHLY_DOWNLOAD_BYTES, RATE_LIMIT_WINDOW_SECONDS } from "@/lib/config";
+import { MAX_MONTHLY_DOWNLOAD_BYTES, RATE_LIMITS, RATE_LIMIT_WINDOW_SECONDS } from "@/lib/config";
 import { reserveDownload } from "@/lib/egress";
 import { fastRpc } from "@/lib/fastRpc";
-import { LIMITS, afterHit, consume, isBlocked, rateLimitKey, record, retryAfterFrom, type RateResult } from "@/lib/rateLimit";
+import {
+  LIMITS,
+  afterHit,
+  consume,
+  isBlocked,
+  rateLimitKey,
+  record,
+  rememberBlock,
+  rememberedBlock,
+  retryAfterFrom,
+  type RateResult,
+} from "@/lib/rateLimit";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 /**
@@ -16,6 +27,25 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
  */
 
 const W = RATE_LIMIT_WINDOW_SECONDS;
+
+/**
+ * Failed-lookup arguments, incl. the site-wide ceiling used by the db/006 (_v2) functions.
+ * The global counter is a normal rate_limits row under a fixed hashed key (never an IP).
+ */
+function failArgs(ip: string) {
+  return {
+    p_fail_key: rateLimitKey("lookup-fail", ip),
+    p_fail_limit: LIMITS["lookup-fail"],
+    p_strict_limit: RATE_LIMITS.lookupFailuresStrict,
+    p_global_key: rateLimitKey("lookup-fail", "global"),
+    p_global_threshold: RATE_LIMITS.globalLookupFailures,
+  };
+}
+
+/** Tries the db/006 (_v2, with the ceiling) function, then the db/005 one; null = neither available. */
+async function v2ThenV1<T>(name: string, v2Args: Record<string, unknown>, v1Args: Record<string, unknown>): Promise<T | null> {
+  return (await fastRpc<T>(`${name}_v2`, v2Args)) ?? (await fastRpc<T>(name, v1Args));
+}
 
 // ---------------------------------------------------------------- POST /api/clips
 
@@ -32,6 +62,8 @@ export type CreateGate = {
  * the attempt still counts against "create" (as before), but nothing else is checked.
  */
 export async function createGate(ip: string, input: NewClipInput | null): Promise<CreateGate> {
+  const known = rememberedBlock("create", ip); // refused earlier in this window: no DB trip
+  if (known) return { create: known, file: null, capacity: null };
   const withFile = !!input?.file;
   const fast = await fastRpc<{
     create_hits: number;
@@ -50,9 +82,12 @@ export async function createGate(ip: string, input: NewClipInput | null): Promis
   });
 
   if (fast) {
-    const create = afterHit("create", fast.create_hits, fast.create_reset);
+    const create = rememberBlock("create", ip, afterHit("create", fast.create_hits, fast.create_reset), fast.create_reset);
     if (create.kind !== "ok" || !input) return { create, file: null, capacity: null };
-    const file = withFile && fast.file_hits !== null ? afterHit("create-file", fast.file_hits, fast.file_reset!) : null;
+    const file =
+      withFile && fast.file_hits !== null
+        ? rememberBlock("create-file", ip, afterHit("create-file", fast.file_hits, fast.file_reset!), fast.file_reset)
+        : null;
     if (file && file.kind !== "ok") return { create, file, capacity: null };
     const capacity =
       fast.live_clips === null ? "error" : capacityFrom(Number(fast.live_clips), Number(fast.live_bytes), input.file?.size ?? 0);
@@ -82,7 +117,9 @@ export type LookupResult =
 
 /** Throws on a database error (the route answers 500, as before). */
 export async function lookupClip(ip: string, code: string): Promise<LookupResult> {
-  const fast = await fastRpc<{
+  const known = rememberedBlock("lookup-fail", ip);
+  if (known?.kind === "limited") return known;
+  const fast = await v2ThenV1<{
     status: "blocked" | "not_found" | "ok";
     reset_at: string | null;
     out_text: string | null;
@@ -90,15 +127,14 @@ export async function lookupClip(ip: string, code: string): Promise<LookupResult
     out_file_size: number | string | null;
     out_created_at: string;
     out_expires_at: string;
-  }>("clip_lookup", {
-    p_fail_key: rateLimitKey("lookup-fail", ip),
-    p_fail_limit: LIMITS["lookup-fail"],
-    p_window_seconds: W,
-    p_code: code,
-  });
+  }>(
+    "clip_lookup",
+    { ...failArgs(ip), p_window_seconds: W, p_code: code },
+    { p_fail_key: rateLimitKey("lookup-fail", ip), p_fail_limit: LIMITS["lookup-fail"], p_window_seconds: W, p_code: code },
+  );
 
   if (fast) {
-    if (fast.status === "blocked") return { kind: "limited", retryAfter: retryAfterFrom(fast.reset_at!) };
+    if (fast.status === "blocked") return blockedBy("lookup-fail", ip, fast.reset_at!);
     if (fast.status === "not_found") return { kind: "not_found" };
     return {
       kind: "ok",
@@ -136,23 +172,24 @@ export type CompleteGate =
 
 /** Failed-lookup block → "complete" limit → the live file clip (ready or pending). Throws on a lookup error. */
 export async function completeGate(ip: string, code: string): Promise<CompleteGate> {
-  const fast = await fastRpc<{
+  const known = rememberedBlock("lookup-fail", ip) ?? rememberedBlock("complete", ip);
+  if (known?.kind === "limited") return known;
+  const op = { p_op_key: rateLimitKey("complete", ip), p_op_limit: LIMITS.complete, p_window_seconds: W, p_code: code };
+  const fast = await v2ThenV1<{
     status: "blocked" | "limited" | "not_found" | "ok";
     reset_at: string | null;
     out_id: string | null;
     out_file_path: string | null;
     out_ready: boolean | null;
-  }>("clip_complete_gate", {
-    p_fail_key: rateLimitKey("lookup-fail", ip),
-    p_fail_limit: LIMITS["lookup-fail"],
-    p_op_key: rateLimitKey("complete", ip),
-    p_op_limit: LIMITS.complete,
-    p_window_seconds: W,
-    p_code: code,
-  });
+  }>(
+    "clip_complete_gate",
+    { ...failArgs(ip), ...op },
+    { p_fail_key: rateLimitKey("lookup-fail", ip), p_fail_limit: LIMITS["lookup-fail"], ...op },
+  );
 
   if (fast) {
-    if (fast.status === "blocked" || fast.status === "limited") return { kind: "limited", retryAfter: retryAfterFrom(fast.reset_at!) };
+    if (fast.status === "blocked") return blockedBy("lookup-fail", ip, fast.reset_at!);
+    if (fast.status === "limited") return blockedBy("complete", ip, fast.reset_at!);
     if (fast.status === "not_found") return { kind: "not_found" };
     return { kind: "ok", row: { id: fast.out_id!, file_path: fast.out_file_path!, ready: fast.out_ready! } };
   }
@@ -188,23 +225,29 @@ export type DownloadGate =
  * in this month's download budget. Throws on a lookup error.
  */
 export async function downloadGate(ip: string, code: string): Promise<DownloadGate> {
-  const fast = await fastRpc<{
-    status: "blocked" | "limited" | "not_found" | "paused" | "ok";
-    reset_at: string | null;
-    out_file_path: string | null;
-    out_file_name: string | null;
-  }>("clip_download_gate", {
-    p_fail_key: rateLimitKey("lookup-fail", ip),
-    p_fail_limit: LIMITS["lookup-fail"],
+  const known = rememberedBlock("lookup-fail", ip) ?? rememberedBlock("download", ip);
+  if (known?.kind === "limited") return known;
+  const op = {
     p_op_key: rateLimitKey("download", ip),
     p_op_limit: LIMITS.download,
     p_window_seconds: W,
     p_code: code,
     p_month_limit_bytes: MAX_MONTHLY_DOWNLOAD_BYTES,
-  });
+  };
+  const fast = await v2ThenV1<{
+    status: "blocked" | "limited" | "not_found" | "paused" | "ok";
+    reset_at: string | null;
+    out_file_path: string | null;
+    out_file_name: string | null;
+  }>(
+    "clip_download_gate",
+    { ...failArgs(ip), ...op },
+    { p_fail_key: rateLimitKey("lookup-fail", ip), p_fail_limit: LIMITS["lookup-fail"], ...op },
+  );
 
   if (fast) {
-    if (fast.status === "blocked" || fast.status === "limited") return { kind: "limited", retryAfter: retryAfterFrom(fast.reset_at!) };
+    if (fast.status === "blocked") return blockedBy("lookup-fail", ip, fast.reset_at!);
+    if (fast.status === "limited") return blockedBy("download", ip, fast.reset_at!);
     if (fast.status === "not_found") return { kind: "not_found" };
     if (fast.status === "paused") return { kind: "paused" };
     return { kind: "ok", filePath: fast.out_file_path!, fileName: fast.out_file_name };
@@ -230,4 +273,10 @@ export async function downloadGate(ip: string, code: string): Promise<DownloadGa
   }
   if ((await reserveDownload(Number(row.file_size ?? 0))) === "paused") return { kind: "paused" };
   return { kind: "ok", filePath: row.file_path, fileName: row.file_name };
+}
+
+/** A refusal from the database, remembered so repeats skip the database (lib/rateLimit.ts). */
+function blockedBy(bucket: "lookup-fail" | "complete" | "download", ip: string, resetAt: string): { kind: "limited"; retryAfter: number } {
+  rememberBlock(bucket, ip, { kind: "limited", retryAfter: retryAfterFrom(resetAt) }, resetAt);
+  return { kind: "limited", retryAfter: retryAfterFrom(resetAt) };
 }

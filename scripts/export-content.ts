@@ -3,7 +3,7 @@
  * The file goes to content-export/ (git-ignored), never into tracked files.
  *
  *   npm run export:content                         from http://localhost:3000
- *   npm run export:content -- https://online-clipboard-rose.vercel.app
+ *   npm run export:content -- https://online-clipboard.vinaycode.com
  *
  * Uses Playwright's Chromium (already installed for the tests) to read the rendered pages:
  * headings, paragraphs, list items, FAQ questions/answers, plus each page's title and

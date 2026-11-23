@@ -101,6 +101,45 @@ function secondsUntil(iso: string): number {
   return Math.max(1, Math.ceil((new Date(iso).getTime() - Date.now()) / 1000));
 }
 
+// ---------------------------------------------------------------------------
+// Remembered blocks (Growth Step 7b)
+// ---------------------------------------------------------------------------
+
+/**
+ * Once the database has refused a client for a bucket until a reset time, that stays true
+ * until the reset (counts only go up within a window). Each server instance remembers it, so a
+ * client hammering a refused endpoint gets the same 429 + Retry-After WITHOUT another database
+ * round trip (~0.7 s of billed function time on Netlify each). Keys are the HMAC keys, never
+ * raw IPs. Bounded in size; entries expire at their reset time.
+ */
+const remembered = new Map<string, number>(); // rate-limit key -> reset time (ms)
+const MAX_REMEMBERED = 5000;
+
+/** A remembered refusal for this bucket + client, or null. */
+export function rememberedBlock(bucket: Bucket, ip: string): RateResult | null {
+  const key = rateLimitKey(bucket, ip);
+  const resetAt = remembered.get(key);
+  if (resetAt === undefined) return null;
+  if (resetAt <= Date.now()) {
+    remembered.delete(key);
+    return null;
+  }
+  return { kind: "limited", retryAfter: Math.max(1, Math.ceil((resetAt - Date.now()) / 1000)) };
+}
+
+/** Remembers a refusal returned by the database (no-op for anything else). */
+export function rememberBlock(bucket: Bucket, ip: string, result: RateResult, resetAtIso: string | null): RateResult {
+  if (result.kind === "limited" && resetAtIso) {
+    if (remembered.size >= MAX_REMEMBERED) {
+      const now = Date.now();
+      for (const [k, t] of remembered) if (t <= now) remembered.delete(k);
+      if (remembered.size >= MAX_REMEMBERED) remembered.delete(remembered.keys().next().value!);
+    }
+    remembered.set(rateLimitKey(bucket, ip), new Date(resetAtIso).getTime());
+  }
+  return result;
+}
+
 /** Decision after counting (consume): limited once the count goes OVER the limit. */
 export function afterHit(bucket: Bucket, hits: number, resetAt: string): RateResult {
   return hits > LIMITS[bucket] ? { kind: "limited", retryAfter: secondsUntil(resetAt) } : { kind: "ok" };
@@ -113,16 +152,22 @@ export function retryAfterFrom(resetAt: string): number {
 
 /** Counts this request, then checks it: limited once the count goes OVER the limit. */
 export async function consume(bucket: Bucket, ip: string): Promise<RateResult> {
+  const known = rememberedBlock(bucket, ip);
+  if (known) return known;
   const row = await call("rate_limit_hit", bucket, ip);
   if (!row) return { kind: "error" };
-  return afterHit(bucket, row.hits, row.reset_at);
+  return rememberBlock(bucket, ip, afterHit(bucket, row.hits, row.reset_at), row.reset_at);
 }
 
 /** Checks without counting: limited once the count has REACHED the limit. */
 export async function isBlocked(bucket: Bucket, ip: string): Promise<RateResult> {
+  const known = rememberedBlock(bucket, ip);
+  if (known) return known;
   const row = await call("rate_limit_peek", bucket, ip);
   if (!row) return { kind: "error" };
-  return row.hits >= LIMITS[bucket] ? { kind: "limited", retryAfter: secondsUntil(row.reset_at) } : { kind: "ok" };
+  const result: RateResult =
+    row.hits >= LIMITS[bucket] ? { kind: "limited", retryAfter: secondsUntil(row.reset_at) } : { kind: "ok" };
+  return rememberBlock(bucket, ip, result, row.reset_at);
 }
 
 /** Counts an event (e.g. a failed lookup) without checking. Errors are logged only. */

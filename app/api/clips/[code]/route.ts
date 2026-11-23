@@ -28,7 +28,7 @@ export async function GET(request: Request, ctx: RouteContext<"/api/clips/[code]
     const { text, fileName, fileSize, createdAt, expiresAt } = result.clip;
     return json({ text, fileName, fileSize, createdAt, expiresAt });
   } catch (err) {
-    console.error(`[GET /api/clips/${code}]`, err);
+    console.error("[GET /api/clips/[code]]", err); // never log the code: it is the clip's key
     return errors.internal();
   }
 }
