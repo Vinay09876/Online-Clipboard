@@ -370,7 +370,7 @@ async function checkRealDomain() {
   const w = await raw(`https://${www}/guides?x=1`);
   // 301 from our proxy, or 308 if you chose Vercel's own "redirect www" option: both are permanent.
   check([301, 308].includes(w.status) && w.location === `https://${host}/guides?x=1`, `https://${www} → permanent redirect to https://${host}, same path and query`, w);
-  if (w.status === 0) explain(`${www} doesn't answer over https: add it as a domain in the host's dashboard too (docs/launch-day.md).`);
+  if (w.status === 0) explain(`${www} doesn't answer over https: add it as a domain in the host's dashboard too (docs/launch-day-netlify.md).`);
   for (const old of LEGACY) {
     const r = await raw(`${old}/guides?x=1`);
     check(r.status === 301 && r.location === `https://${host}/guides?x=1`, `${old} → 301 to https://${host}`, r);

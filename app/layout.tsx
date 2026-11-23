@@ -76,6 +76,22 @@ const linkClass =
 const THEME_SCRIPT =
   '(function(){try{if(localStorage.getItem("theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}})()';
 
+/**
+ * Netlify's edge adds a newline + an HTML comment inside <head> ("This site is hosted on
+ * Netlify…") and its badge <script> after </html>. React finds those nodes where it rendered
+ * none and throws hydration error #418, then re-renders the whole page in the browser.
+ * This removes them before React starts: the comment and whitespace-only text in <head> right
+ * away, the badge script (already blocked by our CSP) as soon as the parser adds it.
+ * Static string, no user input; runs with the CSP nonce. A no-op on Vercel and locally.
+ */
+const HOST_INJECTION_GUARD =
+  "(function(){try{var h=document.head;for(var n=h.firstChild;n;){var x=n.nextSibling;" +
+  "if((n.nodeType===8&&/Netlify/.test(n.nodeValue))||(n.nodeType===3&&!/\\S/.test(n.nodeValue)))h.removeChild(n);n=x}" +
+  "var o=new MutationObserver(function(m){for(var i=0;i<m.length;i++)for(var j=0;j<m[i].addedNodes.length;j++){" +
+  'var a=m[i].addedNodes[j];if(a.nodeType===1&&a.tagName==="SCRIPT"&&a.hasAttribute("data-nf-variant"))a.parentNode.removeChild(a)}});' +
+  'o.observe(document.documentElement,{childList:true,subtree:true});' +
+  'document.addEventListener("DOMContentLoaded",function(){o.disconnect()})}catch(e){}})()';
+
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   await connection();
   const nonce = (await headers()).get("x-nonce") ?? undefined;
@@ -85,6 +101,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: HOST_INJECTION_GUARD }} />
       </head>
       <body className="flex min-h-full flex-col bg-zinc-100 font-sans text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
         <a

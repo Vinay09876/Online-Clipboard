@@ -197,22 +197,52 @@ select cron.unschedule('cleanup-expired-clips-netlify');
 
 ## 7. Credits: watch them, don't waste them
 
-**Where to look:** Netlify → your **team** (top-left) → **Usage & billing** (or **Billing →
-Usage**). It shows credits used this cycle by category, and the reset date. Netlify emails you
-at 50 %, 75 % and 100 %.
+Re-checked 2026-11-22 against Netlify's docs:
+[credit-based plans](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/credit-based-pricing-plans/),
+[monitor usage](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/monitor-usage-for-credit-based-plans/),
+[how credits work](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/how-credits-work/),
+[pricing](https://www.netlify.com/pricing/).
 
-**When they run out:** **every project on the account is paused** and visitors see "Site not
-available" until the next billing cycle. On the Free plan you can only wait or upgrade (no
-top-ups). Vercel keeps working, which is why it stays live until the domain step.
+| Fact | Value |
+|---|---|
+| Free plan | **300 credits/month, hard limit**; can never be charged |
+| Rates | production deploy **15**; compute **10 per GB-hour**; bandwidth **20 per GB**; web requests **2 per 10,000**. Failed deploys, rollbacks, Deploy Previews and branch deploys: 0 |
+| Alerts | email + in-app at **50 %, 75 % and 100 %** |
+| At 300 | **every project on the account is paused** ("Site not available") until the next cycle; on Free you can only wait or upgrade (no top-ups) |
+| Personal plan | **$9/month, 1,000 credits**, optional auto-recharge (500 credits for $5) |
+| Function region | still **Pro/Enterprise only**; Free and Personal stay in `cmh` (Ohio) |
+| Where to see usage | team → **Usage & billing** (summary and reset date) · **Usage & billing → Account usage insights → Credits** (daily graph by meter) · **Usage & billing → Credit usage breakdown** (by feature) |
 
-**Rough monthly budget for this app** (Netlify rates above; 1 GB function memory):
+### Monthly credit check (5 minutes, first Monday of the month)
+1. **Usage & billing**: credits used so far and the reset date. On track = used ≤ (days
+   passed ÷ days in cycle) × 300.
+2. **Account usage insights → Credits**: which meter grows (compute, web requests, bandwidth,
+   deploys). A sudden jump in **web requests** or **compute** = a bot or an abusive client
+   (check Netlify **Logs** and Supabase usage); a jump in **deploys** = too many pushes.
+3. If you passed **75 % before day 20**: stop pushing (or **Stopped builds**), raise the
+   uptime monitor interval, and tell me; consider the Personal plan ($9) for that month.
+4. Note the numbers in your growth log (`docs/growth-monitoring.md`).
 
-| Item | Estimate | Credits |
+### How many visitors do 300 credits cover? (rough estimate, check after week 1)
+
+Assumptions (1 GB functions; server times from the Step 5/6 measurements, Ohio ↔ Mumbai):
+
+| Item | Per unit | Credits |
 |---|---|---|
-| Clean-up job: 4,320 calls × ~1-2 s (Ohio ↔ Mumbai) | ~1.2-2.4 GB-hours | 12-24 |
-| Production deploys | 15 each | **10 deploys = 150** |
-| Visitors: 1,000 page views (~15 requests, ~300 KB, ~0.3 s server time each) | 15k requests, 0.3 GB, 0.1 GB-h | ~10 |
-| File transfers | go directly between the browser and Supabase | 0 |
+| Page view (first visit): 1 HTML render ~0.3 s + ~12 static files, ~200 KB | 13 requests, 0.0002 GB, 0.3 GB-s | ≈ 0.0026 + 0.004 + 0.0008 = **0.0075** |
+| One text clip sent and opened (2 API calls ~1-1.5 s each after 005, plus the after-response clean-up ~1 s) | ~3.5 GB-s | ≈ **0.010** |
+| File clip extra (complete + download link) | ~2.5 GB-s | ≈ **0.007** (the file bytes go straight to Supabase: 0 Netlify bandwidth) |
+| Fixed: clean-up job 4,320 calls × ~1 s | 1.2 GB-h | **≈ 12** |
+| Fixed: uptime monitor every 15 min, 2,880 × ~1-1.5 s | 0.8-1.2 GB-h | **≈ 8-12** |
+| Fixed: production deploys | 2 per month | **30** |
+
+That leaves about **250 credits** for visitors:
+- a **tool user** (2 page views + 1 clip) ≈ 0.025 credits → **~10,000 tool users/month**;
+- a **guide reader** (1-2 page views) ≈ 0.01 credits → **~25,000 readers/month**;
+- a realistic mix in the first months: **15,000+ visits/month**, far above early traffic.
+
+These are estimates; real compute per request varies. The monthly check above replaces them
+with real numbers after the first week.
 
 Deploys are the big one. To keep them down:
 

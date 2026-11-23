@@ -341,3 +341,21 @@ test("@temp @nosite @killswitch canonical-host handling is inert unless SITE_URL
     expect(res.headers()["strict-transport-security"], host).toBeUndefined();
   }
 });
+
+test("@temp a domain connected before the flip stays hidden: vinaycode.com answers noindex while SITE_URL is the temporary host", async ({ request }) => {
+  // Launch day: vinaycode.com is added to Netlify while SITE_URL is still the *.netlify.app
+  // address. Until SITE_URL is changed, nothing on the new domain may be indexable.
+  const asDomain = { headers: { Host: "vinaycode.com" }, maxRedirects: 0 };
+  for (const path of ["/", "/guides", "/guides/what-is-an-online-clipboard"]) {
+    const res = await request.get(path, asDomain);
+    expect(res.status(), path).toBe(200); // served, not redirected
+    expect(res.headers()["x-robots-tag"], path).toBe("noindex, nofollow");
+    const html = await res.text();
+    expect(html, path).toContain('<meta name="robots" content="noindex, nofollow"/>');
+    expect(html, `${path}: canonical still names the temporary host`).toContain(`<link rel="canonical" href="${TEMP}`);
+  }
+  const robots = await (await request.get("/robots.txt", asDomain)).text();
+  expect(robots).toMatch(/Disallow: \/\s*$/m);
+  expect(robots).not.toMatch(/Sitemap:/i);
+  expect(await (await request.get("/sitemap.xml", asDomain)).text()).not.toContain("<url>");
+});

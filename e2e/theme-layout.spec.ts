@@ -103,3 +103,28 @@ test("'On this page' links jump to the sections below the tool @mobile", async (
   // The content is still on the page (not hidden behind a click).
   await expect(page.getByRole("heading", { name: "How it works", level: 2 })).toBeAttached();
 });
+
+test("nodes the host injects (Netlify's head comment and badge script) cause no hydration error", async ({ page, consoleProblems }) => {
+  // Netlify's free plan appends <script async src="/.netlify/scripts/hud…"> after </html>.
+  // Browsers move it into <body>, where React would find an element it didn't render (error #418).
+  await page.route("**/terms", async (route) => {
+    const res = await route.fetch();
+    // Exactly what Netlify's edge adds (seen on the live site, 2026-11-22): a newline + comment
+    // inside <head> right after <meta charSet>, and the badge script after </html>.
+    const html =
+      (await res.text()).replace(
+        '<meta charSet="utf-8"/>',
+        '<meta charSet="utf-8"/>\n<!-- This site is hosted on Netlify. Anyone can build and deploy a site\n     like this one for free. -->',
+      ) + '<script async src="/.netlify/scripts/hud?variant=public" data-nf-variant="public"></script>';
+    await route.fulfill({ response: res, body: html });
+  });
+  await page.goto("/terms");
+  await expect(page.getByRole("button", { name: "Dark theme" })).toBeVisible();
+  await page.getByRole("button", { name: "Dark theme" }).click(); // hydrated and interactive
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  expect(await page.locator("script[data-nf-variant]").count(), "injected tag removed").toBe(0);
+  // The CSP still blocks the injected script before it is removed; that report is expected.
+  const problems = consoleProblems.filter((p) => !p.includes("/.netlify/scripts/hud"));
+  expect(problems).toEqual([]);
+  consoleProblems.length = 0;
+});

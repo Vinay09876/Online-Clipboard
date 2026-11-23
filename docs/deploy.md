@@ -90,7 +90,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 | `CONTACT_EMAIL` | No (shown publicly on /contact) | optional general address; falls back to `ABUSE_CONTACT_EMAIL`. On a real domain the build fails unless one of them is set. |
 | `SITE_URL` | No | your site's address, e.g. `https://<your-project>.vercel.app` (correct share previews; a temporary host is never indexed). Your real domain from Step 7 of `docs/growth-plan.md`. See `docs/seo.md`. |
 | `ALLOW_INDEXING` | No | leave empty. `false` = never let search engines index the site (kill switch). |
-| `LEGACY_HOSTS` | No | leave empty until the domain step. Comma-separated old host names (e.g. `online-clipboard-rose.vercel.app`) whose pages redirect to `SITE_URL` once it is a real domain. See `docs/launch-day.md`. |
+| `LEGACY_HOSTS` | No | leave empty until the domain step. Comma-separated old host names (e.g. `online-clipboard-rose.vercel.app`) whose pages redirect to `SITE_URL` once it is a real domain. See `docs/launch-day-netlify.md`. |
 | `HOSTING_PROVIDER` | No on Vercel (auto-detected) | `vercel`. Decides which header carries the real visitor IP for rate limiting. **Required on Netlify** (`netlify`). |
 | `ADS_ENABLED` | No | leave empty until Growth Step 9. `true` shows ads on guide pages only, and only on an indexable real domain. See `docs/ads-plan.md`. |
 | `ADSENSE_CLIENT_ID` | No | leave empty until Step 9. `ca-pub-` + 16 digits. On a real domain it adds the AdSense verification meta tag and `/ads.txt`. |

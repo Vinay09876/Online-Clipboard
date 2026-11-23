@@ -42,8 +42,8 @@ and menu names when you do it.
 - [ ] `npm run smoke:prod -- <current live URL>` → ALL PASSED (incl. the spoofing check).
 
 ### Decision
-- [ ] **Host chosen and written down** in `docs/growth-plan.md` (Step 7 entry): Vercel or Netlify,
-  and why. Background: Vercel Hobby is for non-commercial use only (ads in Step 9 are
+- [x] **Host chosen and written down** in `docs/growth-plan.md` (Step 7 entry): **Netlify Free**
+  (2026-11-22; Vercel Pro isn't affordable), Vercel as temporary fallback. Background: Vercel Hobby is for non-commercial use only (ads in Step 9 are
   commercial); Netlify Free runs functions in Ohio, slower with a Mumbai database
   (`docs/deploy-netlify.md` §8).
 
@@ -51,9 +51,8 @@ and menu names when you do it.
 
 ## B. Step 7 procedure
 
-> **For vinaycode.com on Vercel, follow `docs/launch-day.md`**: the exact click-by-click
-> runbook (Porkbun, Vercel, env vars, clean-up URL, Search Console, Bing, monitor, rollback).
-> The notes below stay as the general reference, including Netlify.
+> **For vinaycode.com, follow `docs/launch-day-netlify.md`** (Netlify Free is the final host;
+> Vercel is the fallback, in its appendix). The notes below stay as the general reference.
 
 ### B1. Choose and buy the domain (YOU)
 1. **Name:** short, easy to say and type, no hyphens or numbers. `.com` if available.

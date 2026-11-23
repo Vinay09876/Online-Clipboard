@@ -49,3 +49,21 @@ Timings before (smoke test from India, medians): Vercel create 290 ms, fetch 193
 235 ms; Netlify create 3,258 ms, fetch 2,007 ms, file create 5,824 ms, complete 3,976 ms,
 download link 3,912 ms. After applying 005: run `npm run smoke:prod -- <url> --skip-spoof-test`
 on both hosts and add the numbers here.
+
+## Further speed options for Netlify (Step 7 review, 2026-11-22)
+
+Netlify Free runs functions in Ohio; the database is in Mumbai. Each database round trip costs
+roughly **0.6-0.8 s** from Ohio (measured: the Step 5 numbers divided by the number of trips).
+Expected after 005 is deployed (not measured yet, because Netlify still runs Step 5 code):
+create ≈ 2 trips ≈ **1.4-1.8 s**, open ≈ 1 trip ≈ **0.8-1.0 s**, download link ≈ 2 trips ≈ **1.4-1.8 s**.
+Measure with `docs/launch-day-netlify.md` section b before choosing anything below.
+
+| Option | Saves (from India) | Risk / effort | Verdict |
+|---|---|---|---|
+| **Move the database next to the functions**: a new free Supabase project in `us-east-2` (Ohio); run `db/001`-`005`, create the bucket, the cron job and Vault secrets, switch 3 env vars. Clips live 30 min, so nothing needs migrating | every trip ~0.7 s → a few ms: create ≈ **0.4-0.6 s**, open ≈ **0.3-0.5 s** (the remaining time is India ↔ Ohio) | low code risk (no code change), ~1 hour of clicks, a maintenance window of minutes | **Recommended** if section b lands in the middle or bottom row; also cuts Netlify compute credits per request by ~60-70 % |
+| Merge "rate limit + caps" and "insert" into one function for text clips (a `db/006`) | create 2 → 1 trip: **−0.6-0.8 s** on text creates only | medium: the collision-retry path needs care and new tests | Only if staying with the Mumbai database |
+| Cache the "open clip" response at the CDN | would save a trip | **unsafe**: bypasses per-IP rate limits and expiry, and puts private clips in a shared cache | Rejected |
+| Sign download URLs without calling Storage | 1 trip on downloads | needs the storage signing secret in the app; new key model doesn't expose it | Rejected |
+| Turn off the after-response clean-up on creates | 0 for the visitor (it runs after the answer) but ~1 s of compute credits per create | low; the 10-minute job already cleans | Possible later for credits, not for speed |
+
+No code changes were made for speed in this step: the measurement after deploying 005 decides.

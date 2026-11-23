@@ -75,8 +75,10 @@ One step at a time; each step is reviewed before the next starts.
 - [ ] **7. Domain: vinaycode.com**: code and docs done 2026-11-22 (awaiting review), inert
       until `SITE_URL=https://vinaycode.com`: www → apex and `LEGACY_HOSTS` → 301 (pages only,
       never `/api/*`), every other host noindex, HSTS on the domain, `smoke:prod --canonical`.
-      **Owner:** follow `docs/launch-day.md` (Porkbun DNS, Vercel, SITE_URL, cleanup URL,
-      Search Console, Bing, uptime monitor, final smoke test).
+      **Decision 2026-11-22: Netlify Free is the final host** (Vercel = temporary fallback).
+      **Owner:** follow `docs/launch-day-netlify.md` (deploy latest code to Netlify, measure,
+      connect vinaycode.com via Porkbun DNS while still noindex, the flip, clean-up URL,
+      Search Console, Bing, monitor, retire Vercel, rollback).
 - [ ] **8. Grow traffic**: check indexing, fix issues (mostly waiting).
 - [ ] **9. AdSense**: follow `docs/ads-plan.md` §5 (sign up, verify with the meta tag or
       ads.txt, Auto ads OFF, create 3 ad units, publish the European regulations message), then
@@ -133,5 +135,13 @@ One step at a time; each step is reviewed before the next starts.
   a real https domain; localhost always untouched (tests, `next start`). New env `LEGACY_HOSTS`
   (validated). HSTS `max-age=63072000` only on the canonical host (Vercel already sends it on
   custom domains; Netlify doesn't). Tests: redirects, API never redirected, noindex elsewhere,
-  absolute JSON-LD, inert on temporary/no-site/kill-switch servers. Runbook `docs/launch-day.md`,
+  absolute JSON-LD, inert on temporary/no-site/kill-switch servers. Runbook `docs/launch-day-netlify.md` (was `launch-day.md`),
   Step 8 routine `docs/growth-monitoring.md`.
+- **Step 7, Netlify decision** (2026-11-22): runbook rewritten for Netlify
+  (`docs/launch-day-netlify.md`, Vercel as appendix). Found and fixed a Netlify-only React
+  hydration error (#418): Netlify injects a comment into `<head>` and its badge script after
+  `</html>`; an inline guard script removes them before React starts (reproduced in a test).
+  Test that vinaycode.com stays noindex while SITE_URL is the netlify.app address. Credits
+  re-checked (300 free, alerts at 50/75/100 %, Personal $9 = 1,000, region still Pro-only),
+  monthly routine and a visitor estimate in `docs/deploy-netlify.md` §7. Speed options in
+  `docs/performance.md` (recommended if needed: database in us-east-2 next to Netlify).
