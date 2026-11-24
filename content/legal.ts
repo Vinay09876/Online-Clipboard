@@ -1,15 +1,15 @@
 /**
  * Facts shared by the Terms and Privacy pages that are NOT server config.
- * Keep them true: when hosting moves (Growth Step 5: Netlify), change HOSTING here and
- * re-read /privacy.
+ * Keep them true: when hosting moves, change HOSTING here and re-read /privacy.
+ * Since 2026-11-24 the live site runs on Netlify (Vercel is only a dormant fallback).
  */
 export const HOSTING = {
-  web: "Vercel",
+  web: "Netlify",
   data: "Supabase",
 } as const;
 
 /** Shown at the top of /terms and /privacy. Update when the text changes meaningfully. */
-export const LEGAL_LAST_UPDATED = "2026-11-22";
+export const LEGAL_LAST_UPDATED = "2026-11-24";
 
 /**
  * Owner-provided details. Every placeholder (double square brackets starting with ADD) must be

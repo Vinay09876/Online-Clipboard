@@ -214,7 +214,7 @@ function copyPasteText(f: SiteFacts): GuideBody {
         </p>
         <ol>
           <li>On your phone, open <Link href="/">Online Clipboard</Link> and paste the text into the Send box.</li>
-          <li>Tap &ldquo;Create clip&rdquo;. You get a 6-digit code and a link.</li>
+          <li>Tap &ldquo;Send&rdquo;. You get a 6-digit code and a link.</li>
           <li>On the computer, open the same site, choose Receive and type the code. The text appears, ready to copy.</li>
         </ol>
         <p>
@@ -339,7 +339,7 @@ function sendFileWithoutCable(f: SiteFacts): GuideBody {
           a risk you may not want. Temporary file sharing avoids that:
         </p>
         <ol>
-          <li>On your phone, open <Link href="/">Online Clipboard</Link>, choose the file and tap &ldquo;Create clip&rdquo;.</li>
+          <li>On your phone, open <Link href="/">Online Clipboard</Link>, choose the file and tap &ldquo;Send&rdquo;.</li>
           <li>Wait for the upload to finish. Only then do you get the 6-digit code.</li>
           <li>On the PC, open the site, choose Receive, enter the code and press Download.</li>
         </ol>

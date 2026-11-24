@@ -67,7 +67,7 @@ test("keyboard only: tab order, send text, copy, switch tabs, receive", async ({
   // 2. Send text with the keyboard.
   await page.keyboard.type("Typed with the keyboard only");
   await tabTo(page, "input-file");
-  await tabTo(page, "button:Create clip");
+  await tabTo(page, "button:Send clip");
   await page.keyboard.press("Enter");
   await expect(page.getByRole("heading", { name: "Your code" })).toBeFocused(); // focus moves to the result
   const code = (await page.getByTestId("clip-code").textContent())!.trim();
@@ -102,7 +102,7 @@ test("keyboard only: choose a file, send it, receive and download it", async ({ 
 
   // The "Remove file" button is reachable and labelled with the file name.
   await tabTo(page, "button:Remove file keyboard.txt");
-  await tabTo(page, "button:Create clip");
+  await tabTo(page, "button:Send clip");
   await page.keyboard.press("Enter");
   await expect(page.getByRole("heading", { name: "Your code" })).toBeFocused({ timeout: 60_000 });
   const code = (await page.getByTestId("clip-code").textContent())!.trim();

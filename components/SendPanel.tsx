@@ -81,7 +81,7 @@ export function SendPanel({ limits }: { limits: SendLimits }) {
   useEffect(() => () => abortUpload.current?.(), []);
 
   // Text typed (or restored by the browser) before React finished loading is in the box but
-  // not in state, which would leave "Create clip" disabled until the next keystroke. Adopt it
+  // not in state, which would leave the Send button disabled until the next keystroke. Adopt it
   // once, right after hydration. Slow phones are where this happens.
   useEffect(() => {
     const early = textareaRef.current?.value ?? "";
@@ -97,7 +97,7 @@ export function SendPanel({ limits }: { limits: SendLimits }) {
     if (error.kind === "rate_limited") {
       setBlockedUntil(Date.now() + error.retryAfterSeconds * 1000);
       if (!pending) {
-        // Nothing was created: back to the form, "Create clip" stays disabled until the wait is over.
+        // Nothing was created: back to the form, the Send button stays disabled until the wait is over.
         setState({ kind: "compose" });
         return;
       }
@@ -246,58 +246,66 @@ export function SendPanel({ limits }: { limits: SendLimits }) {
 
       <FileDropzone file={file} onChange={setFile} maxBytes={maxFileBytes} maxMb={maxFileMb} disabled={formDisabled} />
 
-      {/* Status area: progress, error, or rate-limit wait. Reserved height avoids jumps. */}
-      <div className="min-h-14 space-y-3" aria-live="polite">
-        {working && state.step === "creating" && (
-          <p className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-            <Spinner /> Creating your clip…
-          </p>
-        )}
-        {working && state.step !== "creating" && (
-          <ProgressBar
-            loaded={state.loaded}
-            total={state.total}
-            label={state.step === "completing" ? "Finishing up…" : "Uploading file…"}
-          />
-        )}
-        {state.kind === "failed" && (
-          <div className="space-y-3">
-            <div className={errorBox} role="alert">
-              <AlertIcon className="mt-0.5 size-4 shrink-0" />
-              <div>
-                <h2 ref={failedHeading} tabIndex={-1} className="font-medium focus:outline-none">
-                  {state.step === "create" ? "Couldn't create the clip" : "Couldn't finish sending the file"}
-                </h2>
-                <p>{state.message}</p>
+      {/* Reserved height (avoids jumps) shared by the status area and the expiry note. With no
+          status, the note sits centred between the drop zone and the button. Only the status
+          area is a live region; the note is static. */}
+      <div className="flex min-h-14 flex-col justify-center">
+        {/* Status area: progress, error, or rate-limit wait. */}
+        <div className="mb-3 space-y-3 empty:mb-0" aria-live="polite">
+          {working && state.step === "creating" && (
+            <p className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+              <Spinner /> Creating your clip…
+            </p>
+          )}
+          {working && state.step !== "creating" && (
+            <ProgressBar
+              loaded={state.loaded}
+              total={state.total}
+              label={state.step === "completing" ? "Finishing up…" : "Uploading file…"}
+            />
+          )}
+          {state.kind === "failed" && (
+            <div className="space-y-3">
+              <div className={errorBox} role="alert">
+                <AlertIcon className="mt-0.5 size-4 shrink-0" />
+                <div>
+                  <h2 ref={failedHeading} tabIndex={-1} className="font-medium focus:outline-none">
+                    {state.step === "create" ? "Couldn't create the clip" : "Couldn't finish sending the file"}
+                  </h2>
+                  <p>{state.message}</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {state.retryable && (
+                  <button type="button" onClick={retry} className={btnPrimary} disabled={blockedUntil !== null}>
+                    {state.step === "upload" ? "Retry upload" : "Try again"}
+                  </button>
+                )}
+                <button type="button" onClick={backToEdit} className={btnSecondary}>
+                  {state.pending ? "Start over" : "Edit"}
+                </button>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {state.retryable && (
-                <button type="button" onClick={retry} className={btnPrimary} disabled={blockedUntil !== null}>
-                  {state.step === "upload" ? "Retry upload" : "Try again"}
-                </button>
-              )}
-              <button type="button" onClick={backToEdit} className={btnSecondary}>
-                {state.pending ? "Start over" : "Edit"}
-              </button>
-            </div>
-          </div>
-        )}
-        {blockedUntil !== null && <RateLimitNotice until={blockedUntil} onDone={() => setBlockedUntil(null)} />}
+          )}
+          {blockedUntil !== null && <RateLimitNotice until={blockedUntil} onDone={() => setBlockedUntil(null)} />}
+        </div>
+
+        <p className="text-center text-xs text-zinc-600 dark:text-zinc-400">Expires {expiryMinutes} minutes after creation.</p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex justify-end">
         {working && state.step === "uploading" ? (
           <button ref={cancelButton} type="button" onClick={() => abortUpload.current?.()} className={btnSecondary}>
             Cancel upload
           </button>
         ) : (
-          <button type="submit" disabled={!canSend} className={`${btnPrimary} min-w-36`}>
+          // Visible "Send"; the accessible name "Send clip" contains it (WCAG 2.5.3) and tells it
+          // apart from the "Send" tab. While sending, the visible "Sending…" is the name.
+          <button type="submit" disabled={!canSend} aria-label={working ? undefined : "Send clip"} className={`${btnPrimary} min-w-36`}>
             {working ? <Spinner /> : null}
-            {working ? "Sending…" : "Create clip"}
+            {working ? "Sending…" : "Send"}
           </button>
         )}
-        <p className="text-xs text-zinc-600 dark:text-zinc-400">Expires {expiryMinutes} minutes after creation.</p>
       </div>
     </form>
   );

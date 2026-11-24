@@ -15,13 +15,41 @@ async function readCode(page: Page): Promise<string> {
   return code;
 }
 
+test("button labels and layout: visible 'Send'/'Get', names 'Send clip'/'Get clip', Send right-aligned under a centred note @mobile", async ({ page, consoleProblems }) => {
+  void consoleProblems;
+  await page.goto("/");
+  const send = page.getByRole("button", { name: "Send clip", exact: true });
+  await expect(send).toHaveText("Send");
+  // The Send TAB keeps its own name; the button doesn't collide with it.
+  await expect(page.getByRole("tab", { name: "Send", exact: true })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Send", exact: true })).toHaveCount(0);
+
+  // Expiry note: own line, centred, between the drop zone and the button.
+  const note = page.getByText(/^Expires \d+ minutes? after creation\.$/);
+  await expect(note).toHaveCSS("text-align", "center");
+  const panel = (await page.getByRole("tabpanel").boundingBox())!;
+  const drop = (await page.locator("label").filter({ hasText: "Add a file" }).boundingBox())!;
+  const n = (await note.boundingBox())!;
+  const b = (await send.boundingBox())!;
+  expect(n.y, "note below the drop zone").toBeGreaterThan(drop.y + drop.height);
+  expect(b.y, "button below the note").toBeGreaterThanOrEqual(n.y + n.height);
+  // Right-aligned: the button's right edge sits at the panel's content edge, far from the left.
+  expect(b.x, "button is on the right").toBeGreaterThan(panel.x + panel.width / 2 - b.width);
+  expect(panel.x + panel.width - (b.x + b.width), "button near the right edge").toBeLessThan(40);
+
+  await page.getByRole("tab", { name: "Receive" }).click();
+  const get = page.getByRole("button", { name: "Get clip", exact: true });
+  await expect(get).toHaveText("Get");
+  await expect(get).toBeDisabled();
+});
+
 test("copy code and copy link put the right text on the clipboard", async ({ page, context, browserName, consoleProblems }) => {
   test.skip(browserName !== "chromium", "Reading the clipboard needs grantPermissions, which Playwright supports only in Chromium");
   void consoleProblems;
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/");
   await page.getByLabel("Text", { exact: true }).fill("clipboard check");
-  await page.getByRole("button", { name: "Create clip" }).click();
+  await page.getByRole("button", { name: "Send clip", exact: true }).click();
   const code = await readCode(page);
 
   await page.getByRole("button", { name: "Copy code" }).click();
@@ -45,7 +73,7 @@ test("text + file together: receiver sees both and can copy the text", async ({ 
   await page.goto("/");
   await page.getByLabel("Text", { exact: true }).fill("notes\nwith two lines");
   await page.locator('input[type="file"]').setInputFiles({ name: "notes.txt", mimeType: "text/plain", buffer: Buffer.from("file body") });
-  await page.getByRole("button", { name: "Create clip" }).click();
+  await page.getByRole("button", { name: "Send clip", exact: true }).click();
   const code = await readCode(page);
 
   const recv = await context.newPage();
@@ -71,7 +99,7 @@ test("cancel an upload, then retry it successfully", async ({ page, context, bro
   await cdp.send("Network.enable");
   await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 50, downloadThroughput: -1, uploadThroughput: 100 * 1024 });
 
-  await page.getByRole("button", { name: "Create clip" }).click();
+  await page.getByRole("button", { name: "Send clip", exact: true }).click();
   await expect(page.getByRole("progressbar")).toBeVisible();
   await page.getByRole("button", { name: "Cancel upload" }).click();
   await expect(page.getByText("Upload canceled.")).toBeVisible();
@@ -94,12 +122,12 @@ test("cancel, then 'Start over' returns to the form with the file still selected
   // The UI never shows the code of an unfinished upload, so take it from the API
   // response; otherwise the pending test clip couldn't be cleaned up afterwards.
   const created = page.waitForResponse((r) => r.url().endsWith("/api/clips") && r.request().method() === "POST");
-  await page.getByRole("button", { name: "Create clip" }).click();
+  await page.getByRole("button", { name: "Send clip", exact: true }).click();
   rememberCode(((await (await created).json()) as { code: string }).code);
   await page.getByRole("button", { name: "Cancel upload" }).click();
   await page.getByRole("button", { name: "Start over" }).click();
   await expect(page.getByText("again.bin")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Create clip" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Send clip", exact: true })).toBeEnabled();
   await expect(page.getByLabel("Text", { exact: true })).toBeFocused();
   await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
 });
@@ -139,7 +167,7 @@ test("offline: friendly error, then 'Try again' works once back online", async (
   await page.goto("/");
   await page.getByLabel("Text", { exact: true }).fill("offline test");
   await context.setOffline(true);
-  await page.getByRole("button", { name: "Create clip" }).click();
+  await page.getByRole("button", { name: "Send clip", exact: true }).click();
   await expect(page.getByText("Can't reach the server. Check your connection and try again.")).toBeVisible();
   await context.setOffline(false);
   await page.getByRole("button", { name: "Try again" }).click();
@@ -169,14 +197,14 @@ test("keyboard: tabs with arrow keys; code boxes ignore letters, Backspace and a
   await expect(box(2)).toBeFocused();
   await page.keyboard.press("ArrowLeft");
   await expect(box(1)).toBeFocused();
-  await expect(page.getByRole("button", { name: "Get clip" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Get clip", exact: true })).toBeDisabled();
 });
 
 test("'Send another' and 'Get another clip' reset and move focus", async ({ page, context, ip, consoleProblems }) => {
   void consoleProblems;
   await page.goto("/");
   await page.getByLabel("Text", { exact: true }).fill("reset test");
-  await page.getByRole("button", { name: "Create clip" }).click();
+  await page.getByRole("button", { name: "Send clip", exact: true }).click();
   const code = await readCode(page);
 
   const recv = await context.newPage();
@@ -185,7 +213,7 @@ test("'Send another' and 'Get another clip' reset and move focus", async ({ page
   await recv.getByRole("button", { name: "Get another clip" }).click();
   await expect(recv.getByRole("textbox", { name: "Digit 1 of 6" })).toBeFocused();
   await expect(recv.getByRole("textbox", { name: "Digit 1 of 6" })).toHaveValue("");
-  // Typing it again works (and the Get clip button is an alternative to auto-fetch).
+  // Typing it again works (and the Get button is an alternative to auto-fetch).
   await typeCode(recv, code);
   await expect(recv.getByRole("textbox", { name: "Text" })).toHaveText("reset test");
   await recv.close();
@@ -193,7 +221,7 @@ test("'Send another' and 'Get another clip' reset and move focus", async ({ page
   await page.getByRole("button", { name: "Send another" }).click();
   await expect(page.getByLabel("Text", { exact: true })).toHaveValue("");
   await expect(page.getByLabel("Text", { exact: true })).toBeFocused();
-  await expect(page.getByRole("button", { name: "Create clip" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Send clip", exact: true })).toBeDisabled();
 });
 
 test("maximum text: 100,000 characters, counter turns red, extra input is cut off, round-trips", async ({ page, context, ip, consoleProblems }) => {
@@ -204,7 +232,7 @@ test("maximum text: 100,000 characters, counter turns red, extra input is cut of
   await ta.fill(big + "OVERFLOW");
   await expect(page.getByText("100,000 / 100,000")).toBeVisible();
   expect((await ta.inputValue()).length).toBe(100_000);
-  await page.getByRole("button", { name: "Create clip" }).click();
+  await page.getByRole("button", { name: "Send clip", exact: true }).click();
   const code = await readCode(page);
 
   const recv = await context.newPage();
@@ -229,11 +257,11 @@ test("unknown page shows a 404 with the site footer", async ({ page, consoleProb
   await expect(page.getByRole("navigation", { name: "Site" }).getByRole("link", { name: "Privacy" })).toBeVisible();
 });
 
-test("whitespace-only text can't be sent; 'Get clip' button fetches like auto-fetch @mobile", async ({ page, consoleProblems }) => {
+test("whitespace-only text can't be sent; the 'Get' button fetches like auto-fetch @mobile", async ({ page, consoleProblems }) => {
   void consoleProblems;
   await page.goto("/");
   await page.getByLabel("Text", { exact: true }).fill("   \n  ");
-  await expect(page.getByRole("button", { name: "Create clip" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Send clip", exact: true })).toBeDisabled();
 
   await page.getByRole("tab", { name: "Receive" }).click();
   const code = await unusedCode();
@@ -252,6 +280,6 @@ test("text typed before the page finished loading is kept and can be sent (slow 
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.locator("textarea").first().fill("typed early");
   // Once React is ready, the early text counts: the button is enabled without another keystroke.
-  await expect(page.getByRole("button", { name: "Create clip" })).toBeEnabled({ timeout: 15_000 });
+  await expect(page.getByRole("button", { name: "Send clip", exact: true })).toBeEnabled({ timeout: 15_000 });
   await expect(page.getByText("11 / 100,000")).toBeVisible();
 });

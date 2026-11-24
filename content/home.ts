@@ -65,7 +65,7 @@ export function homeContent(f: HomeFacts): HomeContent {
       steps: [
         {
           title: "Paste or drop",
-          text: `Type or paste text, add one file, or both. Then press "Create clip".`,
+          text: `Type or paste text, add one file, or both. Then press "Send".`,
         },
         {
           title: "Get a 6-digit code",

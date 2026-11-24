@@ -66,7 +66,7 @@ for (const m of MODES) {
     await expect(page.getByText("notes.txt")).toBeVisible();
     await expectNoViolations(page, `send, file chosen (${tag})`);
 
-    await page.getByRole("button", { name: "Create clip" }).click();
+    await page.getByRole("button", { name: "Send clip", exact: true }).click();
     const code = (await page.getByTestId("clip-code").textContent({ timeout: 60_000 }))!.trim();
     rememberCode(code);
     await expectNoViolations(page, `send, result with code (${tag})`);
@@ -81,7 +81,7 @@ for (const m of MODES) {
     await page
       .locator('input[type="file"]')
       .setInputFiles({ name: "photo.jpg", mimeType: "image/jpeg", buffer: Buffer.from("not really a jpeg") });
-    await page.getByRole("button", { name: "Create clip" }).click();
+    await page.getByRole("button", { name: "Send clip", exact: true }).click();
     const code = (await page.getByTestId("clip-code").textContent({ timeout: 60_000 }))!.trim();
     rememberCode(code);
 

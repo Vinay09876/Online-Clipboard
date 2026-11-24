@@ -163,8 +163,9 @@ export function ReceivePanel({ maxFileMb, ref }: { maxFileMb: number; ref?: Reac
 
       {/* Visible submit for keyboard users who prefer Enter / a button. */}
       <div className="flex justify-center">
-        <button type="submit" className={btnSecondary} disabled={busy || blocked || !digits.every((d) => d)}>
-          Get clip
+        {/* Visible "Get"; the accessible name "Get clip" contains it (WCAG 2.5.3). */}
+        <button type="submit" aria-label="Get clip" className={btnSecondary} disabled={busy || blocked || !digits.every((d) => d)}>
+          Get
         </button>
       </div>
     </form>

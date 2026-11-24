@@ -10,7 +10,7 @@
 
 Tab order on the home page (from `e2e/keyboard.spec.ts`): Skip to content → Online Clipboard
 (home) → Guides → About → Contact → Dark theme → Send/Receive tab → Text box → Add a file →
-Create clip → … → "On this page" links → FAQ questions → footer links.
+Send clip (the Send button) → … → "On this page" links → FAQ questions → footer links.
 
 Automated checks find roughly a third to a half of real problems. The screen-reader script
 below covers what they can't: whether announcements make sense when you can't see the page.
@@ -42,7 +42,7 @@ For each step, write ✅ if NVDA says roughly what's in quotes, or note what it 
 ### 2. Send text
 1. Tab to "Send, tab, selected, 1 of 2", then **Tab** to the text box: "Text, edit, multi line".
 2. Type a sentence. The character counter is not read on every key (good); Tab back and forth to hear it.
-3. **Tab** to "Create clip, button" → **Enter**.
+3. **Tab** to "Send clip, button" → **Enter**.
 4. ✅ NVDA moves to and reads "**Your code**, heading", then you can read the 6 digits
    ("Code 1 2 3 4 5 6") and the countdown ("Expires in 29:58").
 5. **Tab** to "Copy code, button" → **Enter** → ✅ "**Copied to clipboard**" is announced
@@ -98,6 +98,6 @@ emulators don't use the real OS file picker, share sheet or clipboard rules:
 | Text typed before the page finished loading left "Create clip" disabled until the next keystroke | all, showed up in WebKit (slower start) | **Fixed** (`SendPanel.tsx`), regression test in `ui-extra.spec.ts` |
 | File names with accents download as `_` (e.g. `report (1) _.bin`) | Playwright's WebKit on Windows | The server sends the correct UTF-8 name (`filename*=`); Chromium and Firefox use it. **Check on a real iPhone** with a file named e.g. `café.txt` |
 | Tab skips links (incl. "Skip to content") | Safari/WebKit | Safari's default (turn on "Press Tab to highlight each item", or use Option+Tab). Not ours to change |
-| "Create clip" ends ~46 px below the first screen | iPhone 13-sized (390×664 visible) | Fine on Pixel 7. **Owner decision**: leave, or tighten the space above the tool |
+| The Send button ends ~46 px below the first screen | iPhone 13-sized (390×664 visible) | Fine on Pixel 7. **Owner decision**: leave, or tighten the space above the tool |
 | Clipboard copy and upload cancel/retry not covered | Firefox, WebKit | The tests use Chromium-only tools (clipboard permission, DevTools throttling). **Check copy buttons by hand** on Safari/Firefox |
 | Pasting a code not covered | Firefox | Synthetic paste events carry no data in Firefox. **Check by hand** |

@@ -52,17 +52,17 @@ test("sections exist in order, each an h2-labelled section; one h1; no heading j
 
 test("the tool is fully above the fold on load @mobile", async ({ page, consoleProblems }, testInfo) => {
   void consoleProblems;
-  // Known (Step 6 report): on an iPhone 13-sized screen (390×664 visible) "Create clip" ends
+  // Known (Step 6 report): on an iPhone 13-sized screen (390×664 visible) the Send button ends
   // ~46 px below the fold. Tightening the layout is a design decision left to the owner.
   test.skip(testInfo.project.name === "iphone", "known: ~46 px below the fold on iPhone 13 (see docs/accessibility.md)");
   await page.goto("/");
   const viewport = page.viewportSize()!;
-  for (const target of [page.getByRole("tab", { name: "Send" }), page.getByRole("button", { name: "Create clip" })]) {
+  for (const target of [page.getByRole("tab", { name: "Send" }), page.getByRole("button", { name: "Send clip", exact: true })]) {
     const box = (await target.boundingBox())!;
     expect(box.y + box.height, "visible without scrolling").toBeLessThanOrEqual(viewport.height);
   }
   const content = (await page.locator("#how-it-works").boundingBox())!;
-  expect(content.y, "content starts below the tool").toBeGreaterThan((await page.getByRole("button", { name: "Create clip" }).boundingBox())!.y);
+  expect(content.y, "content starts below the tool").toBeGreaterThan((await page.getByRole("button", { name: "Send clip", exact: true }).boundingBox())!.y);
 });
 
 test("FAQ items open and close with mouse and keyboard; all answers are in the HTML", async ({ page, request, consoleProblems }) => {

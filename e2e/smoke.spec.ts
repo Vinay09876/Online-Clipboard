@@ -8,7 +8,7 @@ test.afterAll(deleteCreatedClips);
 async function sendText(page: import("@playwright/test").Page, text: string): Promise<string> {
   if (new URL(page.url(), "http://x").pathname !== "/" || page.url() === "about:blank") await page.goto("/");
   await page.getByLabel("Text", { exact: true }).fill(text);
-  await page.getByRole("button", { name: "Create clip" }).click();
+  await page.getByRole("button", { name: "Send clip", exact: true }).click();
   const code = (await page.getByTestId("clip-code").textContent())!.trim();
   expect(code).toMatch(/^\d{6}$/);
   rememberCode(code);
@@ -20,7 +20,7 @@ test("text: send, then receive by typing the code and via a #link @mobile", asyn
   const text = `Hello from Playwright\n  indented line <b>not html</b> ${Date.now()}`;
 
   await page.goto("/");
-  await expect(page.getByRole("button", { name: "Create clip" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Send clip", exact: true })).toBeDisabled();
   await page.getByLabel("Text", { exact: true }).fill(text);
   await expect(page.getByText(`${text.length} / 100,000`)).toBeVisible();
   const code = await sendText(page, text);
@@ -56,7 +56,7 @@ test("file: send with progress bar, receive, download identical bytes", async ({
   await expect(page.getByText(name)).toBeVisible();
   await expect(page.getByText("6.0 MB")).toBeVisible();
 
-  await page.getByRole("button", { name: "Create clip" }).click();
+  await page.getByRole("button", { name: "Send clip", exact: true }).click();
   // Progress is shown, the Cancel button is offered, and no code is shown before complete.
   await expect(page.getByRole("progressbar")).toBeVisible();
   await expect(page.getByRole("button", { name: "Cancel upload" })).toBeVisible();
@@ -91,7 +91,7 @@ test("client-side file checks: empty file and too-large file are rejected", asyn
   await expect(page.getByRole("alert").filter({ hasText: '"empty.txt" is empty' })).toBeVisible();
   await input.setInputFiles({ name: "huge.bin", mimeType: "application/octet-stream", buffer: Buffer.alloc(25 * 1024 * 1024 + 1) });
   await expect(page.getByRole("alert").filter({ hasText: "The limit is 25 MB" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Create clip" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Send clip", exact: true })).toBeDisabled();
 });
 
 test("wrong code shows 'not found', clears the boxes and refocuses", async ({ page, consoleProblems }) => {
