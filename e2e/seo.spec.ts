@@ -164,16 +164,25 @@ test("@real canonical, Open Graph and Twitter URLs are absolute; pages are index
   }
 });
 
+/** Real <script type="application/ld+json"> tags of an HTML response (attributes + parsed JSON). */
+function jsonLdTags(html: string) {
+  // Matches real tags only (the string also appears inside Next.js's own inline page data, escaped).
+  return [...html.matchAll(/<script type="application\/ld\+json"([^>]*)>([\s\S]*?)<\/script>/g)].map((m) => ({
+    attrs: m[1],
+    data: JSON.parse(m[2]) as Record<string, unknown>,
+  }));
+}
+
 test("@real JSON-LD WebApplication: valid JSON, expected fields, carries the CSP nonce", async ({ page, request, consoleProblems }) => {
   void consoleProblems;
   const res = await request.get("/");
   const html = await res.text();
   const nonce = /'nonce-([^']+)'/.exec(res.headers()["content-security-policy"] ?? "")?.[1];
-  const tag = /<script type="application\/ld\+json"([^>]*)>([\s\S]*?)<\/script>/.exec(html);
-  expect(tag, "JSON-LD script present").toBeTruthy();
-  expect(/nonce="([^"]+)"/.exec(tag![1])?.[1]).toBe(nonce);
+  const tags = jsonLdTags(html);
+  expect(tags.length, "JSON-LD scripts present").toBeGreaterThan(0);
+  for (const t of tags) expect(/nonce="([^"]+)"/.exec(t.attrs)?.[1], `${t.data["@type"]} nonce`).toBe(nonce);
 
-  const data = JSON.parse(tag![2]);
+  const data = tags.find((t) => t.data["@type"] === "WebApplication")!.data;
   expect(data).toMatchObject({
     "@context": "https://schema.org",
     "@type": "WebApplication",
@@ -184,17 +193,39 @@ test("@real JSON-LD WebApplication: valid JSON, expected fields, carries the CSP
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
   });
   expect(typeof data.description).toBe("string");
-  // Count real tags (the string also appears inside Next.js's own inline page data).
-  // Two blocks since Step 2: WebApplication + FAQPage (the FAQ is checked in home-content.spec.ts).
-  const types = [...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map(
-    (m) => JSON.parse(m[1])["@type"],
-  );
-  expect(types).toEqual(["WebApplication", "FAQPage"]);
+  // Three blocks: WebSite (site name) + WebApplication + FAQPage (the FAQ is checked in home-content.spec.ts).
+  expect(tags.map((t) => t.data["@type"])).toEqual(["WebSite", "WebApplication", "FAQPage"]);
 
   // Also visible to the browser as valid JSON.
   await page.goto("/");
-  const inPage = await page.locator('script[type="application/ld+json"]').first().textContent();
-  expect(JSON.parse(inPage!)["@type"]).toBe("WebApplication");
+  const inPage = await page.locator('script[type="application/ld+json"]').evaluateAll((els) => els.map((e) => JSON.parse(e.textContent!)["@type"]));
+  expect(inPage).toEqual(["WebSite", "WebApplication", "FAQPage"]);
+});
+
+test("@real JSON-LD WebSite (site name): exactly one on the home page, exact values, none on other pages", async ({ request }) => {
+  const home = jsonLdTags(await (await request.get("/")).text());
+  const sites = home.filter((t) => t.data["@type"] === "WebSite");
+  expect(sites).toHaveLength(1);
+  // Exact object: no extra or missing keys. url = SITE_URL + "/" (production: https://online-clipboard.vinaycode.com/).
+  expect(sites[0].data).toEqual({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Online Clipboard",
+    alternateName: ["VinayCode Clipboard"],
+    url: `${REAL}/`,
+  });
+  // No WebSite node nested anywhere else in the home page's JSON-LD either.
+  expect(JSON.stringify(home.map((t) => t.data)).match(/"@type":"WebSite"/g)).toHaveLength(1);
+
+  for (const path of [...SITE_PAGES.map((p) => p.path).filter((p) => p !== "/"), "/no-such-page"]) {
+    const html = await (await request.get(path)).text();
+    expect(JSON.stringify(jsonLdTags(html).map((t) => t.data)), `${path}: no WebSite node`).not.toContain('"WebSite"');
+  }
+});
+
+test("@nosite no SITE_URL: the home page has no WebSite node (it needs an absolute URL)", async ({ request }) => {
+  const types = jsonLdTags(await (await request.get("/")).text()).map((t) => t.data["@type"]);
+  expect(types).toEqual(["WebApplication", "FAQPage"]);
 });
 
 test("@real JSON-LD serializer escapes '<' so nothing can close the script tag", () => {

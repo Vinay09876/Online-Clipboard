@@ -11,6 +11,11 @@
  * URLs, robots, sitemap, HSTS, and that /api/* is never redirected:
  *   npm run smoke:prod -- --canonical https://online-clipboard.vinaycode.com --legacy https://vinaycode.com --legacy https://online-clipboard-tool.netlify.app
  *
+ * Ads must be off. Both "not configured" (/ads.txt 404) and "AdSense review" (ADSENSE_CLIENT_ID set,
+ * ADS_ENABLED off: /ads.txt + matching meta tag, no ad code) pass; scripts/smoke-ads.ts has the rules.
+ * In the review state, also check the root domain's /ads.txt (AdSense reads it there for a subdomain site):
+ *   npm run smoke:prod -- --canonical https://online-clipboard.vinaycode.com --ads-txt-origin https://vinaycode.com
+ *
  * Safe for production: it creates a few tiny text clips and one tiny file clip, which expire
  * on their own. The IP-spoofing check at the end deliberately trips the failed-lookup limit,
  * which LOCKS YOUR OWN IP out of code lookups for up to 10 minutes (sending and the rest of
@@ -21,24 +26,31 @@
  */
 import { randomBytes } from "node:crypto";
 import { isTemporaryHost } from "../lib/site";
+import { evaluateAds } from "./smoke-ads";
 
 const args = process.argv.slice(2);
 /** Values that follow a flag (e.g. --legacy https://x.vercel.app, may repeat). */
 const flagValues = (flag: string) => args.flatMap((a, i) => (a === flag && args[i + 1] ? [args[i + 1]] : []));
 const CANONICAL = flagValues("--canonical")[0]?.replace(/\/+$/, "");
 const LEGACY = flagValues("--legacy").map((u) => u.replace(/\/+$/, ""));
-const flagged = new Set([...flagValues("--canonical"), ...flagValues("--legacy")]);
-const baseArg = CANONICAL ?? args.find((a) => /^https?:\/\//.test(a) && !flagged.has(a));
+/** Root domain whose /ads.txt AdSense reads for a subdomain site (checked only in the AdSense review state). */
+const ADS_TXT_ORIGIN = flagValues("--ads-txt-origin")[0]?.replace(/\/+$/, "");
+/** The plain base URL: the first URL argument that isn't the value of a flag (by position, not by text). */
+const VALUE_FLAGS = new Set(["--canonical", "--legacy", "--ads-txt-origin", "--lookup-limit"]);
+const baseArg = CANONICAL ?? args.find((a, i) => /^https?:\/\//.test(a) && !VALUE_FLAGS.has(args[i - 1]));
 const skipSpoof = args.includes("--skip-spoof-test");
 const limitIdx = args.indexOf("--lookup-limit");
 const LOOKUP_LIMIT = limitIdx >= 0 ? Number(args[limitIdx + 1]) : 10;
 /** Must match RATE_LIMIT_WINDOW_SECONDS on the server (default 600). */
 const WINDOW_SECONDS = 600;
 
-if (!baseArg || !Number.isInteger(LOOKUP_LIMIT) || LOOKUP_LIMIT < 1) {
+const badAdsTxtOrigin =
+  args.includes("--ads-txt-origin") && !(ADS_TXT_ORIGIN && /^https?:\/\/[^/?#\s]+$/.test(ADS_TXT_ORIGIN));
+if (!baseArg || !Number.isInteger(LOOKUP_LIMIT) || LOOKUP_LIMIT < 1 || badAdsTxtOrigin) {
   console.error(
     "Usage: npm run smoke:prod -- <baseUrl> [--skip-spoof-test] [--lookup-limit N]\n" +
-      "       npm run smoke:prod -- --canonical https://yourdomain.com [--legacy https://old.vercel.app] [--skip-spoof-test]",
+      "       npm run smoke:prod -- --canonical https://yourdomain.com [--legacy https://old.vercel.app] [--skip-spoof-test]\n" +
+      "       add --ads-txt-origin https://rootdomain.com (an origin, no path) to also check the root domain's /ads.txt",
   );
   process.exit(2);
 }
@@ -194,9 +206,28 @@ async function main() {
     explain("The proxy reads SITE_URL/ALLOW_INDEXING differently from the pages. On Netlify, give these variables");
     explain('the scope "All scopes" (or at least Functions + Runtime) and redeploy.');
   }
+  // Ads must be off. Two valid states: not configured, or AdSense review (client ID set, ADS_ENABLED off).
   const adsTxt = await call("GET", "/ads.txt");
-  check(adsTxt.status === 404, "/ads.txt -> 404 while ads are off", adsTxt.status);
-  check(!/adsbygoogle|google-adsense-account/.test(home.text + guide.text), "no ad code or AdSense meta tag on pages");
+  let apexAdsTxt: { origin: string; res: { status: number; text: string; location: string | null } } | null = null;
+  if (ADS_TXT_ORIGIN) {
+    try {
+      const r = await fetch(`${ADS_TXT_ORIGIN}/ads.txt`, { redirect: "manual", signal: AbortSignal.timeout(20_000) });
+      apexAdsTxt = { origin: ADS_TXT_ORIGIN, res: { status: r.status, text: await r.text(), location: r.headers.get("location") } };
+    } catch (e) {
+      // Status 0 = no answer; evaluateAds reports it as a failure in the review state.
+      apexAdsTxt = { origin: ADS_TXT_ORIGIN, res: { status: 0, text: String(e), location: null } };
+    }
+  }
+  const ads = evaluateAds(
+    { status: adsTxt.status, text: adsTxt.text, location: adsTxt.headers.get("location") },
+    [
+      { label: "page /", html: home.text, csp: home.headers.get("content-security-policy") ?? "" },
+      { label: "guide page", html: guide.text, csp: guide.headers.get("content-security-policy") ?? "" },
+    ],
+    apexAdsTxt,
+  );
+  for (const line of ads.info) console.log(`  info  ${line}`);
+  for (const c of ads.checks) check(c.ok, c.label, c.detail);
 
   if (CANONICAL) await checkRealDomain();
 

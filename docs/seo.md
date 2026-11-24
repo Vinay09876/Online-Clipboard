@@ -40,7 +40,7 @@ image and link, and the site still stays out of search engines because the host 
 | `lib/site.ts` | `SITE_URL` parsing, `INDEXABLE`, `absoluteUrl()`, `pageUrls()` (canonical + Open Graph + Twitter per page), `serializeJsonLd()`, site name/description |
 | `lib/sitePages.ts` | **The one list of public pages** → sitemap. Add every new public page here. |
 | `app/layout.tsx` | `metadataBase`, title template (`%s \| Online Clipboard`), default description, robots meta, Open Graph/Twitter defaults; skip link, header/main/footer landmarks |
-| `app/page.tsx` | home: the one `<h1>`, canonical, JSON-LD `WebApplication` (with the CSP nonce) |
+| `app/page.tsx` | home: the one `<h1>`, canonical, JSON-LD `WebSite` (site name "Online Clipboard", alternate "VinayCode Clipboard"; only when `SITE_URL` is set, home page only), `WebApplication`, `FAQPage` (all with the CSP nonce) |
 | `app/robots.ts`, `app/sitemap.ts` | robots.txt and sitemap.xml (rendered per request) |
 | `app/opengraph-image.tsx` | 1200×630 share image (built once with `next/og`, bundled font, no external assets) |
 | `app/icon.svg`, `app/favicon.ico`, `app/apple-icon.png`, `public/icon-*.png` | icons; PNG/ICO generated from the SVG with `npm run icons:generate` |

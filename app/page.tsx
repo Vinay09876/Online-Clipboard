@@ -29,6 +29,18 @@ export default async function Home() {
   const content = homeContent(getSiteFacts());
 
   // Structured data for search engines. Static, server-built values only.
+  // WebSite: Google reads the site name shown in results from this node on the home page
+  // (developers.google.com/search/docs/appearance/site-names). Omitted without SITE_URL:
+  // the node needs the absolute home URL.
+  const webSite = SITE_ORIGIN
+    ? {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: SITE_NAME,
+        alternateName: ["VinayCode Clipboard"],
+        url: `${SITE_ORIGIN}/`,
+      }
+    : null;
   const webApp = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
@@ -54,7 +66,7 @@ export default async function Home() {
 
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 px-4 pb-10 pt-5 sm:pt-6">
-      <JsonLd data={[webApp, faqPage]} />
+      <JsonLd data={webSite ? [webSite, webApp, faqPage] : [webApp, faqPage]} />
 
       <div className="mb-5 space-y-2 text-center">
         <h1 className="tracking-tight">
