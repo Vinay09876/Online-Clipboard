@@ -10,6 +10,7 @@
 
 import { CLAIMS, trackingClaims } from "./claims";
 import { fmt as n, plural } from "./text";
+import { SITE_NAME } from "@/lib/site";
 
 /** Values read from server config (lib/facts.ts, via app/page.tsx). */
 export type HomeFacts = {
@@ -61,7 +62,7 @@ export function homeContent(f: HomeFacts): HomeContent {
       id: "how-it-works",
       title: "How it works",
       intro:
-        "Online Clipboard is a quick way to share text between phone and computer, or between any two devices with a browser. There is nothing to install and no account to create.",
+        `${SITE_NAME} is a quick way to share text between phone and computer, or between any two devices with a browser. There is nothing to install and no account to create.`,
       steps: [
         {
           title: "Paste or drop",
@@ -147,7 +148,7 @@ export function homeContent(f: HomeFacts): HomeContent {
       title: "Frequently asked questions",
       items: [
         {
-          question: "Is Online Clipboard free?",
+          question: `Is ${SITE_NAME} free?`,
           answer: [
             [
               "Yes. There is no charge and no paid plan. It runs on free hosting, so in rare cases uploads or downloads may pause for a while if the monthly limits are reached.",
@@ -226,6 +227,6 @@ export function homeContent(f: HomeFacts): HomeContent {
       ],
     },
 
-    closing: ["By using Online Clipboard you agree to the ", terms, ". What happens to your data is explained in the ", privacyPolicy, "."],
+    closing: [`By using ${SITE_NAME} you agree to the `, terms, ". What happens to your data is explained in the ", privacyPolicy, "."],
   };
 }

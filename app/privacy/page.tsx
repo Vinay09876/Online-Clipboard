@@ -13,12 +13,12 @@ import { CLAIMS, trackingClaims } from "@/content/claims";
 import { HOSTING, LEGAL_LAST_UPDATED, OWNER } from "@/content/legal";
 import { getSiteFacts, plural } from "@/lib/facts";
 import { adsActive } from "@/lib/ads";
-import { pageUrls } from "@/lib/site";
+import { SITE_NAME, pageUrls } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Privacy policy",
   description: trackingClaims(adsActive()).privacyMeta,
-  ...pageUrls("/privacy", "Privacy policy | Online Clipboard"),
+  ...pageUrls("/privacy", `Privacy policy | ${SITE_NAME}`),
 };
 
 export default function PrivacyPage() {
@@ -33,12 +33,12 @@ export default function PrivacyPage() {
         { name: "Privacy policy", path: "/privacy" },
       ]}
       title="Privacy policy"
-      lead="What happens to your data when you use Online Clipboard, in plain language."
+      lead={`What happens to your data when you use ${SITE_NAME}, in plain language.`}
       meta={`Last updated ${LEGAL_LAST_UPDATED}`}
     >
       <h2>Who is responsible</h2>
       <p>
-        Online Clipboard is run by {OWNER.name}. Questions about this policy go through the{" "}
+        {SITE_NAME} is run by {OWNER.name}. Questions about this policy go through the{" "}
         <Link href="/contact">Contact page</Link>.
       </p>
 

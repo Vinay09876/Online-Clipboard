@@ -37,7 +37,7 @@ export default async function Home() {
         "@context": "https://schema.org",
         "@type": "WebSite",
         name: SITE_NAME,
-        alternateName: ["VinayCode Clipboard"],
+        alternateName: ["Online Clipboard"],
         url: `${SITE_ORIGIN}/`,
       }
     : null;
@@ -70,9 +70,9 @@ export default async function Home() {
 
       <div className="mb-5 space-y-2 text-center">
         <h1 className="tracking-tight">
-          <span className="block text-2xl font-bold sm:text-3xl">Online Clipboard</span>
+          <span className="block text-2xl font-bold sm:text-3xl">{SITE_NAME}</span>
           <span className="mt-1 block text-base font-medium text-zinc-700 sm:text-lg dark:text-zinc-300">
-            Share text and files with a 6-digit code
+            Online clipboard: share text and files with a <span className="whitespace-nowrap">6-digit code</span>
           </span>
         </h1>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">

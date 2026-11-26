@@ -9,7 +9,7 @@ export const HOSTING = {
 } as const;
 
 /** Shown at the top of /terms and /privacy. Update when the text changes meaningfully. */
-export const LEGAL_LAST_UPDATED = "2026-11-24";
+export const LEGAL_LAST_UPDATED = "2026-11-26";
 
 /**
  * Owner-provided details. Every placeholder (double square brackets starting with ADD) must be

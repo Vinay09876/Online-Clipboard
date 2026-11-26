@@ -5,13 +5,13 @@ import { AdSlot } from "@/components/ads/AdSlot";
 import { ContentPage } from "@/components/ContentPage";
 import { GUIDES, GUIDE_CATEGORIES, guidePath } from "@/content/guides/index";
 import { adPageMetadata } from "@/lib/ads";
-import { pageUrls } from "@/lib/site";
+import { SITE_NAME, pageUrls } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Guides",
   description:
     "Practical, honest guides for moving text, files and photos between phones and computers, and for using an online clipboard safely.",
-  ...pageUrls("/guides", "Guides | Online Clipboard"),
+  ...pageUrls("/guides", `Guides | ${SITE_NAME}`),
   ...adPageMetadata(),
 };
 

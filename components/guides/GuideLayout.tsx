@@ -82,7 +82,7 @@ export function GuideLayout({
       {notRightFor}
 
       <p className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
-        Want to try it? <Link href="/">Open Online Clipboard</Link>. No account needed.
+        Want to try it? <Link href="/">Open {SITE_NAME}</Link>. No account needed.
       </p>
 
       {sources.length > 0 && (

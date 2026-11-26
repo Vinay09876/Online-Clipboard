@@ -57,7 +57,7 @@ and menu names when you do it.
 > | `SITE_URL` | `https://online-clipboard.vinaycode.com` |
 > | `LEGACY_HOSTS` | `vinaycode.com,www.vinaycode.com,online-clipboard-tool.netlify.app,online-clipboard-rose.vercel.app` |
 > | Clean-up URL (Vault `cleanup_url_netlify`, later `cleanup_url`) | `https://online-clipboard.vinaycode.com/api/cron/cleanup` |
-> | Search Console | **Domain** property `vinaycode.com` (DNS TXT in Netlify DNS; covers the subdomain); sitemap `https://online-clipboard.vinaycode.com/sitemap.xml` |
+> | Search Console | **Domain** property `vinaycode.com` (DNS TXT, now in Cloudflare DNS; covers the subdomain); sitemap `https://online-clipboard.vinaycode.com/sitemap.xml` |
 > | Uptime monitors | `https://online-clipboard.vinaycode.com/api/health` (15 min) and `/api/health/cleanup` (30 min) |
 > | ads.txt (Step 9) | served at `https://vinaycode.com/ads.txt` (root domain, never redirected) and on the subdomain |
 > | Smoke test | `npm run smoke:prod -- --canonical https://online-clipboard.vinaycode.com --legacy https://vinaycode.com --legacy https://online-clipboard-tool.netlify.app` |

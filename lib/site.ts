@@ -201,8 +201,8 @@ export function serializeJsonLd(data: unknown): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");
 }
 
-export const SITE_NAME = "Online Clipboard";
-export const DEFAULT_TITLE = "Online Clipboard: share text and files with a 6-digit code";
+export const SITE_NAME = "EasyOnlinePaste";
+export const DEFAULT_TITLE = `${SITE_NAME} – Online Clipboard with a 6-Digit Code`;
 export const SITE_DESCRIPTION =
   "Free online clipboard: paste text or drop a file, get a 6-digit code, and open it on any other device. " +
   "No account needed. Clips are deleted automatically.";

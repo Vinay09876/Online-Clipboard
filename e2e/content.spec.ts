@@ -67,12 +67,15 @@ test("no double spaces or doubled words", async ({ page }) => {
   expect(problems).toEqual([]);
 });
 
-test("the product name is written one way: Online Clipboard", async ({ page }) => {
+test("the product name is written one way: EasyOnlinePaste", async ({ page }) => {
   for (const path of PAGES) {
     const { visible, title, description } = await textOf(page, path);
     const all = `${title}\n${description}\n${visible}`;
-    expect(all, path).not.toMatch(/OnlineClipboard|Online-Clipboard|online Clipboard|ONLINE CLIPBOARD/);
-    expect(title, `${path}: title names the site`).toMatch(/Online Clipboard/);
+    // Any spelling of the brand other than exactly "EasyOnlinePaste" (spaces, hyphens, other case), and the old name used as a brand.
+    const variants = (all.match(/easy[\s-]*online[\s-]*paste/gi) ?? []).filter((m) => m !== "EasyOnlinePaste");
+    expect(variants, path).toEqual([]);
+    expect(all, path).not.toMatch(/OnlineClipboard|Online-Clipboard|online Clipboard|ONLINE CLIPBOARD|VinayCode Clipboard/);
+    expect(title, `${path}: title names the site`).toMatch(/EasyOnlinePaste/);
   }
 });
 

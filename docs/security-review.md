@@ -3,6 +3,7 @@
 Scope: the live architecture as verified on 2026-11-23: Netlify Free (functions in Ohio) with
 vinaycode.com on Netlify DNS, still `noindex` (SITE_URL = the netlify.app address); Vercel as
 fallback; Supabase in Mumbai with `db/005` applied; ads off; no analytics.
+(History: DNS has since moved to Cloudflare; current setup in `docs/launch-day-netlify.md`.)
 
 ## Findings
 
@@ -255,7 +256,7 @@ No gaps in our own messages were found.
 | Decision | Outcome | Status |
 |---|---|---|
 | **D1** guessing | **Yes.** IPv6 grouped by **/56** (code, active on deploy). **Global failed-lookup ceiling**: above 300 site-wide failures in a 10-min window, 3 per client instead of 10 (`db/006_lookup_ceiling.sql`, additive; active once applied; until then the app uses the 005 functions, so no ceiling). Settings `RATE_LIMIT_GLOBAL_LOOKUP_FAILURES` / `RATE_LIMIT_LOOKUP_FAILURES_STRICT` | Code + tests done; **006 waits for your approval** |
-| **D2** edge rate limit | **Yes.** `netlify.toml`: 100 requests/min per IP (per domain) on `/api/*` | Code done; **needs the deploy test below** |
+| **D2** edge rate limit | **Yes.** `netlify.toml`: 100 requests/min per IP (per domain) on `/api/*` | Code done. Verified 2026-11-26: 200 parallel requests to /api/clips/abc from one IP → 148 × 400, 52 × 429; edge rate limit active (approximate, as expected for a distributed edge). |
 | **D3** risky files | **Yes, warning only.** Receivers of `.exe .msi .bat .cmd .com .scr .pif .cpl .dll .reg .lnk .ps1 .psm1 .vbs .vbe .js .jse .wsf .wsh .hta .jar .apk .sh .dmg .pkg .app` see: "This is a program or script file (.exe). Opening it can change or harm your device. Only open it if you know and trust the person who sent it." No blocking; archives aren't flagged | Done (`lib/fileRisk.ts`, `ReceivePanel`; tests incl. axe) |
 | **D4** delete-now button | Approved in principle, **after launch**. Design and `db/006` *proposal* below stay as they are (the proposal will be renumbered `007`, since `006` is now the lookup ceiling). Terms/Privacy/FAQ unchanged | Not implemented |
 | **D5** analytics | Wait until Step 9 | — |

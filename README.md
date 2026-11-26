@@ -1,4 +1,6 @@
-# Online Clipboard
+# EasyOnlinePaste
+
+A free online clipboard: share text and one file between devices with a 6-digit code.
 
 Share text or a file between devices with a **6-digit code**. Paste or drop something on
 one device, type the code (or open the link) on another. Everything expires and is

@@ -251,7 +251,7 @@ test("unknown page shows a 404 with the site footer", async ({ page, consoleProb
   const res = await page.goto("/this-page-does-not-exist");
   expect(res?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
-  await page.getByRole("link", { name: "Go to Online Clipboard" }).click();
+  await page.getByRole("link", { name: "Go to EasyOnlinePaste" }).click();
   await expect(page.getByRole("tab", { name: "Send" })).toBeVisible();
   await page.goBack();
   await expect(page.getByRole("navigation", { name: "Site" }).getByRole("link", { name: "Privacy" })).toBeVisible();

@@ -5,21 +5,35 @@
 `vinaycode.com` is a **domain alias** on the same Netlify project. Vercel is a temporary fallback,
 retired after a stable week (section h).
 
-**State on 2026-11-23 (verified):** the latest code runs on Netlify; vinaycode.com uses **Netlify
-DNS** (nameservers moved from Porkbun); both names have HTTPS; everything is still **noindex**
+**State on 2026-11-23 (verified; history):** the latest code runs on Netlify; vinaycode.com used **Netlify
+DNS** at the time (nameservers moved from Porkbun); both names have HTTPS; everything is still **noindex**
 because `SITE_URL` is the netlify.app address. Sections a-d are done; **e ("the flip")** is next,
 after the Step 7c changes are deployed (section 0).
+
+**DNS since 2026-11-26:** vinaycode.com's nameservers are **Cloudflare's**
+(`albert.ns.cloudflare.com`, `alexandra.ns.cloudflare.com`). Every record is **"DNS only"** (grey
+cloud: Cloudflare only answers DNS, it does not proxy traffic):
+
+| Name | Type | Target |
+|---|---|---|
+| `online-clipboard` | CNAME | `online-clipboard-tool.netlify.app` |
+| `@` (vinaycode.com) | CNAME (flattened) | `online-clipboard-tool.netlify.app` |
+| `www` | CNAME | `online-clipboard-tool.netlify.app` |
+| `@` | TXT | `google-site-verification=…` (kept; Search Console Domain property) |
+
+The Netlify DNS zone was deleted. Netlify's Let's Encrypt certificate covers
+`online-clipboard.vinaycode.com`, `vinaycode.com` and `www.vinaycode.com`.
 
 ## Words you'll meet (one sentence each)
 
 - **Domain**: the name you rent, here `vinaycode.com` (from Porkbun, the **registrar**).
 - **Subdomain**: a name in front of it, here `online-clipboard.vinaycode.com`; you can make as many as you like.
 - **DNS**: the internet's phone book; it tells browsers which server answers for a name.
-- **Nameservers**: the servers that hold that phone book; for vinaycode.com they are now **Netlify's** (Netlify DNS), so records are managed in Netlify, not Porkbun.
+- **Nameservers**: the servers that hold that phone book; for vinaycode.com they are now **Cloudflare's** (since 2026-11-26; before that Netlify DNS), so records are managed in Cloudflare, not Porkbun or Netlify.
 - **DNS record / TXT record**: one line in the phone book; a TXT line holds text, e.g. Google's ownership proof.
 - **Primary domain**: the address Netlify treats as the main one (`online-clipboard.vinaycode.com`).
 - **Domain alias**: another name that serves the same site (`vinaycode.com`); Netlify does **not** redirect aliases by itself, our code does.
-- **HTTPS certificate**: the padlock; Netlify gets it from Let's Encrypt automatically.
+- **HTTPS certificate**: the padlock; Netlify gets it from Let's Encrypt automatically (it covers `online-clipboard.vinaycode.com`, `vinaycode.com` and `www.vinaycode.com`).
 - **301 redirect**: "moved permanently"; browsers and Google follow it to the new address.
 - **noindex**: a label that tells search engines "don't list this page".
 - **Canonical**: the one official address of a page that search engines should list.
@@ -30,16 +44,17 @@ after the Step 7c changes are deployed (section 0).
 |---|---|---|
 | `https://online-clipboard.vinaycode.com/...` | served, noindex | **served, indexable** |
 | `https://vinaycode.com/guides` | served, noindex (Netlify doesn't redirect aliases) | **301 → online-clipboard.vinaycode.com/guides** (our code, `LEGACY_HOSTS`) |
-| `https://www.vinaycode.com/...` | **301 by Netlify** → online-clipboard.vinaycode.com (every path, `/api` too) | same (Netlify); our code would also 301 it as a backup |
+| `https://www.vinaycode.com/...` | 2026-11-23 (Netlify DNS, history): **301 by Netlify** → online-clipboard.vinaycode.com, every path, `/api` too. **Observed 2026-11-26 (Cloudflare DNS):** `/` → **301** → `https://online-clipboard.vinaycode.com/`; `/api/health` → **200**, served on www, **not redirected** | pages 301 to the canonical host (our code, `LEGACY_HOSTS`); `/api` served, never redirected |
 | `http://...` | 301 → https (Netlify) | same |
 | `https://online-clipboard-tool.netlify.app/guides` | served, noindex | **301 → online-clipboard.vinaycode.com** (our code) |
 | Deploy previews / other `*.netlify.app` names | noindex | noindex |
 | **`/api/*` on vinaycode.com, the netlify.app name** | served | **served, never redirected by our code** |
 | `vinaycode.com/ads.txt` | 404 (no AdSense yet) | served on the bare domain itself, never redirected (AdSense reads it there) |
 
-**www.vinaycode.com:** you don't need to add it as an alias: Netlify already answers it and
-301s it to the primary domain. Because that Netlify redirect also applies to `/api`, **never
-point a job or monitor at `www.`**.
+**www.vinaycode.com** (observed 2026-11-26, Cloudflare DNS): it answers over HTTPS; the home page
+301s to the canonical host, but `/api/*` is served on www itself (200, not redirected). Which layer
+sends the page 301 (Netlify or our code) was not confirmed. Still **point jobs and monitors only at
+`online-clipboard.vinaycode.com`**, never at `www.` or the bare domain.
 
 ---
 
@@ -54,7 +69,7 @@ point a job or monitor at `www.`**.
 
 ## a-c. Done
 
-Latest code deployed, measured, and the domain connected with HTTPS (Netlify DNS). Environment
+Latest code deployed, measured, and the domain connected with HTTPS (Netlify DNS at the time; Cloudflare DNS since 2026-11-26). Environment
 variables on Netlify are as listed in `docs/deploy-netlify.md` §3 plus `HOSTING_PROVIDER=netlify`.
 
 ## d. Check it is NOT indexable yet (YOU, 1 min, any time before the flip)
@@ -150,7 +165,7 @@ Sources: [Ads.txt FAQs](https://support.google.com/adsense/answer/9785052),
 |---|---|
 | Something looks wrong after the flip | Netlify env `ALLOW_INDEXING=false` → Trigger deploy: every page noindex at once, redirects keep working. Remove it later. |
 | Undo the flip, stay on Netlify | `SITE_URL` back to `https://online-clipboard-tool.netlify.app`, delete `LEGACY_HOSTS`, Trigger deploy. |
-| Netlify down, too slow or out of credits ("Site not available") | Vercel runs the same code. 1) Vercel → **Settings → Domains → Add** `online-clipboard.vinaycode.com` and note the record it wants (a CNAME). 2) Netlify DNS → vinaycode.com → change the `online-clipboard` record to Vercel's value (or move nameservers back to Porkbun and add it there). 3) Vercel env: `SITE_URL=https://online-clipboard.vinaycode.com`, `LEGACY_HOSTS=online-clipboard-rose.vercel.app`, Redeploy. 4) Clean-up URLs already use the canonical name, so they follow DNS. 5) `npm run smoke:prod -- --canonical https://online-clipboard.vinaycode.com`. Not confirmed: whether Netlify DNS keeps answering while the account is paused. If it doesn't, move the nameservers back to Porkbun (Porkbun → Domain Management → vinaycode.com → **Authoritative Nameservers** → Porkbun's defaults) and add the records there. |
+| Netlify down, too slow or out of credits ("Site not available") | Vercel runs the same code. 1) Vercel → **Settings → Domains → Add** `online-clipboard.vinaycode.com` and note the record it wants (a CNAME). 2) Cloudflare → vinaycode.com → **DNS → Records** → change the `online-clipboard` CNAME to Vercel's value (keep it "DNS only"). 3) Vercel env: `SITE_URL=https://online-clipboard.vinaycode.com`, `LEGACY_HOSTS=online-clipboard-rose.vercel.app`, Redeploy. 4) Clean-up URLs already use the canonical name, so they follow DNS. 5) `npm run smoke:prod -- --canonical https://online-clipboard.vinaycode.com`. DNS is on Cloudflare, so it keeps answering even if the Netlify account is paused. |
 
 ---
 

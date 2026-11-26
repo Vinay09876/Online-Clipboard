@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentPage } from "@/components/ContentPage";
 import { getSiteFacts } from "@/lib/facts";
-import { pageUrls } from "@/lib/site";
+import { SITE_NAME, pageUrls } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "How to reach Online Clipboard: abuse reports, removal requests and questions. Email only, no forms.",
-  ...pageUrls("/contact", "Contact | Online Clipboard"),
+  description: `How to reach ${SITE_NAME}: abuse reports, removal requests and questions. Email only, no forms.`,
+  ...pageUrls("/contact", `Contact | ${SITE_NAME}`),
 };
 
 /**
@@ -24,7 +24,7 @@ export default function ContactPage() {
         { name: "Contact", path: "/contact" },
       ]}
       title="Contact"
-      lead="Online Clipboard is a small, non-commercial project. Email is the only way to reach us."
+      lead={`${SITE_NAME} is a small hobby project run by one person. Email is the only way to reach us.`}
     >
       <h2>Email</h2>
       {contactEmail ? (

@@ -1,11 +1,12 @@
 import { ImageResponse } from "next/og";
+import { DEFAULT_TITLE, SITE_NAME } from "@/lib/site";
 
 /**
  * Social share image (1200×630), generated at build time with next/og.
  * Uses next/og's bundled default font: no external fonts or images are fetched.
  * Used for /, and inherited by pages that don't define their own.
  */
-export const alt = "Online Clipboard: share text and files with a 6-digit code";
+export const alt = DEFAULT_TITLE;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -41,7 +42,7 @@ export default function OpengraphImage() {
           >
             #
           </div>
-          <div style={{ fontSize: 44, fontWeight: 700 }}>Online Clipboard</div>
+          <div style={{ fontSize: 44, fontWeight: 700 }}>{SITE_NAME}</div>
         </div>
         <div style={{ marginTop: 40, fontSize: 60, fontWeight: 700, lineHeight: 1.15, maxWidth: 1000 }}>
           Share text and files with a 6-digit code

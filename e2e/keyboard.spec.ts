@@ -59,7 +59,7 @@ test("keyboard only: tab order, send text, copy, switch tabs, receive", async ({
 
   // 1. Order from the top of the page: skip link first, then header, then the tool.
   const stops = await tabTo(page, "textbox:Text");
-  const links = ["link:Skip to content", "link:Online Clipboard", "link:Guides", "link:About", "link:Contact"];
+  const links = ["link:Skip to content", "link:EasyOnlinePaste", "link:Guides", "link:About", "link:Contact"];
   // Safari (WebKit) skips links when tabbing unless the user turns on "Press Tab to highlight
   // each item" (or uses Option+Tab): platform behaviour, not ours.
   expect(stops).toEqual([...(browserName === "webkit" ? [] : links), "button:Dark theme", "tab:Send", "textbox:Text"]);

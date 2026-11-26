@@ -11,6 +11,7 @@ import type { ReactNode } from "react";
 import { CLAIMS, trackingClaims } from "@/content/claims";
 import { fmt, plural } from "@/content/text";
 import type { SiteFacts } from "@/lib/facts";
+import { SITE_NAME } from "@/lib/site";
 
 export type Source = { title: string; href: string };
 export type GuideBody = {
@@ -213,7 +214,7 @@ function copyPasteText(f: SiteFacts): GuideBody {
           A website like this one needs no app and no sign-in on either device:
         </p>
         <ol>
-          <li>On your phone, open <Link href="/">Online Clipboard</Link> and paste the text into the Send box.</li>
+          <li>On your phone, open <Link href="/">{SITE_NAME}</Link> and paste the text into the Send box.</li>
           <li>Tap &ldquo;Send&rdquo;. You get a 6-digit code and a link.</li>
           <li>On the computer, open the same site, choose Receive and type the code. The text appears, ready to copy.</li>
         </ol>
@@ -339,7 +340,7 @@ function sendFileWithoutCable(f: SiteFacts): GuideBody {
           a risk you may not want. Temporary file sharing avoids that:
         </p>
         <ol>
-          <li>On your phone, open <Link href="/">Online Clipboard</Link>, choose the file and tap &ldquo;Send&rdquo;.</li>
+          <li>On your phone, open <Link href="/">{SITE_NAME}</Link>, choose the file and tap &ldquo;Send&rdquo;.</li>
           <li>Wait for the upload to finish. Only then do you get the 6-digit code.</li>
           <li>On the PC, open the site, choose Receive, enter the code and press Download.</li>
         </ol>
@@ -606,7 +607,7 @@ function tooBigForEmail(f: SiteFacts): GuideBody {
 
         <h2>Where a temporary file-sharing site fits</h2>
         <p>
-          Online Clipboard is not a large-file service. It takes one file of up to {f.maxFileMb} MB, and the file is deleted{" "}
+          {SITE_NAME} is not a large-file service. It takes one file of up to {f.maxFileMb} MB, and the file is deleted{" "}
           {minutes} after you create the clip. That suits a file that is slightly too big for an attachment and needs to reach
           someone right now, while you can tell them the code directly. For anything bigger, or anything that must wait for the
           recipient, use a share link from a cloud drive.
@@ -723,7 +724,7 @@ function sharedComputer(f: SiteFacts): GuideBody {
           settings.
         </p>
 
-        <h2>Where Online Clipboard fits</h2>
+        <h2>Where {SITE_NAME} fits</h2>
         <p>
           It needs no sign-in on the shared computer: you create the clip on your phone and type the code there. Keep in mind
           that the clip can be opened by anyone with the code until it expires {minutes} after you created it, and that it is
@@ -848,7 +849,7 @@ function iphonePhotosToWindows(f: SiteFacts): GuideBody {
 
         <h2>Just one or two photos?</h2>
         <p>
-          For a single photo, a cable is overkill. You can email it to yourself, or use Online Clipboard: choose the photo on
+          For a single photo, a cable is overkill. You can email it to yourself, or use {SITE_NAME}: choose the photo on
           the iPhone, create a clip, and enter the code on the PC. One file per clip, up to {f.maxFileMb} MB, gone after{" "}
           {minutes}.
         </p>
@@ -1282,7 +1283,7 @@ function codeSnippets(f: SiteFacts): GuideBody {
         <ol>
           <li>On the phone, copy the snippet from where it lives (the app, the log viewer, the documentation).</li>
           <li>
-            Paste it into <Link href="/">Online Clipboard</Link> and create a clip. Line breaks, tabs and spaces are stored as
+            Paste it into <Link href="/">{SITE_NAME}</Link> and create a clip. Line breaks, tabs and spaces are stored as
             they are, and the text is shown in a monospace font on the receiving side.
           </li>
           <li>On the computer, enter the code and use the Copy text button rather than selecting the text by hand.</li>
@@ -1559,7 +1560,7 @@ function whatIsIt(f: SiteFacts): GuideBody {
           It shines for small, short-lived, low-risk hand-offs: a link onto a borrowed laptop, a file onto a print-shop computer,
           a paragraph from phone to PC. It is the wrong place for anything secret, because {CLAIMS.encryption.charAt(0).toLowerCase()}
           {CLAIMS.encryption.slice(1)} It is also the wrong place for anything you want to keep. If you want to see it in action,
-          the <Link href="/">Online Clipboard home page</Link> has the tool and a short FAQ.
+          the <Link href="/">{SITE_NAME} home page</Link> has the tool and a short FAQ.
         </p>
       </>
     ),

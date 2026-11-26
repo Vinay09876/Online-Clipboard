@@ -142,8 +142,8 @@ test("@real sitemap is valid XML with absolute URLs for every public page", asyn
 test("@real canonical, Open Graph and Twitter URLs are absolute; pages are indexable", async ({ page, consoleProblems }) => {
   void consoleProblems;
   for (const { path, title } of [
-    { path: "/", title: "Online Clipboard: share text and files with a 6-digit code" },
-    { path: "/terms", title: "Terms of use | Online Clipboard" },
+    { path: "/", title: "EasyOnlinePaste – Online Clipboard with a 6-Digit Code" },
+    { path: "/terms", title: "Terms of use | EasyOnlinePaste" },
   ]) {
     const res = await page.goto(path);
     expect(res!.headers()["x-robots-tag"], `${path}: no X-Robots-Tag`).toBeUndefined();
@@ -156,7 +156,8 @@ test("@real canonical, Open Graph and Twitter URLs are absolute; pages are index
     const og = async (p: string) => page.locator(`meta[property="og:${p}"]`).getAttribute("content");
     expect(new URL((await og("url"))!).toString()).toBe(new URL(path, `${REAL}/`).toString());
     expect(await og("title")).toBe(title);
-    expect(await og("site_name")).toBe("Online Clipboard");
+    expect(await og("site_name")).toBe("EasyOnlinePaste");
+    expect(await page.locator('meta[name="application-name"]').getAttribute("content")).toBe("EasyOnlinePaste");
     expect(await og("type")).toBe("website");
     expect(await og("image")).toMatch(new RegExp(`^${REAL}/opengraph-image`));
     expect(await page.locator('meta[name="twitter:card"]').getAttribute("content")).toBe("summary_large_image");
@@ -186,7 +187,7 @@ test("@real JSON-LD WebApplication: valid JSON, expected fields, carries the CSP
   expect(data).toMatchObject({
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "Online Clipboard",
+    name: "EasyOnlinePaste",
     url: `${REAL}/`,
     applicationCategory: "UtilitiesApplication",
     operatingSystem: "Any",
@@ -210,8 +211,8 @@ test("@real JSON-LD WebSite (site name): exactly one on the home page, exact val
   expect(sites[0].data).toEqual({
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Online Clipboard",
-    alternateName: ["VinayCode Clipboard"],
+    name: "EasyOnlinePaste",
+    alternateName: ["Online Clipboard"],
     url: `${REAL}/`,
   });
   // No WebSite node nested anywhere else in the home page's JSON-LD either.
@@ -239,7 +240,7 @@ test("@real semantic HTML: one h1, landmarks, skip link, no heading-level jumps"
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("h1")).toHaveCount(1);
-  await expect(page.locator("h1")).toHaveText(/Online Clipboard\s*Share text and files with a 6-digit code/);
+  await expect(page.locator("h1")).toHaveText(/EasyOnlinePaste\s*Online clipboard: share text and files with a 6-digit code/);
   await expect(page.getByRole("banner")).toHaveCount(1);
   await expect(page.getByRole("main")).toHaveCount(1);
   await expect(page.getByRole("contentinfo")).toHaveCount(1);
@@ -280,7 +281,7 @@ test("@real icons, manifest and share image are served locally", async ({ reques
     expect(r.headers()["content-type"], path).toContain(type);
   }
   const manifest = await (await request.get("/manifest.webmanifest")).json();
-  expect(manifest).toMatchObject({ name: "Online Clipboard", start_url: "/", display: "standalone" });
+  expect(manifest).toMatchObject({ name: "EasyOnlinePaste", short_name: "EasyOnlinePaste", start_url: "/", display: "standalone" });
   for (const icon of manifest.icons) {
     expect(icon.src).toMatch(/^\/[^/]/); // local path, never an external URL
     expect((await request.get(icon.src)).status()).toBe(200);

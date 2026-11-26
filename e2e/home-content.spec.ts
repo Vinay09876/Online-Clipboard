@@ -46,8 +46,8 @@ test("sections exist in order, each an h2-labelled section; one h1; no heading j
   for (let i = 1; i < levels.length; i++) expect(levels[i]).toBeLessThanOrEqual(levels[i - 1] + 1);
 
   // Closing line links to the terms.
-  await expect(page.getByText("By using Online Clipboard you agree to the").getByRole("link", { name: "Terms of use" })).toHaveAttribute("href", "/terms");
-  await expect(page.getByText("By using Online Clipboard you agree to the").getByRole("link", { name: "Privacy policy" })).toHaveAttribute("href", "/privacy");
+  await expect(page.getByText("By using EasyOnlinePaste you agree to the").getByRole("link", { name: "Terms of use" })).toHaveAttribute("href", "/terms");
+  await expect(page.getByText("By using EasyOnlinePaste you agree to the").getByRole("link", { name: "Privacy policy" })).toHaveAttribute("href", "/privacy");
 });
 
 test("the tool is fully above the fold on load @mobile", async ({ page, consoleProblems }, testInfo) => {

@@ -4,6 +4,7 @@
  * Change wording here; check docs/content-guidelines.md first.
  */
 import { plural } from "./text";
+import { SITE_NAME } from "@/lib/site";
 
 /**
  * How often the scheduled clean-up job runs, in minutes. NOT read from code: it is the
@@ -47,7 +48,7 @@ export function trackingClaims(adsActive: boolean) {
         /** /about meta description ending. */
         aboutMeta: "no accounts, and no ads in the tool",
         /** /privacy meta description. */
-        privacyMeta: "What Online Clipboard stores, for how long, and how the ads on guide pages use cookies.",
+        privacyMeta: `What ${SITE_NAME} stores, for how long, and how the ads on guide pages use cookies.`,
         /** "Is an online clipboard safe?" guide, "Little data about you." */
         guide: "No accounts, and no ads inside the tool itself.",
       }
@@ -55,7 +56,7 @@ export function trackingClaims(adsActive: boolean) {
         home: "No accounts, no cookies, no analytics.",
         about: "No cookies, no analytics, no tracking scripts.",
         aboutMeta: "no accounts, no tracking",
-        privacyMeta: "What Online Clipboard stores, for how long, and what it never collects: no accounts, no cookies, no analytics.",
+        privacyMeta: `What ${SITE_NAME} stores, for how long, and what it never collects: no accounts, no cookies, no analytics.`,
         guide: "No accounts, cookies or analytics.",
       };
 }

@@ -11,12 +11,12 @@ import { ContentPage } from "@/components/ContentPage";
 import { CLAIMS } from "@/content/claims";
 import { LEGAL_LAST_UPDATED, OWNER } from "@/content/legal";
 import { getSiteFacts, plural } from "@/lib/facts";
-import { pageUrls } from "@/lib/site";
+import { SITE_NAME, pageUrls } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Terms of use", // → "Terms of use | Online Clipboard" via the layout template
-  description: "The plain-language terms for using Online Clipboard: what you may share, how long clips last, and limits.",
-  ...pageUrls("/terms", "Terms of use | Online Clipboard"),
+  title: "Terms of use", // → "Terms of use | EasyOnlinePaste" via the layout template
+  description: `The plain-language terms for using ${SITE_NAME}: what you may share, how long clips last, and limits.`,
+  ...pageUrls("/terms", `Terms of use | ${SITE_NAME}`),
 };
 
 export default function TermsPage() {
@@ -30,13 +30,13 @@ export default function TermsPage() {
         { name: "Terms of use", path: "/terms" },
       ]}
       title="Terms of use"
-      lead="The short version, in plain language. By using Online Clipboard you agree to these terms."
+      lead={`The short version, in plain language. By using ${SITE_NAME} you agree to these terms.`}
       meta={`Last updated ${LEGAL_LAST_UPDATED}`}
     >
       <h2>What this is</h2>
       <p>
-        Online Clipboard lets you share text or one file (up to {f.maxFileMb} MB) using a 6-digit code. It is a free,
-        non-commercial hobby project run by {OWNER.name}.
+        {SITE_NAME} lets you share text or one file (up to {f.maxFileMb} MB) using a 6-digit code. It is free to
+        use and is a small hobby project run by {OWNER.name}.
       </p>
 
       <h2>What you may not share</h2>

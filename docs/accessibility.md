@@ -8,7 +8,7 @@
 | **Keyboard only** | `e2e/keyboard.spec.ts` | Tab order from the top, a visible focus indicator on every stop, send text, copy code (announced), switch tabs with arrow keys, receive by typing, choose/remove/send a file, download with Enter, wrong code announced as an alert and focus returned |
 | Headings, landmarks, skip link, FAQ keyboard, focus after actions | `e2e/seo.spec.ts`, `e2e/home-content.spec.ts`, `e2e/ui-extra.spec.ts` | Structure and focus management |
 
-Tab order on the home page (from `e2e/keyboard.spec.ts`): Skip to content → Online Clipboard
+Tab order on the home page (from `e2e/keyboard.spec.ts`): Skip to content → EasyOnlinePaste
 (home) → Guides → About → Contact → Dark theme → Send/Receive tab → Text box → Add a file →
 Send clip (the Send button) → … → "On this page" links → FAQ questions → footer links.
 
@@ -32,9 +32,9 @@ boxes), **Insert + Down arrow** (read from here), **Ctrl** (stop speaking). NVDA
 For each step, write ✅ if NVDA says roughly what's in quotes, or note what it said instead.
 
 ### 1. Page structure (home page)
-1. Open the site. NVDA reads the page title: "Online Clipboard: share text and files…".
+1. Open the site. NVDA reads the page title: "EasyOnlinePaste – Online Clipboard with a 6-Digit Code".
 2. Press **Tab** once: "Skip to content, link". Press **Enter**: focus moves to the main content.
-3. Press **H** a few times: "Online Clipboard … heading level 1", then the section headings
+3. Press **H** a few times: "EasyOnlinePaste Online clipboard: share text and files… heading level 1", then the section headings
    (How it works, Privacy and security, Frequently asked questions…). No heading is skipped.
 4. Press **D** a few times: banner, navigation "Main", main, navigation "On this page",
    content info (footer). Each region has a sensible name.
@@ -71,7 +71,7 @@ For each step, write ✅ if NVDA says roughly what's in quotes, or note what it 
 2. Home page FAQ: press **H** to "Frequently asked questions", then **Tab** to a question:
    "… button collapsed" → **Enter** → "expanded", and the answer can be read.
 3. Open **Guides** and one guide: **H** jumps through the sections; links say where they go
-   ("Open Online Clipboard", the official help page names), never "click here".
+   ("Open EasyOnlinePaste", the official help page names), never "click here".
 
 **Report back:** the list of steps with ✅ or what NVDA said. Anything confusing or silent is worth fixing.
 

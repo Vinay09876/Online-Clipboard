@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SITE_NAME } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Page not found",
@@ -18,7 +19,7 @@ export default function NotFound() {
         href="/"
         className="mt-6 inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
       >
-        Go to Online Clipboard
+        Go to {SITE_NAME}
       </Link>
     </div>
   );

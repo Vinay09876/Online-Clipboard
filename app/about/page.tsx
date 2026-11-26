@@ -5,13 +5,13 @@ import { CLAIMS, trackingClaims } from "@/content/claims";
 import { OWNER } from "@/content/legal";
 import { fmt, getSiteFacts, plural } from "@/lib/facts";
 import { adsActive } from "@/lib/ads";
-import { pageUrls } from "@/lib/site";
+import { SITE_NAME, pageUrls } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "About",
   description:
-    `What Online Clipboard is, why it exists, how it works, and what it deliberately does not do: ${trackingClaims(adsActive()).aboutMeta}.`,
-  ...pageUrls("/about", "About | Online Clipboard"),
+    `What ${SITE_NAME} is, why it exists, how it works, and what it deliberately does not do: ${trackingClaims(adsActive()).aboutMeta}.`,
+  ...pageUrls("/about", `About | ${SITE_NAME}`),
 };
 
 export default function AboutPage() {
@@ -24,18 +24,18 @@ export default function AboutPage() {
         { name: "Home", path: "/" },
         { name: "About", path: "/about" },
       ]}
-      title="About Online Clipboard"
+      title={`About ${SITE_NAME}`}
       lead="A small, free tool for moving text and files between devices with a 6-digit code."
     >
       <h2>What it is</h2>
       <p>
-        Online Clipboard is a website for quick hand-offs: a link from your phone to your laptop, a document to a
+        {SITE_NAME} is a website for quick hand-offs: a link from your phone to your laptop, a document to a
         library computer, a long address to the person next to you. You paste text or add one file, get a code, and
         open it on the other device. No app, no account.
       </p>
 
       <h2>Who runs it, and why</h2>
-      <p>Online Clipboard is a non-commercial hobby project run by {OWNER.name}.</p>
+      <p>{SITE_NAME} is a small hobby project run by {OWNER.name}.</p>
       <p>I built this because I kept emailing files to myself just to open them on another computer.</p>
 
       <h2>How it works</h2>
