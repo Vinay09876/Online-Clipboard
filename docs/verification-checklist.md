@@ -196,3 +196,173 @@ and OS version you tested with.
   > "Windows can keep a clipboard history you open with Windows key + V, and can sync copied text between your own devices when you sign in with the same account"
 - [ ] Universal Clipboard between nearby Apple devices on one Apple Account.
   > "Apple's Universal Clipboard shares copies between nearby Apple devices on the same Apple Account"
+
+## 13. Convert HEIC photos to JPG (`/guides/convert-heic-to-jpg`)
+
+- [ ] Mac Preview: File > Export offers JPEG in the Format menu, with a quality setting.
+  > "Click the Format menu and choose JPEG."
+- [ ] Finder quick action Convert Image exists (and where: directly under Quick Actions or under More). Note the macOS version.
+  > "Control-click them and choose Quick Actions, then Convert Image (on some versions it sits under More)."
+- [ ] Photos for Mac: Export Photos with Photo Kind JPEG; the arrow shows quality and size.
+  > "Set Photo Kind to JPEG; the arrow next to it reveals quality and size options."
+- [ ] iPhone share sheet Options > Most Compatible really sends a JPEG (send one to a PC and check the extension).
+  > "Choose Most Compatible, which Apple says may convert files to JPEG or MOV, then tap Close and share as usual"
+- [ ] iPhone camera setting Formats > Most Compatible; existing photos stay HEIC.
+  > "In Settings, open Camera, then Formats, and choose Most Compatible."
+  > "Photos already in your library stay as they are, and the new ones take up more storage."
+- [ ] Keep Originals under Settings > Apps > Photos (USB import to a PC gives HEIC only when it is on).
+  > "Apple notes that photos imported into a PC may be converted to JPEG unless you turned on Keep Originals (Settings > Apps > Photos)."
+- [ ] Windows 11: confirm that neither Photos nor Paint offers a documented HEIC-to-JPG save. If one does, the guide can say so (with an official source).
+  > "Microsoft's own help pages don't describe a built-in way to save a HEIC as a JPG, so we won't promise one."
+- [ ] Converted JPEG is larger than the HEIC (compare one photo).
+  > "HEIC was designed to save space, so the JPEG copy is usually bigger, sometimes much bigger."
+
+## 14. Send files and text between Android and iPhone (`/guides/send-files-between-android-and-iphone`)
+
+- [ ] Quick Share to iPhone via AirDrop on a supported Android phone (note the model; the list changes).
+  > "Google says some Android phones can now send to an iPhone through AirDrop: Pixel 8a or later, and certain models from Samsung, Oppo, OnePlus, Vivo, Xiaomi, Honor, Transsion and Motorola."
+  > "On the iPhone, set AirDrop to receive from Everyone for 10 Minutes."
+- [ ] Quick Share QR code to an iPhone: download in the browser, available for 24 hours.
+  > "Google says the files are end-to-end encrypted, stored on Google's servers and available for 24 hours, and both phones need internet access."
+- [ ] RCS on iPhone: switch under Settings > Apps > Messages; high-resolution photos to an Android phone.
+  > "It needs a carrier that supports RCS on iPhone; you turn it on in Settings > Apps > Messages"
+- [ ] WhatsApp document limit 2 GB.
+  > "WhatsApp allows documents up to 2 GB"
+- [ ] Google Photos Get link opens on a device without the app.
+  > "In Google Photos, Share and then Get link creates an album link that opens without the app"
+- [ ] Android Switch: Google says to turn off iMessage first.
+  > "Google also advises turning off iMessage first."
+- [ ] Bluetooth file transfer between iPhone and Android: confirm it doesn't work (no official instructions exist).
+  > "It is tempting to pair the two phones and send over Bluetooth, but we found no Apple or Google instructions for sending files between an iPhone and an Android phone that way."
+
+## 15. Send files from a PC to your phone (`/guides/send-files-from-pc-to-phone`)
+
+- [ ] Quick Share for Windows: right-click > Send with Quick Share; PIN shown; accept on the phone.
+  > "Right-clicking a file and choosing Send with Quick Share also works."
+- [ ] USB to Android: File Transfer mode opens a window for the phone on the PC.
+  > "A window for the phone opens on the PC."
+- [ ] Phone Link drag and drop to Android (supported models only, same Wi-Fi); file lands in Download.
+  > "Microsoft limits this to selected models, mainly Samsung, and both devices must be on the same Wi-Fi"
+- [ ] Bluetooth from Windows 11: Settings path and "Send files" wizard.
+  > "With the phone paired, open Settings > Bluetooth & devices > Devices"
+- [ ] iCloud for Windows: a file in the iCloud Drive folder appears in the iPhone's Files app.
+  > "Files you put in the iCloud Drive folder in File Explorer appear in the Files app on the iPhone"
+- [ ] Apple Devices app: Files section only with file-sharing apps; Add File copies to the iPhone.
+  > "This only works with apps that support file sharing; if there is no Files section, none are installed"
+- [ ] Phone Link Send Files in the Start menu works with an iPhone.
+  > "Microsoft describes a Send Files option in the Start menu's mobile device panel that works with Android phones and iPhones"
+- [ ] AirDrop Mac to iPhone: range and automatic accept with the same Apple Account.
+  > "Apple says the devices need to be within 10 metres (30 feet) of each other"
+- [ ] Mac to Android: still no official direct route from Google.
+  > "Google's USB instructions cover Windows and Chromebook, and the Quick Share computer app is for Windows."
+- [ ] Windows Nearby sharing cannot send to a phone.
+  > "Microsoft describes it for sharing between Windows PCs, not phones"
+- [ ] Quick Share received files are in a Quick Share folder under Downloads.
+  > "Quick Share saves into its own folder there."
+
+## 16. Scan a document with your phone and send it as a PDF (`/guides/scan-document-to-pdf-with-phone`)
+
+- [ ] iPhone Notes: Attachments button > Scan Documents; Keep Scan; result is a PDF in the note.
+  > "Tap the Attachments button and choose Scan Documents."
+  > "Drag the corners to fit the page if needed, then tap Keep Scan."
+  > "Apple says the document is saved as a PDF in the note."
+- [ ] Sharing a single scan from Notes through its menu (copy, share, rename, delete).
+  > "To send the PDF, use the scan's menu in the note, where Apple lists options to copy, share, rename or delete it"
+- [ ] Files app scanner: More button > Scan Documents, then choose a folder and Save. Note which file type it saves.
+  > "tap the More button there, choose Scan Documents, then pick a folder and tap Save."
+- [ ] Google Drive scan: Camera button at the bottom right (Drive is getting a new multi-page scanner, so labels may change).
+  > "Open the Google Drive app and tap the Camera button at the bottom right."
+  > "Google says Drive saves scans as searchable PDFs"
+- [ ] Files by Google: Scan saves PDFs in Documents > Scanned.
+  > "Google says these scans are saved as PDFs automatically, in a Scanned folder you reach through Documents"
+- [ ] Mail Drop limits (5 GB, 30 days).
+  > "Mail Drop handles larger attachments, up to 5 GB, with links that expire after 30 days"
+- [ ] Markup can add a signature to a scanned PDF.
+  > "Apple's Markup tools can add one to a PDF"
+- [ ] Markup box is not redaction: draw a box over text in a scanned PDF, save, reopen, and check whether the box can be moved or removed.
+  > "Drawing a box over it afterwards in a markup tool is not a reliable way to hide it"
+
+## 17. Move files between a Mac and a Windows PC (`/guides/move-files-between-mac-and-windows-pc`)
+
+- [ ] Mac File Sharing with SMB and Windows File Sharing for your account.
+  > "Under Windows File Sharing, select your user account, enter its password, and click OK, then Done."
+- [ ] The PC finds the Mac under Network in File Explorer and asks for the Mac account.
+  > "On the PC, open File Explorer, click Network, double-click the Mac, and sign in with the Mac account's name and password."
+- [ ] Windows 11 menu for sharing a folder.
+  > "right-click the folder, choose Show more options, then Give access to, then Specific people"
+  > "If File Explorer says network discovery is off, select that message and turn on network discovery and file sharing"
+- [ ] Sharing works with the PC's network set to private (and what happens on public).
+  > "Microsoft's sharing steps assume the PC treats that network as private (a home network) rather than public."
+- [ ] Mac connects to the PC's shared folder.
+  > "type smb://computername/sharename in the Server Address field"
+- [ ] Drive formats: FAT/ExFAT work on both; NTFS is read-only on the Mac.
+  > "Apple lists MS-DOS (FAT) and ExFAT as the formats compatible with Windows, and suggests FAT for drives of 32 GB or less and ExFAT for larger ones"
+  > "Apple says a Mac might be able to read NTFS but not write to it"
+- [ ] Reformatting a drive as ExFAT in Disk Utility, then using it on Windows.
+  > "in Disk Utility, choose View > Show All Devices, select the drive, click Erase, and choose ExFAT as the format"
+- [ ] Pages/Numbers files: exporting to PDF or Word/Excel format first opens fine on Windows.
+  > "Exporting to PDF or a Word or Excel format before you move them avoids that."
+
+## 18. Share a Wi-Fi password from your phone (`/guides/share-wifi-password-from-phone`)
+
+- [ ] iPhone one-tap sharing: contacts requirement and the Share Password prompt.
+  > "Each person has the other's Apple Account email address or phone number saved in Contacts."
+  > "A prompt appears on your iPhone: tap Share Password, then Done."
+- [ ] Mac shares a Wi-Fi password through a notification.
+  > "it shows a Wi-Fi password notification and you confirm it"
+- [ ] iPhone Passwords app: Show Network QR Code (scan it with an Android phone and an iPhone).
+  > "open it, tap Wi-Fi, choose the network, and tap Show Network QR Code for the visitor to scan"
+- [ ] iPhone Settings > Wi-Fi > Info > Password (iOS 16+), older networks under Edit.
+  > "Apple says this works from iOS 16, and that older saved networks are found through the Edit button on the Wi-Fi screen"
+- [ ] Android QR code from Wi-Fi settings (note phone maker and Android version).
+  > "Open Settings, then Network & internet, then Internet."
+- [ ] Pixel quick settings shortcut.
+  > "swipe down, tap Internet and choose Share Wi-Fi"
+- [ ] Pixel camera joins Wi-Fi from a QR code.
+  > "Google says the camera can scan a QR code to connect to a Wi-Fi network, as long as camera scan suggestions are turned on"
+- [ ] iPhone camera with an Android Wi-Fi QR code: does it offer to join?
+  > "so if the iPhone doesn't offer to join, type the password instead."
+- [ ] Changing the password on Nest Wifi disconnects every device.
+  > "Google warns that all your devices disconnect until you enter the new password on each of them"
+
+## 19. Send photos and videos without losing quality (`/guides/send-photos-and-videos-without-losing-quality`)
+
+- [ ] WhatsApp HD per message and as the default setting.
+  > "tap the HD Media button and choose HD quality instead of Standard quality"
+  > "open Settings, then Storage and data, then Media upload quality, and choose HD quality"
+- [ ] WhatsApp document: send a photo as a document and compare file sizes on both ends.
+  > "WhatsApp's help doesn't explicitly promise that documents are left untouched"
+- [ ] Google Messages HD+ button in the image preview.
+  > "Google describes HD+ as original quality, sent at full media resolution"
+- [ ] iPhone Messages: Low Quality Image Mode setting name and location.
+  > "check that Low Quality Image Mode is off"
+- [ ] AirDrop with All Photos Data delivers the original (compare size and metadata).
+  > "Tap Options and turn on All Photos Data."
+- [ ] iCloud Shared Albums limits by version.
+  > "For albums created in version 26 or earlier, photos are reduced to 2048 pixels on the long edge and videos are delivered at up to 720p."
+  > "For albums created in version 27 or later, photos and videos are stored at full resolution in their original formats"
+- [ ] Google Photos backup quality names.
+  > "Google says Original quality keeps photos and videos at the resolution they were taken, while Storage saver stores reduced copies"
+
+## 20. Zip and unzip files (`/guides/zip-and-unzip-files`)
+
+- [ ] Windows 11: Send to > Compressed (zipped) folder, and Extract All.
+  > "Choose Send to, then Compressed (zipped) folder."
+  > "right-click the ZIP, choose Extract All, and follow the prompts"
+- [ ] Windows 11 24H2 archive formats; encrypted archives not supported.
+  > "Microsoft says Windows 11 version 24H2 supports ZIP, RAR, 7z and TAR archives, but not encrypted (password-protected) ones"
+- [ ] Mac: Compress from the shortcut menu; several items give Archive.zip.
+  > "Control-click the selection and choose Compress."
+  > "for several items, it is called Archive.zip"
+- [ ] iPhone Files: Compress and opening a ZIP (note the iOS version).
+  > "Touch and hold it, then tap Compress."
+  > "Tap the ZIP file in the Files app and a folder with its contents appears next to it."
+- [ ] Safari downloads land in the Downloads folder in Files.
+  > "A ZIP you downloaded in Safari usually sits in the Downloads folder in Files."
+- [ ] Files by Google: Extract, and Compress (Android 8+, no spaces or full stops in the name).
+  > "Tap Extract. Tick the option to delete the ZIP afterwards if you don't need it."
+  > "Google says this needs Android 8 or later, and that the name shouldn't contain spaces or full stops"
+- [ ] A ZIP of JPEGs is about the same size as the photos.
+  > "Microsoft points out that a ZIP of JPEG pictures is about the same size as the pictures themselves."
+- [ ] Email services refusing ZIPs that contain programs (try with Gmail).
+  > "Some email services and workplaces may refuse ZIPs that contain programs, because malware is often sent that way."

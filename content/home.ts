@@ -190,7 +190,9 @@ export function homeContent(f: HomeFacts): HomeContent {
           question: "What file types work?",
           answer: [
             [
-              `Any type, as long as it is one file of up to ${fileSize}. Files are always downloaded, never opened inside the page. To send several files, put them in a ZIP first.`,
+              `Any type, as long as it is one file of up to ${fileSize}. Files are always downloaded, never opened inside the page. To send several files, put them in a `,
+              { text: "ZIP", href: "/guides/zip-and-unzip-files" },
+              " first.",
             ],
           ],
         },

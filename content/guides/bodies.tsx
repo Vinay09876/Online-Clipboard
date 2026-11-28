@@ -154,6 +154,173 @@ const SRC = {
     title: "Microsoft: View and manage photos from your Android device on your PC",
     href: "https://support.microsoft.com/en-us/windows/apps/photos/view-and-manage-photos-from-your-android-device-on-your-pc",
   },
+  // --- added in batch 1 of new guides (checked 2026-11-28) ---
+  previewConvert: {
+    title: "Apple: Convert image file types using Preview on Mac",
+    href: "https://support.apple.com/en-us/guide/preview/prvw1012/mac",
+  },
+  finderQuickActions: {
+    title: "Apple: Perform quick actions in the Finder on Mac",
+    href: "https://support.apple.com/en-us/guide/mac-help/mchl97ff9142/mac",
+  },
+  photosMacExport: {
+    title: "Apple: Export photos, videos, slideshows, and memories on Mac",
+    href: "https://support.apple.com/en-us/guide/photos/pht6e157c5f/mac",
+  },
+  appleSharePhotos: {
+    title: "Apple: Share photos and videos on iPhone",
+    href: "https://support.apple.com/en-us/guide/iphone/iphf28f17237/ios",
+  },
+  quickSharePixel: {
+    title: "Pixel Phone Help: Use Quick Share on your Android device",
+    href: "https://support.google.com/pixelphone/answer/9286773",
+  },
+  airdropIphone: { title: "Apple: How to use AirDrop on your iPhone or iPad", href: "https://support.apple.com/en-us/119857" },
+  rcsIphone: { title: "Apple: Turn on RCS messaging on your iPhone", href: "https://support.apple.com/en-us/122195" },
+  rcsGoogle: { title: "Google Messages Help: RCS chats by Google FAQ", href: "https://support.google.com/messages/answer/9487020" },
+  whatsappMedia: {
+    title: "WhatsApp Help Center: How to send media, contacts, or location",
+    href: "https://faq.whatsapp.com/453914586839706/",
+  },
+  driveUploadIos: {
+    title: "Google Drive Help: Upload files & folders to Google Drive (iPhone & iPad)",
+    href: "https://support.google.com/drive/answer/2424368?co=GENIE.Platform%3DiOS",
+  },
+  driveShareIos: {
+    title: "Google Drive Help: Share and manage access to files and folders (iPhone & iPad)",
+    href: "https://support.google.com/drive/answer/2494822?co=GENIE.Platform%3DiOS",
+  },
+  photosShare: {
+    title: "Google Photos Help: Share photos & videos (iPhone & iPad)",
+    href: "https://support.google.com/photos/answer/6131416?co=GENIE.Platform%3DiOS",
+  },
+  moveToIos: { title: "Apple: Move from Android to iPhone or iPad", href: "https://support.apple.com/en-us/118670" },
+  switchToAndroid: {
+    title: "Android Help: Copy apps & data from an iPhone or iPad to a new Android device",
+    href: "https://support.google.com/android/answer/13626960",
+  },
+  phoneLinkStart: {
+    title: "Microsoft: Mobile device in Start menu",
+    href: "https://support.microsoft.com/en-us/windows/apps/phonelink/mobile-device-in-start-menu",
+  },
+  icloudDrive: { title: "Apple: Set up iCloud Drive", href: "https://support.apple.com/en-us/118443" },
+  airdropMac: {
+    title: "Apple: Use AirDrop to send items to nearby Apple devices (Mac)",
+    href: "https://support.apple.com/guide/mac-help/use-airdrop-to-send-items-to-nearby-devices-mh35868/mac",
+  },
+  driveUploadDesktop: {
+    title: "Google Drive Help: Upload files & folders to Google Drive (computer)",
+    href: "https://support.google.com/drive/answer/2424368?co=GENIE.Platform%3DDesktop",
+  },
+  oneDriveMobile: {
+    title: "Microsoft: Use OneDrive on Android and iOS devices",
+    href: "https://support.microsoft.com/en-us/onedrive/use-onedrive-on-android-and-ios-devices",
+  },
+  nearbySharing: {
+    title: "Microsoft: Share things with nearby devices in Windows",
+    href: "https://support.microsoft.com/en-us/windows/experience/connectivity-networking/share-things-with-nearby-devices-in-windows",
+  },
+  appleScanDocs: { title: "Apple: How to scan documents on your iPhone or iPad", href: "https://support.apple.com/en-us/108963" },
+  notesPdfs: {
+    title: "Apple: Work with PDFs in Notes on iPhone",
+    href: "https://support.apple.com/guide/iphone/work-with-pdfs-iph8958dd125/ios",
+  },
+  appleMarkup: { title: "Apple: Use Markup on your iPhone, iPad, or iPod touch", href: "https://support.apple.com/en-us/119875" },
+  driveScan: { title: "Google Drive Help: Scan documents with Google Drive", href: "https://support.google.com/drive/answer/3145835" },
+  filesScan: {
+    title: "Files by Google Help: How to scan documents with Files by Google",
+    href: "https://support.google.com/files/answer/15598575",
+  },
+  // --- added in batch 2 of new guides (checked 2026-11-28) ---
+  macShareWithWindows: {
+    title: "Apple: Share Mac files with Windows users",
+    href: "https://support.apple.com/en-us/guide/mac-help/mchlp1657/mac",
+  },
+  windowsToMac: {
+    title: "Apple: Connect to a Mac from a Windows computer",
+    href: "https://support.apple.com/en-us/guide/mac-help/mchlp1658/mac",
+  },
+  macToWindows: {
+    title: "Apple: Connect to a Windows computer from a Mac",
+    href: "https://support.apple.com/en-us/guide/mac-help/mchlp1660/mac",
+  },
+  msFileSharing: {
+    title: "Microsoft: File sharing over a network in Windows",
+    href: "https://support.microsoft.com/en-us/windows/experience/connectivity-networking/file-sharing-over-a-network-in-windows",
+  },
+  diskFormats: {
+    title: "Apple: File system formats available in Disk Utility on Mac",
+    href: "https://support.apple.com/en-us/guide/disk-utility/dsku19ed921c/mac",
+  },
+  macExternalDrive: { title: "Apple: If your Mac can't save files to an external drive", href: "https://support.apple.com/en-us/101830" },
+  diskErase: {
+    title: "Apple: Erase and reformat a storage device in Disk Utility on Mac",
+    href: "https://support.apple.com/en-us/guide/disk-utility/dskutl14079/mac",
+  },
+  oneDriveSync: {
+    title: "Microsoft: Sync your computer's files and folders with OneDrive",
+    href: "https://support.microsoft.com/en-us/onedrive/sync-your-computer-s-files-and-folders-with-onedrive",
+  },
+  appleShareWifi: {
+    title: "Apple: How to share your Wi-Fi password from your iPhone or iPad",
+    href: "https://support.apple.com/en-us/102635",
+  },
+  macShareWifi: { title: "Apple: Share a Wi-Fi password on Mac", href: "https://support.apple.com/en-us/guide/mac-help/mchlp1179/mac" },
+  iphoneFindWifi: {
+    title: "Apple: Find and share your Wi-Fi password on iPhone",
+    href: "https://support.apple.com/en-us/guide/iphone/iph96e6aa9bb/ios",
+  },
+  iphoneSavedWifi: { title: "Apple: Find your saved Wi-Fi passwords on iPhone or iPad", href: "https://support.apple.com/en-us/104961" },
+  appleQr: { title: "Apple: Scan a QR code with your iPhone or iPad", href: "https://support.apple.com/en-us/102680" },
+  androidWifi: {
+    title: "Android Help: Connect to Wi-Fi networks on your Android device",
+    href: "https://support.google.com/android/answer/9075847",
+  },
+  pixelWifi: {
+    title: "Pixel Phone Help: Connect to Wi-Fi networks on your Pixel phone",
+    href: "https://support.google.com/pixelphone/answer/2819519",
+  },
+  pixelQr: { title: "Pixel Camera Help: Scan QR codes with your Pixel phone", href: "https://support.google.com/pixelcamera/answer/16561572" },
+  nestGuestNetwork: {
+    title: "Google Home and Nest Help: Create, edit & share a Guest Wi-Fi network",
+    href: "https://support.google.com/googlehome/answer/6327302",
+  },
+  nestChangePassword: {
+    title: "Google Home and Nest Help: Change Wi-Fi password",
+    href: "https://support.google.com/googlehome/answer/6273434",
+  },
+  whatsappHd: { title: "WhatsApp Help Center: About HD photos and videos", href: "https://faq.whatsapp.com/759301289012856/" },
+  googleMessagesMedia: {
+    title: "Google Messages Help: Send photos, videos, or voice messages",
+    href: "https://support.google.com/messages/answer/6159880",
+  },
+  appleMessagesTrouble: {
+    title: "Apple: If you can't send or receive messages on your iPhone or iPad",
+    href: "https://support.apple.com/en-us/118433",
+  },
+  sharedAlbumsLimits: { title: "Apple: Shared Albums limits", href: "https://support.apple.com/en-us/148868" },
+  googlePhotosQuality: {
+    title: "Google Photos Help: Choose the backup quality of your photos & videos",
+    href: "https://support.google.com/photos/answer/6220791",
+  },
+  msZip: {
+    title: "Microsoft: Zip and unzip files",
+    href: "https://support.microsoft.com/en-us/windows/zip-and-unzip-files-8d28fa72-f2f9-712f-67df-f80cf89fd4e5",
+  },
+  macZip: {
+    title: "Apple: Zip and unzip files and folders on Mac",
+    href: "https://support.apple.com/guide/mac-help/compress-uncompress-files-folders-mac-mchlp2528/mac",
+  },
+  iphoneZip: {
+    title: "Apple: Create or open ZIP files on your iPhone, iPad, or Apple Vision Pro",
+    href: "https://support.apple.com/en-us/102532",
+  },
+  iphoneFilesOrganize: {
+    title: "Apple: Organize files and folders in Files on iPhone",
+    href: "https://support.apple.com/guide/iphone/organize-files-and-folders-iphab82e0798/ios",
+  },
+  filesUnzip: { title: "Files by Google Help: Unzip your files", href: "https://support.google.com/files/answer/9048509" },
+  filesCompress: { title: "Files by Google Help: Compress your files", href: "https://support.google.com/files/answer/15679548" },
 } satisfies Record<string, Source>;
 
 // ---------------------------------------------------------------------------
@@ -168,7 +335,9 @@ function copyPasteText(f: SiteFacts): GuideBody {
         <p>
           Copying a link, an address or a few paragraphs from your phone to your computer sounds trivial, but there is no
           single button that works for every pair of devices. The best method depends on which phone and computer you have,
-          and on whether you do this every day or once in a while.
+          and on whether you do this every day or once in a while. Moving text between two phones, one Android and one
+          iPhone, is covered in{" "}
+          <Link href="/guides/send-files-between-android-and-iphone">sending files and text between Android and iPhone</Link>.
         </p>
 
         <h2>If your devices are from the same family</h2>
@@ -291,7 +460,9 @@ function sendFileWithoutCable(f: SiteFacts): GuideBody {
       <>
         <p>
           A cable works, but you need the right one and sometimes a driver or an app. Wireless options are usually quicker
-          for a photo, a PDF or a short video. Which one fits depends on your phone, your PC and how big the file is.
+          for a photo, a PDF or a short video. Which one fits depends on your phone, your PC and how big the file is. Going the
+          other way, from a computer to a phone, has its own guide:{" "}
+          <Link href="/guides/send-files-from-pc-to-phone">sending files from a PC to your phone</Link>.
         </p>
 
         <h2>Android to Windows</h2>
@@ -469,6 +640,10 @@ function isItSafe(f: SiteFacts): GuideBody {
         <h2>Never put these in an online clipboard</h2>
         <ul>
           <li>Passwords, PINs, one-time codes and backup or recovery codes.</li>
+          <li>
+            Wi-Fi passwords: share them from your phone instead (see{" "}
+            <Link href="/guides/share-wifi-password-from-phone">sharing a Wi-Fi password</Link>).
+          </li>
           <li>Private keys, crypto wallet seed phrases, API keys and access tokens.</li>
           <li>ID documents: passport, national ID or driving licence scans.</li>
           <li>Bank and card details, statements and tax documents.</li>
@@ -601,7 +776,8 @@ function tooBigForEmail(f: SiteFacts): GuideBody {
           </li>
           <li>
             <strong>ZIP files:</strong> zipping is great for bundling many files into one, but it barely shrinks photos, videos
-            or PDFs, which are already compressed. Don&apos;t expect a ZIP to get a 60 MB video under a 25 MB limit.
+            or PDFs, which are already compressed. Don&apos;t expect a ZIP to get a 60 MB video under a 25 MB limit. How to
+            create one on each device is in our <Link href="/guides/zip-and-unzip-files">guide to zipping and unzipping files</Link>.
           </li>
         </ul>
 
@@ -815,6 +991,10 @@ function iphonePhotosToWindows(f: SiteFacts): GuideBody {
             suggests this for the best results on Windows; existing photos are not converted.
           </li>
         </ul>
+        <p>
+          Already have a folder of HEIC files? Our guide to{" "}
+          <Link href="/guides/convert-heic-to-jpg">converting HEIC photos to JPG</Link> covers Mac, iPhone and Windows.
+        </p>
 
         <h2>Live Photos</h2>
         <p>
@@ -1027,7 +1207,9 @@ function printShop(f: SiteFacts): GuideBody {
           and different margins all move things around. A PDF looks the same everywhere. In Microsoft Office you can save a copy
           as PDF, and Word offers an archiving format (PDF/A) aimed at keeping the document&apos;s appearance consistent on
           other computers (<Ext href={SRC.msSavePdf.href}>Microsoft: save as PDF</Ext>). In Google Docs, the Download option
-          in the File menu includes PDF (<Ext href={SRC.googleDocsDownload.href}>Google Docs Help</Ext>).
+          in the File menu includes PDF (<Ext href={SRC.googleDocsDownload.href}>Google Docs Help</Ext>). Only have the paper
+          original? You can{" "}
+          <Link href="/guides/scan-document-to-pdf-with-phone">scan it to a PDF with your phone</Link> first.
         </p>
         <h3>Check what the printer will see</h3>
         <ul>
@@ -1306,7 +1488,7 @@ function codeSnippets(f: SiteFacts): GuideBody {
         <ul>
           <li>Trim first: the last few hundred lines around the error are usually all anyone needs.</li>
           <li>
-            For a full log, send it as a file rather than pasted text. Compress it into a ZIP; text logs shrink well, unlike
+            For a full log, send it as a file rather than pasted text. <Link href="/guides/zip-and-unzip-files">Compress it into a ZIP</Link>; text logs shrink well, unlike
             photos or videos. A clip takes one file of up to {f.maxFileMb} MB.
           </li>
           <li>Logs from phones are often noisy. Search for the error timestamp before sharing everything.</li>
@@ -1585,7 +1767,1234 @@ function whatIsIt(f: SiteFacts): GuideBody {
   };
 }
 
+// ---------------------------------------------------------------------------
+// 13. Convert HEIC photos to JPG (Windows, Mac, iPhone)
+// ---------------------------------------------------------------------------
+
+function heicToJpg(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          You have a photo ending in .HEIC and something refuses it: an upload form, an older program, a friend&apos;s laptop.
+          This guide shows how to turn those files into ordinary JPGs on a Mac and an iPhone, what Windows can and can&apos;t do
+          on its own, and how to stop new photos from being saved as HEIC at all. Moving photos from an iPhone to a PC is a
+          separate job, covered in{" "}
+          <Link href="/guides/transfer-photos-from-iphone-to-windows-pc">transferring photos from an iPhone to a Windows PC</Link>.
+        </p>
+
+        <h2>What HEIC is, and why you only sometimes see it</h2>
+        <p>
+          HEIC is the file extension of HEIF, the format iPhones use by default because it keeps good quality in less space.
+          Apple explains that when you share with AirDrop, Messages or email, the iPhone may send a more compatible format such as
+          JPEG if the other device can&apos;t handle HEIF. That is why the same photo arrives as a JPG one day and as a HEIC the
+          next. iCloud Photos keeps the original format (
+          <Ext href={SRC.appleHeif.href}>Apple: HEIF and HEVC media</Ext>).
+        </p>
+
+        <h2>Which method fits?</h2>
+        <ul>
+          <li><strong>A few files on a Mac:</strong> Preview or the Finder&apos;s Convert Image action.</li>
+          <li><strong>Photos still in the Photos library on a Mac:</strong> export them as JPEG from Photos.</li>
+          <li><strong>Sending from an iPhone:</strong> choose the compatible format in the share options before you send.</li>
+          <li><strong>Only a Windows PC:</strong> read the Windows section first; it is the trickiest case.</li>
+        </ul>
+
+        <h2>On a Mac</h2>
+        <h3>Preview (one file or a handful)</h3>
+        <ol>
+          <li>Open the HEIC file in Preview.</li>
+          <li>Choose File &gt; Export.</li>
+          <li>Click the Format menu and choose JPEG. You can also set the quality; lower quality means a smaller file.</li>
+          <li>Pick where to save the copy, then click Save. The original HEIC stays untouched.</li>
+        </ol>
+        <p>
+          Apple&apos;s Preview guide also describes converting several images at once by opening them in one window and selecting
+          them in the sidebar first (<Ext href={SRC.previewConvert.href}>Apple: convert image file types in Preview</Ext>).
+        </p>
+        <h3>Finder: the Convert Image quick action</h3>
+        <ol>
+          <li>Select one or more HEIC files in the Finder.</li>
+          <li>Control-click them and choose Quick Actions, then Convert Image (on some versions it sits under More).</li>
+          <li>Choose JPEG as the format, pick an image size, and confirm.</li>
+        </ol>
+        <p>
+          Apple uses exactly this case, an iPhone .heic photo turned into a .jpeg, as its example (
+          <Ext href={SRC.finderQuickActions.href}>Apple: quick actions in the Finder</Ext>). The converted copies appear next
+          to the originals.
+        </p>
+        <h3>Photos for Mac</h3>
+        <ol>
+          <li>Select the photos in the Photos app.</li>
+          <li>Choose File &gt; Export &gt; Export Photos (the menu shows how many you selected).</li>
+          <li>Set Photo Kind to JPEG; the arrow next to it reveals quality and size options.</li>
+          <li>Click Export, choose a folder, and click Export again.</li>
+        </ol>
+        <p>
+          Avoid &ldquo;Export Unmodified Original&rdquo; for this job: it saves the file exactly as it was taken, which for an
+          iPhone photo usually means HEIC again (<Ext href={SRC.photosMacExport.href}>Apple: export from Photos on Mac</Ext>).
+        </p>
+
+        <h2>On an iPhone</h2>
+        <h3>Send a compatible copy</h3>
+        <ol>
+          <li>In the Photos app, select the photos and tap the Share button.</li>
+          <li>Tap Options near the top of the share sheet.</li>
+          <li>
+            Choose Most Compatible, which Apple says may convert files to JPEG or MOV, then tap Close and share as usual (
+            <Ext href={SRC.appleSharePhotos.href}>Apple: share photos on iPhone</Ext>).
+          </li>
+        </ol>
+        <p>
+          &ldquo;Automatic&rdquo; lets the iPhone pick a format for the destination, and &ldquo;Current&rdquo; keeps the file
+          as it is. If the person on the other end keeps receiving HEIC, Most Compatible is the one to choose.
+        </p>
+        <h3>Take new photos as JPEG</h3>
+        <p>
+          In Settings, open Camera, then Formats, and choose Most Compatible. Apple says new photos and videos then use JPEG and
+          H.264; to go back, choose High Efficiency. Photos already in your library stay as they are, and the new ones take up
+          more storage.
+        </p>
+        <h3>When you copy photos to a computer</h3>
+        <p>
+          Apple notes that photos imported into a PC may be converted to JPEG unless you turned on Keep Originals (Settings &gt;
+          Apps &gt; Photos). If your PC keeps getting HEIC files over USB, check that setting before you change anything else.
+        </p>
+
+        <h2>On Windows</h2>
+        <p>
+          Windows needs extra components to show HEIC at all. Microsoft points to the HEIF Image Extensions in the Microsoft
+          Store, and to the HEVC Video Extensions for iPhone videos, which it lists as a paid extension (
+          <Ext href={SRC.msHeifExtensions.href}>Microsoft: &ldquo;Can&apos;t view this file type&rdquo;</Ext>). Microsoft&apos;s
+          own help pages don&apos;t describe a built-in way to save a HEIC as a JPG, so we won&apos;t promise one. The dependable
+          routes on Windows are:
+        </p>
+        <ul>
+          <li>Have the iPhone send or transfer a compatible copy (the iPhone section above).</li>
+          <li>Convert on a Mac, if one is nearby, and copy the JPGs over.</li>
+          <li>Change the camera setting so future photos never need converting.</li>
+        </ul>
+        <p>
+          Be careful with converter websites found through search results. You upload private photos to a server you know
+          nothing about. If you do use one, pick photos you would be happy
+          to post publicly.
+        </p>
+
+        <h2>What changes when you convert</h2>
+        <ul>
+          <li>
+            <strong>File size:</strong> HEIC was designed to save space, so the JPEG copy is usually bigger, sometimes much
+            bigger.
+          </li>
+          <li>
+            <strong>Live Photos:</strong> a JPEG is a still image, so only the still frame survives the conversion.
+          </li>
+          <li>
+            <strong>Edits:</strong> exporting from Photos includes your crops and filters; the unmodified original does not.
+          </li>
+          <li>
+            <strong>Quality:</strong> every JPEG save compresses the image again. Convert from the original HEIC once, rather than
+            re-saving a JPEG several times.
+          </li>
+        </ul>
+
+        <h2>Getting the converted photo to another device</h2>
+        <p>
+          Once you have a JPG, any method works. For one photo to a computer you don&apos;t want to sign in on, {SITE_NAME} is
+          an option: upload the JPG from the phone or Mac, then enter the 6-digit code on the other device. It takes one file of
+          up to {f.maxFileMb} MB, and the clip disappears after {minutes}. It sends the file exactly as it is, so convert first.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Converting itself:</strong> {SITE_NAME} doesn&apos;t change file formats. A HEIC you send arrives as a HEIC.
+        </li>
+        <li>
+          <strong>A whole photo library:</strong> one file per clip is far too slow; export in bulk on a Mac or use a cable
+          import.
+        </li>
+        <li>
+          <strong>Personal photos you wouldn&apos;t show a stranger:</strong> clips are not end-to-end encrypted, and anyone with
+          the code can open them.
+        </li>
+        <li>
+          <strong>Keeping copies:</strong> a clip is deleted after {minutes}, so it is no substitute for a backup.
+        </li>
+      </ul>
+    ),
+    sources: [
+      SRC.appleHeif,
+      SRC.previewConvert,
+      SRC.finderQuickActions,
+      SRC.photosMacExport,
+      SRC.appleSharePhotos,
+      SRC.msHeifExtensions,
+    ],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 14. Send files and text between Android and iPhone
+// ---------------------------------------------------------------------------
+
+function androidAndIphone(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          For years, Android and iPhone had no shared &ldquo;send to the phone next to me&rdquo; button, so people fell back on
+          messengers and email. That is slowly changing. This guide lists what works today between the two systems, which
+          option suits photos, documents or a line of text, and what to do when you are switching phones for good.
+        </p>
+
+        <h2>The short version</h2>
+        <ul>
+          <li><strong>Photos to a person:</strong> Messages with RCS, or a messenger you both use.</li>
+          <li><strong>Files between phones in the same room:</strong> Quick Share, if the Android phone supports AirDrop.</li>
+          <li><strong>Big files or albums:</strong> a link from Google Drive or Google Photos.</li>
+          <li><strong>A link, address or short note:</strong> a messenger, or a short-lived clip with a code.</li>
+          <li><strong>Moving everything to a new phone:</strong> the official switching tools, not file-by-file sharing.</li>
+        </ul>
+
+        <h2>Quick Share to an iPhone</h2>
+        <h3>Phones that can use AirDrop</h3>
+        <p>
+          Google says some Android phones can now send to an iPhone through AirDrop: Pixel 8a or later, and certain models from
+          Samsung, Oppo, OnePlus, Vivo, Xiaomi, Honor, Transsion and Motorola. The list changes, so check{" "}
+          <Ext href={SRC.quickSharePixel.href}>Google&apos;s Quick Share page</Ext> for your model.
+        </p>
+        <ol>
+          <li>On the iPhone, set AirDrop to receive from Everyone for 10 Minutes.</li>
+          <li>On the Android phone, open the photo or file, tap Share, then Quick Share.</li>
+          <li>Pick the iPhone from the list of nearby devices.</li>
+          <li>On the iPhone, accept the AirDrop request.</li>
+        </ol>
+        <p>
+          Google lists receiving from an iPhone for a narrower set of phones than sending. AirDrop&apos;s receiving settings
+          are explained on <Ext href={SRC.airdropIphone.href}>Apple&apos;s AirDrop page</Ext>.
+        </p>
+        <h3>Other Android phones: a QR code</h3>
+        <p>
+          Google&apos;s Pixel help describes a second route for phones without AirDrop support: on the Quick Share screen, tap
+          Use QR code and let the iPhone scan it. The iPhone then downloads the files through a link in its web browser. Google
+          says the files are end-to-end encrypted, stored on Google&apos;s servers and available for 24 hours, and both phones
+          need internet access. Whether your phone shows this option depends on its maker and software version.
+        </p>
+
+        <h2>Messages with RCS</h2>
+        <p>
+          Since iOS 18, iPhones can use RCS for chats with Android phones, which brings high-resolution photos and videos,
+          typing indicators and read receipts instead of blurry picture messages. It needs a carrier that supports RCS on
+          iPhone; you turn it on in Settings &gt; Apps &gt; Messages (
+          <Ext href={SRC.rcsIphone.href}>Apple: RCS messaging</Ext>). Google adds that RCS with iPhone users may not be available
+          in every country or with every carrier (<Ext href={SRC.rcsGoogle.href}>Google Messages Help</Ext>). For sending
+          photos to a friend, this is often all you need.
+        </p>
+
+        <h2>Messengers</h2>
+        <p>
+          If you both use WhatsApp or another cross-platform messenger, you can send a file as a document instead of as a
+          photo. WhatsApp allows documents up to 2 GB (
+          <Ext href={SRC.whatsappMedia.href}>WhatsApp: send media and documents</Ext>). Between your own two phones, a chat with
+          yourself works the same way, as long as the messenger is signed in on both. What chat apps do to photo quality, and
+          how to avoid it, is covered in{" "}
+          <Link href="/guides/send-photos-and-videos-without-losing-quality">sending photos and videos without losing quality</Link>.
+        </p>
+
+        <h2>Links from Google Drive or Google Photos</h2>
+        <p>
+          Google&apos;s apps run on both systems, which makes them a natural bridge. In the Drive app on an iPhone, tap the add
+          button and choose File upload (
+          <Ext href={SRC.driveUploadIos.href}>Drive Help: upload on iPhone</Ext>). To share it, open the file&apos;s menu,
+          choose Manage access and set General access to Anyone with the link, or invite the person by email (
+          <Ext href={SRC.driveShareIos.href}>Drive Help: share on iPhone</Ext>). In Google Photos, Share and then Get link creates
+          an album link that opens without the app (<Ext href={SRC.photosShare.href}>Google Photos Help</Ext>). Links like these
+          stay valid until you switch them off, so remember to do that once the other person has the files.
+        </p>
+
+        <h2>A line of text or one file, right now</h2>
+        <p>
+          For a Wi-Fi password, an address or a single PDF, signing into a cloud drive is more work than the task deserves.
+          A short-lived clip works on any phone with a browser:
+        </p>
+        <ol>
+          <li>On the first phone, open <Link href="/">{SITE_NAME}</Link>, paste the text or add the file, and tap Send.</li>
+          <li>Read out or show the 6-digit code.</li>
+          <li>On the second phone, open the site, choose Receive and type the code.</li>
+        </ol>
+        <p>
+          A clip holds text and one file of up to {f.maxFileMb} MB and is deleted {minutes} after it was created. It is not
+          end-to-end encrypted, so leave passwords, ID photos and anything private out of it.
+        </p>
+
+        <h2>Switching phones for good</h2>
+        <p>
+          Moving to a new phone is a different job: contacts, messages and the whole photo library should come along. Apple&apos;s
+          Move to iOS app copies data from an Android phone while you set up the iPhone (
+          <Ext href={SRC.moveToIos.href}>Apple: move from Android</Ext>). Going the other way, Google describes copying data
+          from an iPhone during the Android setup, by cable or with its Android Switch app (
+          <Ext href={SRC.switchToAndroid.href}>Android Help: copy from iPhone</Ext>). Google also advises turning off iMessage
+          first.
+        </p>
+
+        <h2>Why not Bluetooth?</h2>
+        <p>
+          It is tempting to pair the two phones and send over Bluetooth, but we found no Apple or Google instructions for
+          sending files between an iPhone and an Android phone that way. Expect it not to work, and use one of the options above.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Videos or folders bigger than {f.maxFileMb} MB:</strong> use a Drive or Photos link, or Quick Share.
+        </li>
+        <li>
+          <strong>Switching to a new phone:</strong> Move to iOS and Android Switch carry far more than single files.
+        </li>
+        <li>
+          <strong>Private photos and documents:</strong> a clip can be opened by anyone who has the code until it expires.
+        </li>
+        <li>
+          <strong>Phones side by side with AirDrop support:</strong> Quick Share is faster and nothing is uploaded to a website.
+        </li>
+      </ul>
+    ),
+    sources: [
+      SRC.quickSharePixel,
+      SRC.airdropIphone,
+      SRC.rcsIphone,
+      SRC.rcsGoogle,
+      SRC.whatsappMedia,
+      SRC.driveUploadIos,
+      SRC.driveShareIos,
+      SRC.photosShare,
+      SRC.moveToIos,
+      SRC.switchToAndroid,
+    ],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 15. Send files from a PC to your phone
+// ---------------------------------------------------------------------------
+
+function pcToPhone(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          A boarding pass on the laptop that you need on your phone, a PDF to read on the train, a ringtone, a map: getting files
+          from a computer onto a phone is just as common as the other direction, but the steps are different. This guide goes
+          from computer to phone. For the reverse, see{" "}
+          <Link href="/guides/send-file-from-phone-to-pc-without-cable">sending a file from your phone to a PC</Link>. Between
+          two computers, see <Link href="/guides/move-files-between-mac-and-windows-pc">moving files between a Mac and a Windows PC</Link>.
+        </p>
+
+        <h2>Windows PC to an Android phone</h2>
+        <h3>Quick Share for Windows</h3>
+        <p>
+          Google&apos;s Quick Share app needs a 64-bit PC with Windows 10 or later, Bluetooth and Wi-Fi turned on, and the
+          phone nearby on the same network (<Ext href={SRC.quickShareWindows.href}>Google: Quick Share for Windows</Ext>).
+        </p>
+        <ol>
+          <li>Open Quick Share on the PC (Google advises against running it as administrator).</li>
+          <li>Drag the file onto its window, or use Select files. Right-clicking a file and choosing Send with Quick Share also works.</li>
+          <li>Choose your phone, compare the PIN if one appears, and tap Accept on the phone.</li>
+        </ol>
+        <h3>USB cable</h3>
+        <ol>
+          <li>Unlock the phone and connect it to the PC with a USB cable that carries data.</li>
+          <li>On the phone, tap the &ldquo;Charging this device via USB&rdquo; notification.</li>
+          <li>Under &ldquo;Use USB for&rdquo;, choose File Transfer.</li>
+          <li>A window for the phone opens on the PC. Drag the files into a folder such as Download, then eject the phone.</li>
+        </ol>
+        <p>
+          These steps are from{" "}
+          <Ext href={SRC.androidUsbTransfer.href}>Google&apos;s USB transfer page</Ext>, which also covers Chromebooks.
+        </p>
+        <h3>Phone Link</h3>
+        <p>
+          Microsoft&apos;s Phone Link lets some Android phones receive files by drag and drop: open the phone&apos;s screen in
+          Phone Link and drop files onto it, and they land in the phone&apos;s Download folder. Microsoft limits this to selected
+          models, mainly Samsung, and both devices must be on the same Wi-Fi (
+          <Ext href={SRC.phoneLinkCopyPaste.href}>Microsoft: transfer content with Phone Link</Ext>).
+        </p>
+        <h3>Bluetooth</h3>
+        <p>
+          With the phone paired, open Settings &gt; Bluetooth &amp; devices &gt; Devices, choose &ldquo;Send or receive files via
+          Bluetooth&rdquo;, then Send files, pick the phone, browse for the file and finish (
+          <Ext href={SRC.bluetoothWindows.href}>Microsoft: Bluetooth file transfer</Ext>). Microsoft leaves the receiving side
+          to the phone maker&apos;s instructions. It is slow, so keep it for small files when nothing else is available.
+        </p>
+
+        <h2>Windows PC to an iPhone</h2>
+        <h3>iCloud Drive</h3>
+        <p>
+          Install iCloud for Windows from the Microsoft Store and sign in with your Apple Account. Apple&apos;s setup steps for
+          the PC refer to Windows 11 or later. Files you put in the iCloud Drive folder in File Explorer appear in the Files app
+          on the iPhone (<Ext href={SRC.icloudDrive.href}>Apple: set up iCloud Drive</Ext>). Free iCloud storage is limited, so
+          this suits documents better than large videos.
+        </p>
+        <h3>Apple Devices app and a cable</h3>
+        <ol>
+          <li>Connect the iPhone to the PC with a USB cable and open the Apple Devices app.</li>
+          <li>Click Files and choose an app on the iPhone that supports file sharing.</li>
+          <li>Click Add File, select the files on the PC, and click Add.</li>
+        </ol>
+        <p>
+          This only works with apps that support file sharing; if there is no Files section, none are installed (
+          <Ext href={SRC.appleDevicesWindows.href}>Apple: share files with Apple Devices</Ext>).
+        </p>
+        <h3>Phone Link&apos;s Send Files</h3>
+        <p>
+          On Windows 11 with a recent Phone Link, Microsoft describes a Send Files option in the Start menu&apos;s mobile device
+          panel that works with Android phones and iPhones (
+          <Ext href={SRC.phoneLinkStart.href}>Microsoft: mobile device in Start</Ext>). It needs a Microsoft account and the
+          phone already linked.
+        </p>
+
+        <h2>Mac to iPhone: AirDrop</h2>
+        <ol>
+          <li>Make sure the iPhone is unlocked and nearby, with Wi-Fi and Bluetooth on.</li>
+          <li>On the Mac, click AirDrop in the Finder sidebar and drag the file onto the iPhone, or use the Share button and choose AirDrop.</li>
+          <li>Accept on the iPhone if asked.</li>
+        </ol>
+        <p>
+          Apple says the devices need to be within 10 metres (30 feet) of each other, and that items are accepted automatically
+          when both are signed in to the same Apple Account (<Ext href={SRC.airdropMac.href}>Apple: AirDrop on Mac</Ext>).
+        </p>
+
+        <h2>Mac to an Android phone</h2>
+        <p>
+          This is the awkward pair. Google&apos;s USB instructions cover Windows and Chromebook, and the Quick Share computer app
+          is for Windows. From a Mac, the straightforward routes are a cloud drive, email, or a temporary share code (below).
+        </p>
+
+        <h2>Any computer to any phone</h2>
+        <ul>
+          <li>
+            <strong>A cloud drive:</strong> on drive.google.com, choose New, then File upload, and open the file in the Drive app on
+            the phone (<Ext href={SRC.driveUploadDesktop.href}>Drive Help: upload from a computer</Ext>). OneDrive works the same
+            way with its phone app (<Ext href={SRC.oneDriveMobile.href}>Microsoft: OneDrive on phones</Ext>).
+          </li>
+          <li>
+            <strong>Email to yourself:</strong> fine for documents; Gmail&apos;s personal attachment limit is 25 MB and bigger
+            files become Drive links (<Ext href={SRC.gmailAttachments.href}>Gmail Help</Ext>).
+          </li>
+          <li>
+            <strong>A temporary share code:</strong> on the computer, open <Link href="/">{SITE_NAME}</Link>, add the file and
+            press Send; on the phone, choose Receive and enter the 6-digit code. Nothing to sign in to, which helps on a work or
+            library computer. One file of up to {f.maxFileMb} MB, gone after {minutes}.
+          </li>
+        </ul>
+        <p>
+          One thing that does <em>not</em> work: Windows&apos; Nearby sharing. Microsoft describes it for sharing between Windows
+          PCs, not phones (<Ext href={SRC.nearbySharing.href}>Microsoft: Nearby sharing</Ext>).
+        </p>
+
+        <h2>Where to find the file on the phone</h2>
+        <ul>
+          <li><strong>Android:</strong> open the Files app and look in Downloads; Quick Share saves into its own folder there.</li>
+          <li><strong>iPhone:</strong> open the Files app; iCloud Drive files and browser downloads are both reachable from it.</li>
+          <li>
+            <strong>Opening it:</strong> a file only opens if an app on the phone understands it. A PDF is safe everywhere; an
+            .exe or a Windows-only format will not run on a phone at all.
+          </li>
+        </ul>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Movies and big folders:</strong> anything over {f.maxFileMb} MB needs a cable, Quick Share or a cloud drive.
+        </li>
+        <li>
+          <strong>Files you&apos;ll need again next month:</strong> keep them in a cloud drive; a clip is gone after {minutes}.
+        </li>
+        <li>
+          <strong>Confidential work documents:</strong> use your employer&apos;s approved tools; clips are not end-to-end
+          encrypted.
+        </li>
+        <li>
+          <strong>Your own Mac and iPhone:</strong> AirDrop is quicker and keeps the file off the internet.
+        </li>
+      </ul>
+    ),
+    sources: [
+      SRC.quickShareWindows,
+      SRC.androidUsbTransfer,
+      SRC.phoneLinkCopyPaste,
+      SRC.phoneLinkStart,
+      SRC.bluetoothWindows,
+      SRC.icloudDrive,
+      SRC.appleDevicesWindows,
+      SRC.airdropMac,
+      SRC.driveUploadDesktop,
+      SRC.oneDriveMobile,
+      SRC.gmailAttachments,
+      SRC.nearbySharing,
+    ],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 16. Scan a document with your phone and send it as a PDF
+// ---------------------------------------------------------------------------
+
+function scanToPdf(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          A form to return, a signed contract, a receipt for an expense claim: you rarely need a real scanner anymore. Both iPhones
+          and Android phones have scanners built into free apps that straighten the page, clean up the background and save a
+          PDF. This guide covers those apps, how to get a scan that is easy to read, and how to send it. If the document holds
+          ID numbers or other personal details, read the section on sensitive papers before you send anything.
+        </p>
+
+        <h2>Before you scan</h2>
+        <ul>
+          <li>Lay the page flat on a dark, plain surface, so the edges stand out.</li>
+          <li>Use daylight or a bright room, and avoid your own shadow falling across the page.</li>
+          <li>Hold the phone directly above the page, not at an angle, with all four corners in view.</li>
+          <li>Scan every page of a multi-page document into the same scan, in order.</li>
+        </ul>
+
+        <h2>On an iPhone: the Notes app</h2>
+        <ol>
+          <li>Open Notes and create a note (or open one).</li>
+          <li>Tap the Attachments button and choose Scan Documents.</li>
+          <li>
+            Hold the iPhone over the page. In automatic mode it captures the page by itself; in manual mode, tap the shutter
+            button or press a volume button.
+          </li>
+          <li>Drag the corners to fit the page if needed, then tap Keep Scan. Add further pages the same way.</li>
+          <li>Tap Done. Apple says the document is saved as a PDF in the note.</li>
+        </ol>
+        <p>
+          To send the PDF, use the scan&apos;s menu in the note, where Apple lists options to copy, share, rename or delete it (
+          <Ext href={SRC.notesPdfs.href}>Apple: PDFs in Notes</Ext>). The scanning steps are on{" "}
+          <Ext href={SRC.appleScanDocs.href}>Apple&apos;s scanning page</Ext>, which also shows the same scanner in the Files
+          app: tap the More button there, choose Scan Documents, then pick a folder and tap Save.
+        </p>
+        <p>
+          Need a signature? Apple&apos;s Markup tools can add one to a PDF (
+          <Ext href={SRC.appleMarkup.href}>Apple: Markup</Ext>). Check the whole document once more after signing.
+        </p>
+
+        <h2>On Android: Google Drive</h2>
+        <ol>
+          <li>Open the Google Drive app and tap the Camera button at the bottom right.</li>
+          <li>Photograph the page. A blue outline shows where it will be cropped.</li>
+          <li>Fix the result with Crop &amp; Rotate, Filter (colour or greyscale) or Clean, and tap Add for more pages.</li>
+          <li>Tap Done, give the file a name, keep the format as PDF, choose a folder with Location, and tap Save.</li>
+        </ol>
+        <p>
+          Google says Drive saves scans as searchable PDFs (
+          <Ext href={SRC.driveScan.href}>Drive Help: scan documents</Ext>). Drive&apos;s button names can change between app
+          versions; the help page shows the current ones.
+        </p>
+        <h3>Files by Google</h3>
+        <p>
+          The Files by Google app has its own scanner: tap Scan, capture the page automatically or by hand, adjust it, and tap
+          Done. Google says these scans are saved as PDFs automatically, in a Scanned folder you reach through Documents (
+          <Ext href={SRC.filesScan.href}>Files by Google Help</Ext>). It saves to the phone rather than to the cloud, which is
+          handy when you don&apos;t want the scan in your Drive at all.
+        </p>
+
+        <h2>Check it before you send</h2>
+        <ul>
+          <li>Open the PDF and zoom in: small print and stamps should be readable.</li>
+          <li>Count the pages and check their order; a missing back page is the most common reason forms get returned.</li>
+          <li>For text documents, greyscale is usually clearer and smaller than colour.</li>
+          <li>
+            Give it a name the recipient understands, such as &ldquo;Lastname - rental application - signed.pdf&rdquo;.
+          </li>
+        </ul>
+
+        <h2>Sending the PDF</h2>
+        <ul>
+          <li>
+            <strong>To an organisation:</strong> use its official portal or upload system if it has one. That is where the
+            document is expected, and it doesn&apos;t sit in anyone&apos;s inbox.
+          </li>
+          <li>
+            <strong>By email, straight to the person who needs it:</strong> a scanned PDF of a few pages is usually well within
+            Gmail&apos;s 25 MB attachment limit (<Ext href={SRC.gmailAttachments.href}>Gmail Help</Ext>). On an iPhone, Mail
+            Drop handles larger attachments, up to 5 GB, with links that expire after 30 days (
+            <Ext href={SRC.mailDrop.href}>Apple: Mail Drop</Ext>).
+          </li>
+          <li>
+            <strong>To a print shop:</strong> the tips in{" "}
+            <Link href="/guides/send-a-document-to-a-print-shop">sending a document to a print shop</Link> apply to scans too.
+          </li>
+          <li>
+            <strong>To your own computer, for an ordinary document:</strong> {SITE_NAME} can carry the PDF across: one file of
+            up to {f.maxFileMb} MB, deleted after {minutes}.
+          </li>
+        </ul>
+
+        <h2>ID cards and sensitive papers</h2>
+        <p>
+          People often scan passports, ID cards, bank statements, payslips, tax forms and medical letters. Do not send these
+          through {SITE_NAME} or any other online clipboard. {CLAIMS.encryption} Anyone who has the code can open the clip until
+          it expires, and a code can be overheard or left behind in a chat.
+        </p>
+        <p>Safer ways to hand over a sensitive scan:</p>
+        <ul>
+          <li>Upload it in the official portal of the bank, office or school that asked for it.</li>
+          <li>Use the organisation&apos;s own upload or secure-message system, if it offers one.</li>
+          <li>Email it directly to the specific person who requested it, not to a general inbox or a third party.</li>
+        </ul>
+        <p>
+          Send only what was asked for. If part of a page must stay private, cover it with a piece of paper before you scan.
+          Drawing a box over it afterwards in a markup tool is not a reliable way to hide it, and Apple&apos;s Markup help
+          doesn&apos;t describe it as redaction. When you are done, delete the scan from your phone and from any cloud folder it
+          was saved to.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Passports, ID cards and similar documents:</strong> use the official portal or email the person who asked
+          for them.
+        </li>
+        <li>
+          <strong>Bank, tax and medical papers:</strong> anything that could be used to impersonate you doesn&apos;t belong in
+          a clip.
+        </li>
+        <li>
+          <strong>Archiving documents:</strong> a clip is deleted after {minutes}; keep the PDF in your own storage.
+        </li>
+        <li>
+          <strong>Long scans with many photos:</strong> files over {f.maxFileMb} MB need email with Mail Drop or a cloud link.
+        </li>
+      </ul>
+    ),
+    sources: [
+      SRC.appleScanDocs,
+      SRC.notesPdfs,
+      SRC.appleMarkup,
+      SRC.driveScan,
+      SRC.filesScan,
+      SRC.gmailAttachments,
+      SRC.mailDrop,
+    ],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 17. Move files between a Mac and a Windows PC
+// ---------------------------------------------------------------------------
+
+function macAndWindows(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          A Mac and a Windows PC in the same house can exchange files without any extra software, but AirDrop won&apos;t see
+          the PC and Windows&apos; Nearby sharing won&apos;t see the Mac. This guide covers what does work: a shared folder on
+          your home network, a USB drive formatted the right way, a cloud drive, and quick options for single files. Phones are
+          covered separately in <Link href="/guides/send-files-from-pc-to-phone">sending files from a PC to your phone</Link>.
+        </p>
+
+        <h2>Which option fits?</h2>
+        <ul>
+          <li><strong>Both computers at home, often:</strong> a shared folder over the network.</li>
+          <li><strong>A big one-off move, or no network:</strong> a USB stick or external drive in ExFAT format.</li>
+          <li><strong>Files you work on from both:</strong> a cloud drive that syncs.</li>
+          <li><strong>One small file:</strong> email, or a temporary share code.</li>
+        </ul>
+
+        <h2>Option 1: a shared folder on your home network</h2>
+        <p>
+          Both computers must be on the same network, and Microsoft&apos;s sharing steps assume the PC treats that network as
+          private (a home network) rather than public.
+        </p>
+        <h3>Share a Mac folder with the PC</h3>
+        <ol>
+          <li>On the Mac, open System Settings, then General, then Sharing.</li>
+          <li>Turn on File Sharing and click the info button next to it.</li>
+          <li>Click Options and turn on &ldquo;Share files and folders using SMB&rdquo;.</li>
+          <li>
+            Under Windows File Sharing, select your user account, enter its password, and click OK, then Done. Add the folders
+            you want to share with the add button under Shared Folders.
+          </li>
+          <li>
+            On the PC, open File Explorer, click Network, double-click the Mac, and sign in with the Mac account&apos;s name and
+            password.
+          </li>
+        </ol>
+        <p>
+          Apple&apos;s steps also show the Mac&apos;s network address, which appears below &ldquo;File Sharing: On&rdquo; (
+          <Ext href={SRC.macShareWithWindows.href}>Apple: share Mac files with Windows users</Ext>,{" "}
+          <Ext href={SRC.windowsToMac.href}>Apple: connect from a Windows computer</Ext>).
+        </p>
+        <h3>Share a Windows folder with the Mac</h3>
+        <ol>
+          <li>
+            On the PC, right-click the folder, choose Show more options, then Give access to, then Specific people, and pick
+            the account that may use it.
+          </li>
+          <li>
+            If File Explorer says network discovery is off, select that message and turn on network discovery and file
+            sharing (<Ext href={SRC.msFileSharing.href}>Microsoft: file sharing over a network</Ext>).
+          </li>
+          <li>
+            On the Mac, choose Go &gt; Connect to Server in the Finder and click Browse to find the PC, or type
+            smb://computername/sharename in the Server Address field.
+          </li>
+          <li>Click Connect As and sign in with the Windows account (<Ext href={SRC.macToWindows.href}>Apple: connect to a Windows computer</Ext>).</li>
+        </ol>
+        <p>
+          Microsoft&apos;s troubleshooting steps include turning off password-protected sharing. That lets anyone on the
+          network open the shared folder, so if you try it, turn it back on afterwards. When the move is done, stop sharing the
+          folder on both sides.
+        </p>
+
+        <h2>Option 2: a USB stick or external drive</h2>
+        <p>
+          The drive&apos;s format decides whether both computers can use it. Apple lists MS-DOS (FAT) and ExFAT as the formats
+          compatible with Windows, and suggests FAT for drives of 32 GB or less and ExFAT for larger ones (
+          <Ext href={SRC.diskFormats.href}>Apple: Disk Utility formats</Ext>). APFS and Mac OS Extended are Mac formats, so a
+          drive formatted that way is the wrong choice for sharing with a PC.
+        </p>
+        <p>
+          The opposite trap: many drives come formatted as NTFS, the Windows format. Apple says a Mac might be able to read NTFS
+          but not write to it, which is why the Mac refuses to copy files onto such a drive (
+          <Ext href={SRC.macExternalDrive.href}>Apple: if your Mac can&apos;t save to an external drive</Ext>).
+        </p>
+        <ul>
+          <li>
+            <strong>To reformat as ExFAT on the Mac:</strong> in Disk Utility, choose View &gt; Show All Devices, select the
+            drive, click Erase, and choose ExFAT as the format (
+            <Ext href={SRC.diskErase.href}>Apple: erase and reformat</Ext>). Erasing deletes everything on the drive, so copy
+            off anything you need first.
+          </li>
+          <li>
+            <strong>Unplug safely:</strong> eject the drive on the Mac, or use the eject option on Windows, before pulling it
+            out. Removing it mid-copy can damage the files.
+          </li>
+        </ul>
+
+        <h2>Option 3: a cloud drive on both computers</h2>
+        <p>
+          If you switch between the two computers every day, syncing is less work than copying. iCloud for Windows puts your
+          iCloud Drive in File Explorer on the PC (<Ext href={SRC.icloudDrive.href}>Apple: set up iCloud Drive</Ext>), and
+          Microsoft&apos;s OneDrive app is available for both Windows and Mac, with the files appearing in File Explorer and the
+          Finder (<Ext href={SRC.oneDriveSync.href}>Microsoft: sync files with OneDrive</Ext>). Free storage on either service
+          is limited. For sending large files to someone else with a link, see{" "}
+          <Link href="/guides/send-files-too-big-for-email">sending files that are too big for email</Link>.
+        </p>
+
+        <h2>Option 4: one small file</h2>
+        <p>
+          For a single document, emailing it to yourself works on both computers, within your email provider&apos;s attachment
+          limit. On a computer where you&apos;d rather not sign in to email, {SITE_NAME} is quicker: send the file from one
+          computer and type the 6-digit code on the other. It carries a single file of up to {f.maxFileMb} MB and deletes it
+          after {minutes}. To move a
+          handful of files that way, <Link href="/guides/zip-and-unzip-files">zip them first</Link>.
+        </p>
+
+        <h2>After the move: will the file open?</h2>
+        <ul>
+          <li>
+            <strong>Documents from Mac-only apps</strong> such as Pages or Numbers need an app that understands them on the PC.
+            Exporting to PDF or a Word or Excel format before you move them avoids that.
+          </li>
+          <li>
+            <strong>iPhone photos</strong> saved as HEIC may need converting for older Windows software; see{" "}
+            <Link href="/guides/convert-heic-to-jpg">converting HEIC to JPG</Link>.
+          </li>
+          <li>
+            <strong>Programs don&apos;t cross over:</strong> a Mac app won&apos;t run on Windows or the other way round. Install
+            the version made for that system instead.
+          </li>
+        </ul>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Moving a whole user folder or years of photos:</strong> use an external drive or the network share.
+        </li>
+        <li>
+          <strong>Files over {f.maxFileMb} MB:</strong> too big for a clip; use a USB drive or a cloud drive.
+        </li>
+        <li>
+          <strong>Work files with confidentiality rules:</strong> use the tools your employer approves; clips are not
+          end-to-end encrypted.
+        </li>
+        <li>
+          <strong>Keeping both computers in sync:</strong> a clip is a one-off hand-off that disappears after {minutes}.
+        </li>
+      </ul>
+    ),
+    sources: [
+      SRC.macShareWithWindows,
+      SRC.windowsToMac,
+      SRC.macToWindows,
+      SRC.msFileSharing,
+      SRC.diskFormats,
+      SRC.macExternalDrive,
+      SRC.diskErase,
+      SRC.icloudDrive,
+      SRC.oneDriveSync,
+    ],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 18. Share a Wi-Fi password from your phone
+// ---------------------------------------------------------------------------
+
+function wifiPassword(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          A visitor asks for the Wi-Fi, and the password is a long string printed on the back of a router behind the TV. Both
+          iPhones and Android phones can hand it over without anyone reading it out: Apple devices can pass it on with one tap,
+          and both systems can show a QR code to scan. This guide covers those methods, how to look up a saved password, and
+          what to do when it has spread further than you meant.
+        </p>
+
+        <h2>First: does the visitor need your main network?</h2>
+        <p>
+          If your router offers a guest network, give visitors that instead. It is a separate network just for guests, so
+          they never learn the password your own devices use. On Google Nest Wifi and Google Wifi, you set one up in the Google
+          Home app under the Wi-Fi network settings (
+          <Ext href={SRC.nestGuestNetwork.href}>Google Home Help: guest network</Ext>). Other routers usually have a similar
+          option in their app or settings page.
+        </p>
+
+        <h2>iPhone to a nearby iPhone, iPad or Mac</h2>
+        <p>Apple lists these conditions for both devices (<Ext href={SRC.appleShareWifi.href}>Apple: share your Wi-Fi password</Ext>):</p>
+        <ul>
+          <li>Up-to-date software, Wi-Fi and Bluetooth on, and each person signed in to their Apple Account.</li>
+          <li>Personal Hotspot turned off on both.</li>
+          <li>Each person has the other&apos;s Apple Account email address or phone number saved in Contacts.</li>
+          <li>The devices are close to each other.</li>
+        </ul>
+        <ol>
+          <li>Your iPhone is unlocked and connected to the network.</li>
+          <li>The visitor taps the network name in their Wi-Fi settings.</li>
+          <li>A prompt appears on your iPhone: tap Share Password, then Done.</li>
+        </ol>
+        <p>
+          If no prompt appears, Apple suggests restarting both devices and trying again; failing that, the other person types
+          the password by hand. A Mac can share in the same way: it shows a Wi-Fi password notification and you confirm it (
+          <Ext href={SRC.macShareWifi.href}>Apple: share a Wi-Fi password on Mac</Ext>).
+        </p>
+
+        <h2>iPhone: show a QR code or look up the password</h2>
+        <p>
+          The one-tap method needs both people to be in each other&apos;s contacts. For anyone else, the Passwords app on your
+          iPhone can show a code: open it, tap Wi-Fi, choose the network, and tap Show Network QR Code for the visitor to scan.
+          The same screen shows the password itself, and Copy Password copies it (
+          <Ext href={SRC.iphoneFindWifi.href}>Apple: find and share your Wi-Fi password</Ext>).
+        </p>
+        <p>
+          In Settings, you can also tap Wi-Fi, then the Info button next to the network, then the Password field; the iPhone
+          asks for Face ID, Touch ID or your passcode first. Apple says this works from iOS 16, and that older saved networks
+          are found through the Edit button on the Wi-Fi screen (
+          <Ext href={SRC.iphoneSavedWifi.href}>Apple: find saved Wi-Fi passwords</Ext>).
+        </p>
+
+        <h2>Android: share with a QR code</h2>
+        <ol>
+          <li>Open Settings, then Network &amp; internet, then Internet.</li>
+          <li>Tap your Wi-Fi network, then Share. If the phone asks you to verify your identity, do so.</li>
+          <li>A QR code appears. The visitor scans it with their phone to join the same network.</li>
+        </ol>
+        <p>
+          Google notes that some of these steps need Android 12 or later (
+          <Ext href={SRC.androidWifi.href}>Android Help: Wi-Fi networks</Ext>). On a Pixel there is also a shortcut: swipe down,
+          tap Internet and choose Share Wi-Fi (<Ext href={SRC.pixelWifi.href}>Pixel Help: Wi-Fi</Ext>). Phones from other
+          makers often name these menus differently, so look for &ldquo;Share&rdquo; or a QR icon on the network&apos;s details
+          screen.
+        </p>
+        <h3>Joining with a QR code</h3>
+        <p>
+          On a Pixel, Google says the camera can scan a QR code to connect to a Wi-Fi network, as long as camera scan suggestions
+          are turned on, and there is also a Scan QR code tile in Quick Settings (
+          <Ext href={SRC.pixelQr.href}>Pixel Camera Help: scan QR codes</Ext>). On other phones, try the camera first, then the
+          Wi-Fi settings. Apple&apos;s help for the iPhone camera covers QR codes in general but doesn&apos;t mention Wi-Fi codes
+          specifically (<Ext href={SRC.appleQr.href}>Apple: scan a QR code</Ext>), so if the iPhone doesn&apos;t offer to join,
+          type the password instead.
+        </p>
+
+        <h2>Typing it in by hand</h2>
+        <ul>
+          <li>Read it from your phone&apos;s password screen rather than the router sticker, in case it was changed.</li>
+          <li>Watch for characters that look alike: capital I and lowercase l, the letter O and zero.</li>
+          <li>Wi-Fi passwords are case-sensitive, so capital letters must match exactly.</li>
+        </ul>
+
+        <h2>Don&apos;t send it through an online clipboard</h2>
+        <p>
+          It can be tempting to paste the password into a website and hand over a short code. Don&apos;t send a Wi-Fi password
+          through {SITE_NAME} or any other online clipboard. {CLAIMS.encryption} Anyone who sees or guesses the code in the
+          next {minutes} can read the password, and you can&apos;t take it back. The methods above keep it between the two
+          devices. Our guide on{" "}
+          <Link href="/guides/is-an-online-clipboard-safe">what an online clipboard should never hold</Link> explains the
+          reasons in more detail.
+        </p>
+        <p>
+          The same goes for group chats and social media posts: a Wi-Fi password written there tends to stay readable long after
+          the visit.
+        </p>
+
+        <h2>If the password has spread too far</h2>
+        <p>
+          Change it. On Google Nest Wifi and Google Wifi, you do that in the Google Home app&apos;s network settings, and Google
+          warns that all your devices disconnect until you enter the new password on each of them (
+          <Ext href={SRC.nestChangePassword.href}>Google Home Help: change Wi-Fi password</Ext>). For other routers, use the
+          maker&apos;s app or settings page. Plan it for a moment when reconnecting smart speakers, TVs and printers won&apos;t be
+          a problem.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Wi-Fi passwords, always:</strong> use one-tap sharing, a QR code or a guest network instead. Never put them in
+          a clip, whether on {SITE_NAME} or another online clipboard.
+        </li>
+        <li>
+          <strong>Router admin passwords and other logins:</strong> share them, if you must, through a password manager.
+        </li>
+      </ul>
+    ),
+    sources: [
+      SRC.appleShareWifi,
+      SRC.macShareWifi,
+      SRC.iphoneFindWifi,
+      SRC.iphoneSavedWifi,
+      SRC.androidWifi,
+      SRC.pixelWifi,
+      SRC.pixelQr,
+      SRC.appleQr,
+      SRC.nestGuestNetwork,
+      SRC.nestChangePassword,
+    ],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 19. Send photos and videos without losing quality
+// ---------------------------------------------------------------------------
+
+function photoQuality(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          The photo looked sharp on your phone and arrives soft and smeared; the video turns blocky. That isn&apos;t the
+          camera&apos;s fault. Most messaging apps shrink pictures and videos before sending them, to save data and time. This
+          guide explains where quality gets lost and which settings and methods keep it, based on what Apple, Google and
+          WhatsApp say about their own apps.
+        </p>
+
+        <h2>Where the quality goes</h2>
+        <ul>
+          <li>
+            <strong>Messengers:</strong> WhatsApp says media is usually compressed when shared, so what arrives may be lower in
+            quality than the original. By default, its videos are limited in size and resolution, more so on a slow
+            connection (<Ext href={SRC.whatsappMedia.href}>WhatsApp: send media</Ext>).
+          </li>
+          <li>
+            <strong>Old-style picture messages (MMS):</strong> Google says carriers compress them, and recommends RCS for
+            clearer images (<Ext href={SRC.googleMessagesMedia.href}>Google Messages Help</Ext>).
+          </li>
+          <li>
+            <strong>Shared albums:</strong> some reduce resolution, depending on the service and version (details below).
+          </li>
+          <li>
+            <strong>Format conversion:</strong> an iPhone may convert HEIC photos to JPEG for compatibility, which is a
+            re-encode, not an exact copy.
+          </li>
+        </ul>
+
+        <h2>Settings that keep more quality in chats</h2>
+        <h3>WhatsApp: HD quality</h3>
+        <p>
+          When you send a photo or video, tap the HD Media button and choose HD quality instead of Standard quality. To make HD
+          the default, open Settings, then Storage and data, then Media upload quality, and choose HD quality (
+          <Ext href={SRC.whatsappHd.href}>WhatsApp: HD photos and videos</Ext>). WhatsApp notes that your connection still
+          affects the quality of what is sent, and HD is not the same as the original file.
+        </p>
+        <h3>WhatsApp: send the photo as a document</h3>
+        <p>
+          Attaching the picture with Document instead of Photos sends it as a file, with a much higher size limit. WhatsApp&apos;s
+          help doesn&apos;t explicitly promise that documents are left untouched, so if the original truly matters, compare the
+          file size on both ends.
+        </p>
+        <h3>Google Messages: HD+</h3>
+        <p>
+          In Google Messages, the image preview has HD and HD+ buttons. Google describes HD+ as original quality, sent at full
+          media resolution, while HD is optimised for chat and uses less data. The option you pick is remembered for next time.
+        </p>
+        <h3>iPhone Messages</h3>
+        <p>
+          In Settings, open Apps, then Messages, and check that Low Quality Image Mode is off; when it is on, the iPhone sends
+          smaller images (<Ext href={SRC.appleMessagesTrouble.href}>Apple: if you can&apos;t send messages</Ext>). Apple also
+          says the iPhone can compress attachments when necessary, for example when a carrier limits attachment sizes. Sending
+          between an iPhone and an Android phone has its own catches; see{" "}
+          <Link href="/guides/send-files-between-android-and-iphone">sending files between Android and iPhone</Link>.
+        </p>
+
+        <h2>Methods that keep the original</h2>
+        <h3>AirDrop with All Photos Data (Apple devices)</h3>
+        <ol>
+          <li>In Photos, select the pictures and tap the Share button.</li>
+          <li>Tap Options and turn on All Photos Data. Choose Current to stop any format conversion.</li>
+          <li>Tap Close and send with AirDrop.</li>
+        </ol>
+        <p>
+          Apple says All Photos Data shares the original file with its edit history and metadata, and that it works with
+          AirDrop only (<Ext href={SRC.appleSharePhotos.href}>Apple: share photos on iPhone</Ext>).
+        </p>
+        <h3>A cable or a direct import</h3>
+        <p>
+          Copying straight from the phone to a computer skips every chat service. Our guides for{" "}
+          <Link href="/guides/transfer-photos-from-iphone-to-windows-pc">iPhone to Windows</Link> and{" "}
+          <Link href="/guides/transfer-photos-from-android-to-computer">Android to a computer</Link> walk through it.
+        </p>
+        <h3>Shared albums: check the version</h3>
+        <p>
+          Apple&apos;s limits for iCloud Shared Albums depend on the software version used to create the album. For albums
+          created in version 26 or earlier, photos are reduced to 2048 pixels on the long edge and videos are delivered at up
+          to 720p. For albums created in version 27 or later, photos and videos are stored at full resolution in their original
+          formats and count towards the owner&apos;s iCloud storage (
+          <Ext href={SRC.sharedAlbumsLimits.href}>Apple: Shared Albums limits</Ext>).
+        </p>
+        <p>
+          In Google Photos, what you share comes from what is backed up. Google says Original quality keeps photos and videos
+          at the resolution they were taken, while Storage saver stores reduced copies (
+          <Ext href={SRC.googlePhotosQuality.href}>Google Photos: backup quality</Ext>).
+        </p>
+        <h3>Files in a cloud drive</h3>
+        <p>
+          A photo uploaded to Google Drive, OneDrive or iCloud Drive is stored as a file rather than as chat media, which makes a
+          drive link a good choice for many photos or long videos. How to share such links is covered in{" "}
+          <Link href="/guides/send-files-too-big-for-email">sending files that are too big for email</Link>.
+        </p>
+
+        <h2>Check what arrived</h2>
+        <ul>
+          <li>Compare the file size on both devices. A big drop means the file was recompressed.</li>
+          <li>Open the photo at full size and zoom in on fine detail such as hair, text or leaves.</li>
+          <li>For video, compare the length and check whether it plays smoothly at full screen.</li>
+        </ul>
+
+        <h2>Where {SITE_NAME} fits</h2>
+        <p>
+          {SITE_NAME} doesn&apos;t touch the file: what you upload is stored and downloaded byte for byte. That makes it a quick
+          way to move one original photo or a short clip to another device, up to {f.maxFileMb} MB, without signing in anywhere.
+          The clip is deleted after {minutes}, and a HEIC photo arrives as a HEIC.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>Long 4K videos and whole albums:</strong> anything over {f.maxFileMb} MB, or more than a few files, needs a
+          cable, AirDrop or a cloud drive.
+        </li>
+        <li>
+          <strong>Sharing with a group over time:</strong> a shared album suits that far better than a short-lived clip.
+        </li>
+        <li>
+          <strong>Private photos:</strong> clips are not end-to-end encrypted, and anyone with the code can open them.
+        </li>
+        <li>
+          <strong>Photos you want to keep safe:</strong> a clip is deleted after {minutes}; it is not a backup.
+        </li>
+      </ul>
+    ),
+    sources: [
+      SRC.whatsappMedia,
+      SRC.whatsappHd,
+      SRC.googleMessagesMedia,
+      SRC.appleMessagesTrouble,
+      SRC.appleSharePhotos,
+      SRC.sharedAlbumsLimits,
+      SRC.googlePhotosQuality,
+    ],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 20. Zip and unzip files on Windows, Mac, iPhone and Android
+// ---------------------------------------------------------------------------
+
+function zipFiles(f: SiteFacts): GuideBody {
+  const minutes = plural(f.expiryMinutes, "minute", "minutes");
+  return {
+    body: (
+      <>
+        <p>
+          A ZIP file packs several files and folders into one. That makes them easier to attach, upload or hand over, keeps a
+          folder structure intact, and sometimes saves space. Every current system can create and open ZIP files without
+          extra software. This guide shows the built-in way on each, and the cases where zipping doesn&apos;t help.
+        </p>
+
+        <h2>Windows 11</h2>
+        <h3>Create a ZIP</h3>
+        <ol>
+          <li>In File Explorer, select the files or folder you want to pack.</li>
+          <li>Right-click (or press and hold) and choose Show more options.</li>
+          <li>Choose Send to, then Compressed (zipped) folder.</li>
+          <li>A ZIP with the same name appears in the same place. Rename it if you like.</li>
+        </ol>
+        <h3>Open a ZIP</h3>
+        <p>
+          Double-clicking a ZIP opens it like a folder, and you can drag single items out of it. To unpack everything,
+          right-click the ZIP, choose Extract All, and follow the prompts. Files you open straight from inside the ZIP without
+          extracting are easy to lose track of, so extract first if you plan to edit them.
+        </p>
+        <p>
+          Microsoft says Windows 11 version 24H2 supports ZIP, RAR, 7z and TAR archives, but not encrypted (password-protected)
+          ones; for those, its built-in tool is not enough (
+          <Ext href={SRC.msZip.href}>Microsoft: zip and unzip files</Ext>). Microsoft also warns that encrypted files you add
+          to a ZIP come out unencrypted when unzipped, so avoid zipping them.
+        </p>
+
+        <h2>Mac</h2>
+        <h3>Create a ZIP</h3>
+        <ol>
+          <li>In the Finder, select one or more files or folders.</li>
+          <li>Control-click the selection and choose Compress.</li>
+          <li>
+            For a single item, the ZIP keeps its name with .zip added; for several items, it is called Archive.zip. Rename
+            Archive.zip to something the recipient will recognise.
+          </li>
+        </ol>
+        <h3>Open a ZIP</h3>
+        <p>
+          Double-click the .zip file. The unpacked item appears in the same folder, and you can delete the ZIP afterwards. If a
+          ZIP won&apos;t open, Apple&apos;s first suggestion is to make sure there is enough free space for the unpacked files (
+          <Ext href={SRC.macZip.href}>Apple: zip and unzip on Mac</Ext>).
+        </p>
+
+        <h2>iPhone and iPad: the Files app</h2>
+        <h3>Create a ZIP</h3>
+        <ol>
+          <li>Open the Files app and find the file or folder.</li>
+          <li>Touch and hold it, then tap Compress.</li>
+          <li>
+            For several files, tap the More button, choose Select, pick the files, then tap the More button again and choose
+            Compress. The result is called Archive.zip; touch and hold it and tap Rename to change that.
+          </li>
+        </ol>
+        <h3>Open a ZIP</h3>
+        <p>
+          Tap the ZIP file in the Files app and a folder with its contents appears next to it. You can also touch and hold it
+          and tap Uncompress (
+          <Ext href={SRC.iphoneZip.href}>Apple: ZIP files on iPhone</Ext>,{" "}
+          <Ext href={SRC.iphoneFilesOrganize.href}>Apple: organise files</Ext>). A ZIP you downloaded in Safari usually sits in
+          the Downloads folder in Files.
+        </p>
+
+        <h2>Android: Files by Google</h2>
+        <h3>Open a ZIP</h3>
+        <ol>
+          <li>In Files by Google, select the .zip file.</li>
+          <li>Tap Extract. Tick the option to delete the ZIP afterwards if you don&apos;t need it.</li>
+          <li>Tap Done. The files are saved in the same folder as the ZIP.</li>
+        </ol>
+        <p>
+          Google notes that only .zip files are supported here (
+          <Ext href={SRC.filesUnzip.href}>Files by Google: unzip</Ext>). If extraction fails, the usual cause is a full phone:
+          free some space first.
+        </p>
+        <h3>Create a ZIP</h3>
+        <p>
+          Select the files or folders, tap the More menu (three dots) and choose Compress, then name the ZIP. Google says this
+          needs Android 8 or later, and that the name shouldn&apos;t contain spaces or full stops (
+          <Ext href={SRC.filesCompress.href}>Files by Google: compress</Ext>). Other file manager apps, such as the one your
+          phone maker installs, may use different menu names.
+        </p>
+
+        <h2>When zipping does and doesn&apos;t help</h2>
+        <ul>
+          <li>
+            <strong>Many files in one go:</strong> the main reason to zip. One attachment or upload instead of twenty, and
+            folders arrive in the right structure.
+          </li>
+          <li>
+            <strong>Text, documents and logs:</strong> they usually shrink noticeably.
+          </li>
+          <li>
+            <strong>Photos and videos:</strong> they are already compressed. Microsoft points out that a ZIP of JPEG pictures is
+            about the same size as the pictures themselves. To make photos smaller, you need to resize them, not zip them.
+          </li>
+          <li>
+            <strong>Too big for email:</strong> zipping rarely gets a large video under an attachment limit; see{" "}
+            <Link href="/guides/send-files-too-big-for-email">sending files that are too big for email</Link> instead.
+          </li>
+        </ul>
+
+        <h2>Before you send a ZIP</h2>
+        <ul>
+          <li>Open it once yourself to check that everything you meant to include is inside.</li>
+          <li>Give it a clear name; &ldquo;Archive.zip&rdquo; tells the recipient nothing.</li>
+          <li>
+            Some email services and workplaces may refuse ZIPs that contain programs, because malware is often sent that way. If a
+            ZIP bounces, ask the recipient how they would like to receive the files.
+          </li>
+          <li>Only open ZIPs from people you expect them from, and be suspicious of a ZIP that contains a single program file.</li>
+        </ul>
+
+        <h2>Sending several files with {SITE_NAME}</h2>
+        <p>
+          A clip carries one file, so a ZIP is how you send several at once: zip them, open {SITE_NAME}, add the ZIP and send
+          it. The ZIP can be up to {f.maxFileMb} MB, and it is deleted after {minutes}. On the other device, unpack it with the
+          steps above.
+        </p>
+      </>
+    ),
+    notRightFor: (
+      <ul>
+        <li>
+          <strong>ZIPs larger than {f.maxFileMb} MB:</strong> use a cloud drive link or a cable.
+        </li>
+        <li>
+          <strong>Confidential files:</strong> a ZIP is not encryption, and clips are not end-to-end encrypted either.
+        </li>
+        <li>
+          <strong>Anything you need to keep:</strong> the clip disappears after {minutes}; keep the original files.
+        </li>
+        <li>
+          <strong>Unknown ZIPs from strangers:</strong> don&apos;t pass on or open archives you didn&apos;t expect.
+        </li>
+      </ul>
+    ),
+    sources: [SRC.msZip, SRC.macZip, SRC.iphoneZip, SRC.iphoneFilesOrganize, SRC.filesUnzip, SRC.filesCompress],
+  };
+}
+
 export const GUIDE_BODIES: Record<string, (f: SiteFacts) => GuideBody> = {
+  "move-files-between-mac-and-windows-pc": macAndWindows,
+  "share-wifi-password-from-phone": wifiPassword,
+  "send-photos-and-videos-without-losing-quality": photoQuality,
+  "zip-and-unzip-files": zipFiles,
+  "convert-heic-to-jpg": heicToJpg,
+  "send-files-between-android-and-iphone": androidAndIphone,
+  "send-files-from-pc-to-phone": pcToPhone,
+  "scan-document-to-pdf-with-phone": scanToPdf,
   "send-a-document-to-a-print-shop": printShop,
   "share-files-in-a-classroom": classroom,
   "send-code-snippets-from-phone-to-computer": codeSnippets,

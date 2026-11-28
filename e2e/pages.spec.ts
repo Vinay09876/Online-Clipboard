@@ -64,7 +64,10 @@ test("guides follow the template: summary, date, steps, honesty section, sources
     }
     // Exactly 3 related guides + the "All guides" link in the Related guides list.
     await expect(page.locator("article ul").last().locator("li")).toHaveCount(4);
-    await expect(page.locator("article").getByRole("link", { name: "Open EasyOnlinePaste" })).toHaveAttribute("href", "/");
+    // The "Open EasyOnlinePaste" box, unless the guide switches it off (toolLink: false).
+    const toolLink = page.locator("article").getByRole("link", { name: "Open EasyOnlinePaste" });
+    if (g.toolLink === false) await expect(toolLink).toHaveCount(0);
+    else await expect(toolLink).toHaveAttribute("href", "/");
 
     // Outbound links: official docs only, with rel="noopener noreferrer".
     const external = await page.locator('article a[href^="http"]').evaluateAll((els) =>

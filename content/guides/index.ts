@@ -47,6 +47,11 @@ export type GuideMeta = {
   dateModified: string; // YYYY-MM-DD
   /** Exactly 3 related guide slugs (shown at the end, in this order). */
   related: string[];
+  /**
+   * Show the "Want to try it? Open EasyOnlinePaste" box at the end (default true). Set false where
+   * promoting the tool would be wrong, e.g. a guide about something that must never go into a clip.
+   */
+  toolLink?: boolean;
 };
 
 export const GUIDES: readonly GuideMeta[] = [
@@ -205,6 +210,113 @@ export const GUIDES: readonly GuideMeta[] = [
     datePublished: "2026-11-21",
     dateModified: "2026-11-21",
     related: ["online-clipboard-vs-email-yourself", "is-an-online-clipboard-safe", "copy-paste-text-between-phone-and-computer"],
+  },
+  // --- Batch 1 of new guides (2026-11-28) ---
+  {
+    slug: "convert-heic-to-jpg",
+    category: "photos",
+    title: "How to convert HEIC photos to JPG on Windows, Mac and iPhone",
+    primaryQuery: "convert heic to jpg",
+    description:
+      "Turn iPhone HEIC photos into JPGs with Preview, Finder and Photos on a Mac or the iPhone's share options, and what Windows can and can't do.",
+    summary:
+      "On a Mac, Preview, the Finder's Convert Image action and the Photos app all export JPEG. On an iPhone, choose Most Compatible in the share options, or in the camera settings for future photos. Windows can display HEIC with Microsoft's extensions, but its help pages describe no built-in way to save one as JPG.",
+    datePublished: "2026-11-28",
+    dateModified: "2026-11-28",
+    related: ["transfer-photos-from-iphone-to-windows-pc", "transfer-photos-from-android-to-computer", "send-files-too-big-for-email"],
+  },
+  {
+    slug: "send-files-between-android-and-iphone",
+    category: "devices",
+    title: "How to send files and text between Android and iPhone",
+    primaryQuery: "send files between android and iphone",
+    description:
+      "Quick Share with AirDrop, RCS messages, messengers, Drive and Photos links, and a quick code for text: what works between Android and iPhone today.",
+    summary:
+      "Some newer Android phones can send to an iPhone through AirDrop with Quick Share. Otherwise, RCS messages or a shared messenger handle photos, Google Drive or Google Photos links handle big files, and a short-lived code handles a quick line of text. Switching phones needs Apple's or Google's own transfer tools.",
+    datePublished: "2026-11-28",
+    dateModified: "2026-11-28",
+    related: ["copy-paste-text-between-phone-and-computer", "send-files-from-pc-to-phone", "send-files-too-big-for-email"],
+  },
+  {
+    slug: "send-files-from-pc-to-phone",
+    category: "devices",
+    title: "How to send files from a PC to your phone",
+    primaryQuery: "send files from pc to phone",
+    description:
+      "From Windows or a Mac to Android or iPhone: Quick Share, USB, Phone Link, iCloud Drive, AirDrop and cloud drives, and where the file ends up.",
+    summary:
+      "Windows to Android: Quick Share or a USB cable. Windows to iPhone: iCloud Drive or the Apple Devices app. Mac to iPhone: AirDrop. Mac to Android has no official direct route, so use a cloud drive, email or a temporary share code.",
+    datePublished: "2026-11-28",
+    dateModified: "2026-11-28",
+    related: ["send-file-from-phone-to-pc-without-cable", "send-files-between-android-and-iphone", "send-files-too-big-for-email"],
+  },
+  {
+    slug: "scan-document-to-pdf-with-phone",
+    category: "everyday",
+    title: "How to scan a document with your phone and send it as a PDF",
+    primaryQuery: "scan document to pdf on phone",
+    description:
+      "Scan to PDF with Notes on iPhone or Google Drive and Files by Google on Android, check the result, and send it the right way, especially ID documents.",
+    summary:
+      "On an iPhone, Notes scans pages straight into a PDF. On Android, Google Drive and Files by Google both save scans as PDFs. Check every page before sending, and send ID documents and other sensitive papers only through an official portal or directly to the person who asked for them.",
+    datePublished: "2026-11-28",
+    dateModified: "2026-11-28",
+    related: ["send-a-document-to-a-print-shop", "use-a-shared-computer-safely", "is-an-online-clipboard-safe"],
+  },
+  // --- Batch 2 of new guides (2026-11-28) ---
+  {
+    slug: "move-files-between-mac-and-windows-pc",
+    category: "devices",
+    title: "How to move files between a Mac and a Windows PC",
+    primaryQuery: "move files between mac and windows pc",
+    description:
+      "Share a folder over your home network, pick a USB drive format both systems can write to, sync with a cloud drive, or send a single file.",
+    summary:
+      "For regular moves at home, share a folder over the network using the Mac's SMB file sharing or Windows' Give access to. For a big one-off move, use a USB drive formatted as ExFAT, because a Mac can't write to NTFS. Cloud drives suit files you use on both computers.",
+    datePublished: "2026-11-28",
+    dateModified: "2026-11-28",
+    related: ["send-files-from-pc-to-phone", "send-files-too-big-for-email", "zip-and-unzip-files"],
+  },
+  {
+    slug: "share-wifi-password-from-phone",
+    category: "everyday",
+    title: "How to share a Wi-Fi password from your phone",
+    primaryQuery: "share wifi password from phone",
+    description:
+      "One-tap sharing between Apple devices, QR codes on iPhone and Android, finding a saved password, and why it never belongs in an online clipboard.",
+    summary:
+      "An iPhone can pass the password to a nearby Apple device with one tap, if both people are in each other's contacts. The iPhone's Passwords app and Android's Wi-Fi settings can both show a QR code to scan. A guest network is better still, and a Wi-Fi password should never go into an online clipboard.",
+    datePublished: "2026-11-28",
+    dateModified: "2026-11-28",
+    related: ["is-an-online-clipboard-safe", "use-a-shared-computer-safely", "send-files-between-android-and-iphone"],
+    toolLink: false,
+  },
+  {
+    slug: "send-photos-and-videos-without-losing-quality",
+    category: "photos",
+    title: "How to send photos and videos without losing quality",
+    primaryQuery: "send photos without losing quality",
+    description:
+      "Why chat apps make photos blurry, the HD settings in WhatsApp and Google Messages, and the methods that keep the original file.",
+    summary:
+      "Messaging apps usually compress photos and videos. HD options in WhatsApp and HD+ in Google Messages keep more detail, and AirDrop with All Photos Data, a cable or a cloud drive keeps the original. Some shared albums reduce resolution, so check the details before you rely on one.",
+    datePublished: "2026-11-28",
+    dateModified: "2026-11-28",
+    related: ["send-files-between-android-and-iphone", "send-files-too-big-for-email", "transfer-photos-from-iphone-to-windows-pc"],
+  },
+  {
+    slug: "zip-and-unzip-files",
+    category: "everyday",
+    title: "How to zip and unzip files on Windows, Mac, iPhone and Android",
+    primaryQuery: "zip and unzip files",
+    description:
+      "The built-in way to create and open ZIP files in File Explorer, the Finder, the Files app and Files by Google, and when zipping doesn't help.",
+    summary:
+      "Windows uses Send to > Compressed (zipped) folder and Extract All. A Mac uses Compress and a double-click. The iPhone Files app and Files by Google have Compress and Uncompress or Extract. A ZIP bundles files but barely shrinks photos and videos.",
+    datePublished: "2026-11-28",
+    dateModified: "2026-11-28",
+    related: ["send-files-too-big-for-email", "move-files-between-mac-and-windows-pc", "send-code-snippets-from-phone-to-computer"],
   },
 ];
 

@@ -81,9 +81,12 @@ export function GuideLayout({
       <h2 id="not-the-right-choice">When this tool is not the right choice</h2>
       {notRightFor}
 
-      <p className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
-        Want to try it? <Link href="/">Open {SITE_NAME}</Link>. No account needed.
-      </p>
+      {/* Off for guides where promoting the tool would be wrong (e.g. Wi-Fi passwords). */}
+      {guide.toolLink !== false && (
+        <p className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+          Want to try it? <Link href="/">Open {SITE_NAME}</Link>. No account needed.
+        </p>
+      )}
 
       {sources.length > 0 && (
         <>
